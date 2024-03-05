@@ -1,0 +1,28 @@
+[
+    {
+        "id": 1,
+        "email": "admin@admin.com",
+        "email_verified_at": "2019-10-26 20:38:09",
+        "password": "admin123",
+        "passwordChangeDate": null,
+        "role": 1,
+        "firstName": "System",
+        "lastName": "Administrator",
+        "position": "IT Corporate",
+        "gender": "Male",
+        "name": "admin",
+        "isChangePassword": 0,
+        "lastIPAddress": null,
+        "lastActivity": null,
+        "incorrectLogins": null,
+        "avatar": null,
+        "isActive": 1,
+        "createdBy": 1,
+        "updatedBy": 1,
+        "remember_token": null,
+        "sitehead_user_id":null,
+        "created_at": "2019-10-26 20:37:30",
+        "updated_at": "2019-10-26 20:38:09"
+    }
+
+]
