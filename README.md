@@ -43,7 +43,7 @@
 - Run the application:
 - ```php artisan serve```
 - ```npm run dev```
-- You can now log in with user "john@example.com", password "password"
+- You can now log in with user "admin@admin.com", password "admin123"
 
 
 ## Authors
