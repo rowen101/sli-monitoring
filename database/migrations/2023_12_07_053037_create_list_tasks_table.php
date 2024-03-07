@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('tbl_tasklist', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dailytask_id')->constrained();
+            $table->foreignId('dailytask_id')->references('dailytask_id')->on('tbl_dailytask');
             $table->string('task_name');
             $table->integer('iscompleted')->default(0)->nullable();
             $table->timestamps();
