@@ -52,7 +52,7 @@ class UserMenuController extends Controller
             ->get();
 
         // // For each top-level menu item, fetch and attach its submenus based on user access
-        $menu->each(function ($menuItem){
+        $menu->each(function ($menuItem)  {
             $menuItem->submenus = Menu::select('menus.*')
                 ->where('menus.is_active', 1)
                 ->where('menus.parent_id', $menuItem->menu_id)
@@ -88,17 +88,21 @@ class UserMenuController extends Controller
     {
 
         $user_id = $request->input('user_id');
-        $menu_ids = $request->input('menu_id');
+    $menu_ids = $request->input('menu_id');
 
+    // Prepare the data array for bulk insert
+    $data = [];
+    foreach ($menu_ids as $menu_id) {
+        $data[] = ['user_id' => $user_id, 'menu_id' => $menu_id];
+    }
 
-        foreach ($menu_ids as $menu_id) {
-            Usermenu::updateOrInsert(
-                ['user_id' => $user_id, 'menu_id' => $menu_id],
-                ['user_id' => $user_id, 'menu_id' => $menu_id]
-            );
-        }
+    // Delete existing user-menu relationships for the specified user_id
+    Usermenu::where('user_id', $user_id)->delete();
 
-        return response()->json(['message' => 'Data saved successfully']);
+    // Bulk insert the new user-menu relationships
+    Usermenu::insert($data);
+
+    return response()->json(['message' => 'Data saved successfully']);
     }
 
     public function retrieveUserMenu($id)
