@@ -89,43 +89,41 @@ class UserMenuController extends Controller
     {
         //dd($request->all());
 
-        $user_id = $request->input('user_id');
+       // $user_id = $request->input('user_id');
         $menu_ids = $request->input('menu_id');
 
+        dd($menu_ids);
+        // // Prepare the data array for bulk insert
+        // $data = [];
+        // $count = count($menu_ids);
+        // $i = 0;
+        // while ($i < $count) {
+        //     $data[] = ['user_id' => $user_id, 'menu_id' => $menu_ids[$i]];
+        //     $i++;
+        // }
 
-     
+        // // Use transactions for atomicity
+        // try {
+        //     // Begin transaction
+        //     DB::beginTransaction();
 
-        // Prepare the data array for bulk insert
-        $data = [];
-        $count = count($menu_ids);
-        $i = 0;
-        while ($i < $count) {
-            $data[] = ['user_id' => $user_id, 'menu_id' => $menu_ids[$i]];
-            $i++;
-        }
+        //     // Delete existing user-menu relationships for the specified user_id
+        //     Usermenu::where('user_id', $user_id)->delete();
 
-        // Use transactions for atomicity
-        try {
-            // Begin transaction
-            DB::beginTransaction();
+        //     // Bulk insert the new user-menu relationships
+        //     Usermenu::insert($data);
 
-            // Delete existing user-menu relationships for the specified user_id
-            Usermenu::where('user_id', $user_id)->delete();
+        //     // Commit transaction
+        //     DB::commit();
 
-            // Bulk insert the new user-menu relationships
-            Usermenu::insert($data);
+        //     return response()->json(['message' => 'Data saved successfully']);
+        // } catch (\Exception $e) {
+        //     // Rollback transaction on failure
+        //     DB::rollback();
 
-            // Commit transaction
-            DB::commit();
-
-            return response()->json(['message' => 'Data saved successfully']);
-        } catch (\Exception $e) {
-            // Rollback transaction on failure
-            DB::rollback();
-
-            // Handle the exception, you can log it or return an error response
-            return response()->json(['message' => 'Failed to save data', 'error' => $e->getMessage()], 500);
-        }
+        //     // Handle the exception, you can log it or return an error response
+        //     return response()->json(['message' => 'Failed to save data', 'error' => $e->getMessage()], 500);
+        // }
     }
 
     public function retrieveUserMenu($id)
