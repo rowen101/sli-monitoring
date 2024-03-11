@@ -82,7 +82,7 @@ const handleSubmit = () => {
         menu_id: selectedMenus.value,
         // other data properties
     };
-
+    console.log(postData);
     // Make the API call using your preferred method (Axios, fetch, etc.)
     // Example using Axios:
     axios
