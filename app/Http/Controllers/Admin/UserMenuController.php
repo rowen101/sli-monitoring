@@ -93,10 +93,15 @@ class UserMenuController extends Controller
         $menu_ids = $request->input('menu_id');
 
 
+     
+
         // Prepare the data array for bulk insert
         $data = [];
-        foreach ($menu_ids as $menu_id) {
-            $data[] = ['user_id' => $user_id, 'menu_id' => $menu_id];
+        $count = count($menu_ids);
+        $i = 0;
+        while ($i < $count) {
+            $data[] = ['user_id' => $user_id, 'menu_id' => $menu_ids[$i]];
+            $i++;
         }
 
         // Use transactions for atomicity
