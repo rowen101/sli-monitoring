@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Menu;
 use App\Models\Usermenu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class UserMenuController extends Controller
@@ -86,24 +87,40 @@ class UserMenuController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        //dd($request->all());
 
-        // $user_id = $request->input('user_id');
-        // $menu_ids = $request->input('menu_id');
+        $user_id = $request->input('user_id');
+        $menu_ids = $request->input('menu_id');
 
-        // // Prepare the data array for bulk insert
-        // $data = [];
-        // foreach ($menu_ids as $menu_id) {
-        //     $data[] = ['user_id' => $user_id, 'menu_id' => $menu_id];
-        // }
 
-        // // Delete existing user-menu relationships for the specified user_id
-        // Usermenu::where('user_id', $user_id)->delete();
+        // Prepare the data array for bulk insert
+        $data = [];
+        foreach ($menu_ids as $menu_id) {
+            $data[] = ['user_id' => $user_id, 'menu_id' => $menu_id];
+        }
 
-        // // Bulk insert the new user-menu relationships
-        // Usermenu::insert($data);
+        // Use transactions for atomicity
+        try {
+            // Begin transaction
+            DB::beginTransaction();
 
-        // return response()->json(['message' => 'Data saved successfully']);
+            // Delete existing user-menu relationships for the specified user_id
+            Usermenu::where('user_id', $user_id)->delete();
+
+            // Bulk insert the new user-menu relationships
+            Usermenu::insert($data);
+
+            // Commit transaction
+            DB::commit();
+
+            return response()->json(['message' => 'Data saved successfully']);
+        } catch (\Exception $e) {
+            // Rollback transaction on failure
+            DB::rollback();
+
+            // Handle the exception, you can log it or return an error response
+            return response()->json(['message' => 'Failed to save data', 'error' => $e->getMessage()], 500);
+        }
     }
 
     public function retrieveUserMenu($id)
