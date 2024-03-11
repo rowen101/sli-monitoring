@@ -57,6 +57,7 @@ const editUser = (user) => {
             params: {
                 user_id: user.id, // replace with the actual user ID
             },
+            
         })
         .then((response) => {
             menulist.value = response.data;
