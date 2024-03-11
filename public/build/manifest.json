@@ -1,10 +1,208 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.292003f3.js",
+    "file": "assets/app.84777086.js",
     "src": "resources/js/app.js",
     "isEntry": true,
+    "imports": [
+      "_lodash.6f1dd969.js",
+      "_axios.82d3905a.js",
+      "_jquery.63d5220e.js",
+      "_admin-lte.f5ef7270.js",
+      "_vue.6c11729d.js",
+      "_pinia.177553b5.js",
+      "_vue-router.ea66a290.js",
+      "_@vue.4ae0f184.js",
+      "_vue-chartjs.a660a76a.js",
+      "_chart.js.562acd0f.js",
+      "_sweetalert2.ef56b979.js",
+      "_toastr.94171567.js",
+      "_vee-validate.2167efee.js",
+      "_flatpickr.181c7977.js",
+      "_yup.d75bfd51.js",
+      "_property-expr.48609aa3.js",
+      "_moment.40bc58bf.js",
+      "_laravel-vue-pagination.441da446.js",
+      "_vue-content-loader.1bd220f1.js",
+      "_dompurify.5fe4b1c1.js",
+      "_@vueuse.38a26bf2.js",
+      "_vue3-datepicker.d98707a6.js",
+      "_html2canvas.c4a43e03.js",
+      "_html2pdf.js.44b835e5.js",
+      "_vue-sweetalert2.891f877f.js",
+      "_@kurkle.1fd9dacb.js",
+      "_nanoclone.7d3cb5fe.js",
+      "_toposort.ef497e49.js",
+      "_date-fns.cc226e2e.js",
+      "_@babel.afb8673e.js",
+      "_jspdf.10c44267.js"
+    ],
     "css": [
-      "assets/app.c5d46919.css"
+      "assets/app.62b23d43.css"
+    ]
+  },
+  "_@babel.afb8673e.js": {
+    "file": "assets/@babel.afb8673e.js"
+  },
+  "_@kurkle.1fd9dacb.js": {
+    "file": "assets/@kurkle.1fd9dacb.js"
+  },
+  "_@vue.4ae0f184.js": {
+    "file": "assets/@vue.4ae0f184.js"
+  },
+  "_@vueuse.38a26bf2.js": {
+    "file": "assets/@vueuse.38a26bf2.js",
+    "imports": [
+      "_@vue.4ae0f184.js"
+    ]
+  },
+  "_admin-lte.f5ef7270.js": {
+    "file": "assets/admin-lte.f5ef7270.js",
+    "imports": [
+      "_jquery.63d5220e.js"
+    ]
+  },
+  "_axios.82d3905a.js": {
+    "file": "assets/axios.82d3905a.js"
+  },
+  "_chart.js.562acd0f.js": {
+    "file": "assets/chart.js.562acd0f.js",
+    "imports": [
+      "_@kurkle.1fd9dacb.js"
+    ]
+  },
+  "_date-fns.cc226e2e.js": {
+    "file": "assets/date-fns.cc226e2e.js",
+    "imports": [
+      "_@babel.afb8673e.js"
+    ]
+  },
+  "_dompurify.5fe4b1c1.js": {
+    "file": "assets/dompurify.5fe4b1c1.js"
+  },
+  "_flatpickr.181c7977.js": {
+    "file": "assets/flatpickr.181c7977.js",
+    "css": [
+      "assets/flatpickr.1cc2260e.css"
+    ]
+  },
+  "_html2canvas.c4a43e03.js": {
+    "file": "assets/html2canvas.c4a43e03.js"
+  },
+  "_html2pdf.js.44b835e5.js": {
+    "file": "assets/html2pdf.js.44b835e5.js",
+    "imports": [
+      "_jspdf.10c44267.js",
+      "_html2canvas.c4a43e03.js"
+    ]
+  },
+  "_jquery.63d5220e.js": {
+    "file": "assets/jquery.63d5220e.js",
+    "imports": [
+      "_admin-lte.f5ef7270.js"
+    ]
+  },
+  "_jspdf.10c44267.js": {
+    "file": "assets/jspdf.10c44267.js",
+    "imports": [
+      "_admin-lte.f5ef7270.js"
+    ]
+  },
+  "_laravel-vue-pagination.441da446.js": {
+    "file": "assets/laravel-vue-pagination.441da446.js",
+    "imports": [
+      "_@vue.4ae0f184.js"
+    ]
+  },
+  "_lodash.6f1dd969.js": {
+    "file": "assets/lodash.6f1dd969.js",
+    "imports": [
+      "_admin-lte.f5ef7270.js"
+    ]
+  },
+  "_moment.40bc58bf.js": {
+    "file": "assets/moment.40bc58bf.js"
+  },
+  "_nanoclone.7d3cb5fe.js": {
+    "file": "assets/nanoclone.7d3cb5fe.js"
+  },
+  "_pinia.177553b5.js": {
+    "file": "assets/pinia.177553b5.js",
+    "imports": [
+      "_@vue.4ae0f184.js"
+    ]
+  },
+  "_property-expr.48609aa3.js": {
+    "file": "assets/property-expr.48609aa3.js"
+  },
+  "_sweetalert2.ef56b979.js": {
+    "file": "assets/sweetalert2.ef56b979.js",
+    "imports": [
+      "_admin-lte.f5ef7270.js"
+    ],
+    "css": [
+      "assets/sweetalert2.fd442770.css"
+    ]
+  },
+  "_toastr.94171567.js": {
+    "file": "assets/toastr.94171567.js",
+    "imports": [
+      "_jquery.63d5220e.js"
+    ],
+    "css": [
+      "assets/toastr.b107a3f2.css"
+    ]
+  },
+  "_toposort.ef497e49.js": {
+    "file": "assets/toposort.ef497e49.js"
+  },
+  "_vee-validate.2167efee.js": {
+    "file": "assets/vee-validate.2167efee.js",
+    "imports": [
+      "_@vue.4ae0f184.js"
+    ]
+  },
+  "_vue.6c11729d.js": {
+    "file": "assets/vue.6c11729d.js",
+    "imports": [
+      "_@vue.4ae0f184.js"
+    ]
+  },
+  "_vue-chartjs.a660a76a.js": {
+    "file": "assets/vue-chartjs.a660a76a.js",
+    "imports": [
+      "_chart.js.562acd0f.js",
+      "_@vue.4ae0f184.js"
+    ]
+  },
+  "_vue-content-loader.1bd220f1.js": {
+    "file": "assets/vue-content-loader.1bd220f1.js",
+    "imports": [
+      "_@vue.4ae0f184.js"
+    ]
+  },
+  "_vue-router.ea66a290.js": {
+    "file": "assets/vue-router.ea66a290.js",
+    "imports": [
+      "_@vue.4ae0f184.js"
+    ]
+  },
+  "_vue-sweetalert2.891f877f.js": {
+    "file": "assets/vue-sweetalert2.891f877f.js"
+  },
+  "_vue3-datepicker.d98707a6.js": {
+    "file": "assets/vue3-datepicker.d98707a6.js",
+    "imports": [
+      "_@vue.4ae0f184.js",
+      "_date-fns.cc226e2e.js"
+    ]
+  },
+  "_yup.d75bfd51.js": {
+    "file": "assets/yup.d75bfd51.js",
+    "imports": [
+      "_nanoclone.7d3cb5fe.js",
+      "_lodash.6f1dd969.js",
+      "_property-expr.48609aa3.js",
+      "_toposort.ef497e49.js"
     ]
   },
   "resources/css/app.css": {

@@ -99,7 +99,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/filter-closeprio',[ MyClosePrioController::class,'FilterClosePrio']);
 
     //site name
-    Route::resource('/api/site', SiteController::class);
+    Route::resource('/api/site', SiteNameController::class);
 
     //menu controller
     Route::resource('/api/menulist',MenuListController::class);
@@ -109,6 +109,8 @@ Route::middleware('auth')->group(function () {
 
     //menu username
     Route::resource('/api/usermenu', UserMenuController::class);
+
+    Route::get('/api/showusermenu',[UserMenuController::class,'showusermenu']);
     Route::get('/api/usermenu/retrieve/{id}', [UserMenuController::class, 'retrieveUserMenu']);
 
 
