@@ -53,7 +53,7 @@ class UserMenuController extends Controller
             ->get();
 
         // // For each top-level menu item, fetch and attach its submenus based on user access
-        $menu->each(function ($menuItem) use ($id){
+        $menu->each(function ($menuItem) {
             $menuItem->submenus = Menu::select('menus.*')
                 ->where('menus.is_active', 1)
                 ->where('menus.parent_id', $menuItem->menu_id)
@@ -61,9 +61,9 @@ class UserMenuController extends Controller
                 ->get();
 
             //Check if the user has access to this menu item
-            $menuItem->hasAccess = UserMenu::where('user_id', $id)
-                ->where('menu_id', $menuItem->menu_id)
-                ->exists();
+            // $menuItem->hasAccess = UserMenu::where('user_id', $id)
+            //     ->where('menu_id', $menuItem->menu_id)
+            //     ->exists();
         });
 
         return response()->json($menu);
