@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Menu;
 
-use App\Models\Usermenu;
+use App\Models\UserMenus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -35,7 +35,7 @@ class UserMenuController extends Controller
                 ->get();
 
             // Check if the user has access to this menu item
-            $menuItem->hasAccess = Usermenu::where('user_id', $user_id)
+            $menuItem->hasAccess = UserMenus::where('user_id', $user_id)
                 ->where('menu_id', $menuItem->menu_id)
                 ->exists();
         });
@@ -47,7 +47,7 @@ class UserMenuController extends Controller
     {
         $user_id = $request->input('user_id');
 
-        
+
         $menu = Menu::select('menus.*')
             ->where('menus.is_active', 1)
             ->where('menus.parent_id', 0)
@@ -107,7 +107,7 @@ class UserMenuController extends Controller
         $menu_ids = $request->input('menu_id');
 
         // Delete existing user-menu relationships for the specified user_id
-        Usermenu::where('user_id', $user_id)->delete();
+        UserMenus::where('user_id', $user_id)->delete();
 
         // Prepare the data array for bulk insert
         $data = [];
@@ -116,7 +116,7 @@ class UserMenuController extends Controller
         }
 
         // Bulk insert the new user-menu relationships
-        Usermenu::insert($data);
+        UserMenus::insert($data);
 
         // Commit transaction
         DB::commit();
@@ -133,7 +133,7 @@ class UserMenuController extends Controller
 
     public function retrieveUserMenu($id)
     {
-        Usermenu::where('user_id', $id)->get();
+        UserMenus::where('user_id', $id)->get();
         return response()->json(['message' => 'retrieved successfully!']);
     }
 
