@@ -47,6 +47,7 @@ class UserMenuController extends Controller
     {
         $user_id = $request->input('user_id');
 
+        
         $menu = Menu::select('menus.*')
             ->where('menus.is_active', 1)
             ->where('menus.parent_id', 0)
