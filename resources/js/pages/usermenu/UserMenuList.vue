@@ -53,7 +53,11 @@ const addUser = () => {
 
 const editUser = (user) => {
     axios
-       .get("/api/showusermenu/"+ user.id)
+       .get("/api/usermenu", {
+            params: {
+                user_id: user.id, // replace with the actual user ID
+            },
+        })
 
         .then((response) => {
             menulist.value = response.data;
