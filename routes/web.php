@@ -110,7 +110,7 @@ Route::middleware('auth')->group(function () {
     //menu username
     Route::resource('/api/usermenu', UserMenuController::class);
 
-    Route::get('/api/showusermenu',[UserMenuController::class,'showusermenu']);
+    Route::get('/api/showusermenu/{id}',[UserMenuController::class,'showusermenu']);
     Route::get('/api/usermenu/retrieve/{id}', [UserMenuController::class, 'retrieveUserMenu']);
 
 

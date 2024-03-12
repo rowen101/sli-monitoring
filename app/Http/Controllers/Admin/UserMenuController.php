@@ -42,7 +42,7 @@ class UserMenuController extends Controller
         return response()->json($menu);
     }
 
-    public function showusermenu(Request $request)
+    public function showusermenu(Request $request,$id)
     {
         $user_id = $request->input('user_id');
 
@@ -53,17 +53,17 @@ class UserMenuController extends Controller
             ->get();
 
         // // For each top-level menu item, fetch and attach its submenus based on user access
-        $menu->each(function ($menuItem) {
+        $menu->each(function ($menuItem) use ($id){
             $menuItem->submenus = Menu::select('menus.*')
                 ->where('menus.is_active', 1)
                 ->where('menus.parent_id', $menuItem->menu_id)
                 ->orderBy('menus.sort_order', 'ASC')
                 ->get();
 
-            // Check if the user has access to this menu item
-            // $menuItem->hasAccess = UserMenu::where('user_id', $user_id)
-            //     ->where('menu_id', $menuItem->menu_id)
-            //     ->exists();
+            //Check if the user has access to this menu item
+            $menuItem->hasAccess = UserMenu::where('user_id', $id)
+                ->where('menu_id', $menuItem->menu_id)
+                ->exists();
         });
 
         return response()->json($menu);
