@@ -99,7 +99,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/filter-closeprio',[ MyClosePrioController::class,'FilterClosePrio']);
 
     //site name
-    Route::resource('/api/site', SiteNameController::class);
+    Route::resource('/api/site', SiteController::class);
 
     //menu controller
     Route::resource('/api/menulist',MenuListController::class);
