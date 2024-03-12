@@ -19,7 +19,7 @@ class SiteController extends Controller
         return $data;
     }
 
-   
+
 
     /**
      * Show the form for creating a new resource.
@@ -95,6 +95,8 @@ class SiteController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $data = tbl_site::find($id);
+        $data->delete();
+        return response()->json(['message' => 'Task successfull Deleted']);
     }
 }

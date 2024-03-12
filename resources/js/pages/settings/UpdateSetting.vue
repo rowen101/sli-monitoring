@@ -29,6 +29,19 @@ const getItems = () => {
         });
 };
 
+const removeSite = () => {
+    isLoadingSite.value = true;
+    axios
+        .delete(`/api/site/`  )
+        .then((response) => {
+            isLoadingSite.value = false;
+            listItem.value = response.data;
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+};
+
 const deActivatedTask = computed(() => {
     if (!Array.isArray(listItem.value)) {
         return [];
@@ -424,6 +437,7 @@ onMounted(() => {
                                                             @click="edit(item)"
                                                         ></i>
                                                     </div>
+                                                  
                                                 </div>
                                             </li>
                                         </ul>

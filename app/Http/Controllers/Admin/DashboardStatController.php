@@ -70,8 +70,18 @@ class DashboardStatController extends Controller
         $tasks = DB::table('tbl_dailytask')
             ->selectRaw('DATE_FORMAT(taskdate, "%Y-%m") as month, COUNT(*) as total_tasks')
             ->where('user_id', $userId)
-            ->where('status_task','=', 1)
+            ->where('status_task', '=', 1)
             ->whereYear('taskdate', '=', $currentYear) // Filter for the current year
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        // Fetch data from tbl_tasklist
+        $allTodos = DB::table('tbl_tasklist')
+            ->selectRaw('DATE_FORMAT(tbl_tasklist.created_at, "%Y-%m") as month, COUNT(*) as total_todos')
+            ->join('tbl_dailytask', 'tbl_dailytask.dailytask_id', '=', 'tbl_tasklist.dailytask_id')
+            ->where('tbl_dailytask.user_id', $userId)
+            ->whereYear('tbl_dailytask.taskdate', '=', $currentYear) // Filter for the current year
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -98,33 +108,59 @@ class DashboardStatController extends Controller
             ->orderBy('month')
             ->get();
 
-            $monthNames = [
-                'January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
-            ];
+        // Prepare month names
+        $monthNames = [
+            '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April',
+            '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August',
+            '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
+        ];
 
+        // Initialize chart data array
         $chartData = [
-            'labels' => $monthNames,
+            'labels' => array_values($monthNames), // Use month names as labels
             'datasets' => [
                 [
-                    'label' => 'Total Close Tasks',
-                    'data' => $tasks->pluck('total_tasks'),
+                    'label' => 'Total Todos',
+                    'data' => array_fill(0, 12, 0), // Initialize data array with zeros for each month
                     'backgroundColor' => '#1976D2',
                 ],
                 [
                     'label' => 'Completed Todos',
-                    'data' => $completedTasks->pluck('completed_todos'),
+                    'data' => array_fill(0, 12, 0), // Initialize data array with zeros for each month
                     'backgroundColor' => '#00B489',
                 ],
                 [
                     'label' => 'Incomplete Todos',
-                    'data' => $incompleteTasks->pluck('incomplete_todos'),
+                    'data' => array_fill(0, 12, 0), // Initialize data array with zeros for each month
                     'backgroundColor' => '#CD201F',
                 ],
             ],
         ];
 
+        // Populate chart data arrays with actual data
+        foreach ($tasks as $task) {
+            $monthIndex = intval(substr($task->month, 5)) - 1; // Get month index (0-based)
+            $chartData['datasets'][0]['data'][$monthIndex] = $task->total_tasks;
+        }
+
+        foreach ($completedTasks as $completedTask) {
+            $monthIndex = intval(substr($completedTask->month, 5)) - 1; // Get month index (0-based)
+            $chartData['datasets'][1]['data'][$monthIndex] = $completedTask->completed_todos;
+        }
+
+        foreach ($incompleteTasks as $incompleteTask) {
+            $monthIndex = intval(substr($incompleteTask->month, 5)) - 1; // Get month index (0-based)
+            $chartData['datasets'][2]['data'][$monthIndex] = $incompleteTask->incomplete_todos;
+        }
+
+        // Populate total todos data
+        foreach ($allTodos as $todo) {
+            $monthIndex = intval(substr($todo->month, 5)) - 1; // Get month index (0-based)
+            $chartData['datasets'][0]['data'][$monthIndex] = $todo->total_todos;
+        }
+
         return response()->json($chartData);
     }
+
 
 }

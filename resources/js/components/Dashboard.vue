@@ -25,7 +25,7 @@ ChartJS.register(
 const authUserStore = useAuthUserStore();
 const selectedAppointmentStatus = ref('all');
 const totalAppointmentsCount = ref(0);
-
+const year = ref(new Date().getFullYear());
 
 const chartData = ref({
       labels: [],
@@ -74,6 +74,7 @@ const getUsersCount = () => {
 onMounted(() => {
     getChart();
     getUsersCount();
+
 });
 </script>
 <template>
@@ -84,7 +85,7 @@ onMounted(() => {
 
             <div class="card">
                 <div class="card-header">
-                    Yearly Progress
+                    Yearly Progress - {{ year }}
                 </div>
                 <div class="card-body">
             <Bar :data="chartData" />
@@ -92,7 +93,7 @@ onMounted(() => {
 
                  </div>
             <div class="row">
-               
+
             </div>
 
         </div>
