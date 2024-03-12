@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Menu;
+
 use App\Models\Usermenu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,7 @@ class UserMenuController extends Controller
                 ->get();
 
             // Check if the user has access to this menu item
-            $menuItem->hasAccess = UserMenu::where('user_id', $user_id)
+            $menuItem->hasAccess = Usermenu::where('user_id', $user_id)
                 ->where('menu_id', $menuItem->menu_id)
                 ->exists();
         });
