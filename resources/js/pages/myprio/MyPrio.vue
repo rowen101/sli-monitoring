@@ -44,7 +44,7 @@ const showList = ref(true);
 const editing = ref(false);
 const editingtask = ref(false);
 const formValues = ref();
-
+const currentdate = ref();
 
 const taskdate = ref();
 const startdate = ref();
@@ -98,6 +98,7 @@ const endhours = ref(
 
 // Create a reactive form object
 const form = reactive({
+    dailytask_id:"",
     site: "",
     user_id: authUserStore.user.id, // Make sure authUserStore is defined
     tasktype: 0,
@@ -340,41 +341,49 @@ const createData = (values, actions) => {
             getItems();
             $("#FormModal").modal("hide");
             toastr.success("data created successfully!");
-            // Now, create a notification
-            // const notificationData = {
-            //     user_id: form.user_id,
-            //     type: 'task_created', // Adjust the type based on your notification structure
-            //     notifiable_type: 'App\\Models\\DailyTask', // Adjust the notifiable type based on your model
-            //     notifiable_id: response.data.dailytask_id, // Assuming the API response contains the ID of the created daily task
-            //     data: {
-            //         message: 'A new task has been created from ' + form.plandate +' to ' + form.planenddate,
-            //         // Add other data as needed
-            //     },
-            // };
-
-            // axios.post("/api/notifications", notificationData)
-            //     .then((notificationResponse) => {
-            //         console.log('Notification created successfully:', notificationResponse.data);
-            //     })
-            //     .catch((notificationError) => {
-            //         console.error('Error creating notification:', notificationError);
-            //     });
         })
         .catch((error) => {
             actions.setErrors(error.response.data.errors);
         });
 };
 
+const updateData = (values, actions) => {
+    axios
+        .put("/api/dailytask/" + form.dailytask_id, form)
+        .then((response) => {
+            console.log(response.data);
+            getItems();
+            $("#FormModal").modal("hide");
+            toastr.success("data update successfully!");
+        })
+        .catch((error) => {
+            actions.setErrors(error.response.data.errors);
+        });
+};
 const addTask = (value) => {
-    getSite();
-    editing.value = value.id == undefined ? false : true;
+    if (
+        value &&
+        value.dailytask_id !== null &&
+        value.dailytask_id !== undefined
+    ) {
+        editing.value = true;
+        currentdate.value =
+            " on " + moment(value.taskdate).format("MMMM D, YYYY");
+        form.site = value.site;
+        form.dailytask_id = value.dailytask_id;
+        form.plandate = value.plandate;
+        form.planenddate = value.planenddate;
 
+    } else {
+        editing.value = false;
+    }
+    getSite();
     $("#FormModal").modal("show");
 };
 
-const editMode = ref(false);
+
 const handleSubmit = (values, actions) => {
-    if (editMode.value) {
+    if (editing.value) {
         updateData(values, actions);
     } else {
         createData(values, actions);
@@ -644,11 +653,14 @@ onMounted(() => {
                                                     ></i
 
                                                     >-->
-                                                    <img :src="'/img/calindar_logo.png'"
-                                                    alt=""
-                                                    class="brand-image"
-                                                    style="opacity: 0.8"
-                                                    draggable="false" width="35">
+                                                    <img
+                                                        :src="'/img/calindar_logo.png'"
+                                                        alt=""
+                                                        class="brand-image"
+                                                        style="opacity: 0.8"
+                                                        draggable="false"
+                                                        width="35"
+                                                    />
                                                     &nbsp;<b>{{
                                                         moment(
                                                             task.taskdate
@@ -845,7 +857,7 @@ onMounted(() => {
                                                                     margin-bottom: 5px;
                                                                 "
                                                             >
-                                                                &nbsp;Drop</button
+                                                                Drop</button
                                                             ><button
                                                                 @click="
                                                                     addTask(
@@ -863,8 +875,8 @@ onMounted(() => {
                                                                     margin-bottom: 5px;
                                                                 "
                                                             >
-                                                                &nbsp;&nbsp;Edit</button
-                                                            >
+                                                                &nbsp;&nbsp;Edit
+                                                            </button>
                                                             <!-- <button
                                                                 type="button"
                                                                 class="btn btn float-left fa fa-file btn-primary"
@@ -885,9 +897,12 @@ onMounted(() => {
                                                                 class="list-group-item d-flex justify-content-between align-items-center"
                                                             >
                                                                 Site:
-                                                                <span  class="badge badge-primary badge-pill">{{
-                                                                    task.site_name
-                                                                }}</span>
+                                                                <span
+                                                                    class="badge badge-primary badge-pill"
+                                                                    >{{
+                                                                        task.site_name
+                                                                    }}</span
+                                                                >
                                                             </li>
                                                             <li
                                                                 class="list-group-item d-flex justify-content-between align-items-center"
@@ -984,36 +999,42 @@ onMounted(() => {
                                                                 >
                                                             </li>
                                                         </ul>
-                                                        <hr>
-                                                         <div class="row">
-                <div class="col">
-  <!-- <button
-                    variant="primary"
-                     class="btn btn-sm btn-primary btn-block"
-                    @click="OnClinkUpdateChecklist(task)"
-                  >
-                    <i class="fas fa-file"></i>
-                      Attachment
-                  </button> -->
-                <button
-                    variant="primary"
-                     class="btn btn-sm btn-primary btn-block"
-                    @click="addTask(task)"
-                  >
-                    <i class="fas fa-pen"></i>
-                      Edit
-                  </button>
-                  <button
-                    class="btn btn-sm btn-danger btn-block"
-                    @click="drop(task.dailytask_id)"
-                  >
-                    <span class="text-light">
-                      <i class="fas fa-trash"></i>
-                      Remove
-                    </span>
-                  </button>
-                </div>
-              </div>
+                                                        <hr />
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <button
+                                                                    variant="primary"
+                                                                    class="btn btn-sm btn-primary btn-block"
+                                                                    @click="
+                                                                        addTask(
+                                                                            task
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    <i
+                                                                        class="fas fa-pen"
+                                                                    ></i>
+                                                                    Edit
+                                                                </button>
+                                                                <button
+                                                                    class="btn btn-sm btn-danger btn-block"
+                                                                    @click="
+                                                                        drop(
+                                                                            task.dailytask_id
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    <span
+                                                                        class="text-light"
+                                                                    >
+                                                                        <i
+                                                                            class="fas fa-trash"
+                                                                        ></i>
+                                                                        Drop
+                                                                    </span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1041,8 +1062,9 @@ onMounted(() => {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">
-                        <span v-if="editing">Edit My Scheduled</span>
-                        <span v-else>Add My Scheduled</span>
+                        <span v-if="editing">Edit My Task</span>
+                        <span v-else>Add My Task</span>
+                        <span v-if="editing"> {{ currentdate }}</span>
                     </h5>
                     <button
                         type="button"
@@ -1054,7 +1076,7 @@ onMounted(() => {
                     </button>
                 </div>
 
-                <Form @submit="handleSubmit" v-slot:default="{ errors }">
+                <Form @submit="handleSubmit">
                     <div class="modal-body">
                         <div class="col-md-12">
                             <div class="row">
@@ -1086,7 +1108,10 @@ onMounted(() => {
                                             </option>
                                         </select>
                                     </div>
-                                    <div class="d-flex justify-content-between">
+                                    <div
+                                        v-if="editing == false"
+                                        class="d-flex justify-content-between"
+                                    >
                                         <div class="d-flex">
                                             <div class="form-group">
                                                 <label for="end-time"
@@ -1121,7 +1146,10 @@ onMounted(() => {
                                         <div class="d-fex"></div>
                                     </div>
 
-                                    <div class="d-flex justify-content-between">
+                                    <div
+                                        v-if="editing == false"
+                                        class="d-flex justify-content-between"
+                                    >
                                         <div class="d-flex">
                                             <div class="form-group">
                                                 <label for="end-time"
@@ -1188,7 +1216,7 @@ onMounted(() => {
                             Cancel
                         </button>
                         <button type="submit" class="btn btn-primary">
-                            Save
+                            submit
                         </button>
                     </div>
                 </Form>
@@ -1321,7 +1349,6 @@ onMounted(() => {
                                             </div>
                                             <div class="d-flex">
                                                 <i
-
                                                     class="fa fa-trash text-danger"
                                                     @click="delTask(item)"
                                                 ></i>
@@ -1358,43 +1385,50 @@ onMounted(() => {
                                             v-if="item.iscompleted === 1"
                                             class="list-group-item mt-2"
                                         >
-                                         <div
-                                            class="d-flex justify-content-between"
-                                        >
-                                        <div class="d-flex">
-                                            <i
-                                                :class="{
-                                                    'cursor-pointer mr-2': true,
-                                                    'fa fa-check-circle':
-                                                        item.iscompleted === 1,
-                                                    'fa fa-circle':
-                                                        item.iscompleted !== 1,
-                                                }"
-                                                style="font-size: 15px"
-                                                @click="
-                                                    handleCompleteTask(item)
-                                                "
-                                            ></i>
-
-                                            <span
-                                                :class="{
-                                                    'font-italic':
-                                                        item.iscompleted === 1,
-                                                    '': item.iscompleted !== 1,
-                                                }"
+                                            <div
+                                                class="d-flex justify-content-between"
                                             >
-                                                <del>{{ item.task_name }}</del>
-                                            </span>
-                                        </div>
-                                        <div class="d-flex">
-                                              <i
+                                                <div class="d-flex">
+                                                    <i
+                                                        :class="{
+                                                            'cursor-pointer mr-2': true,
+                                                            'fa fa-check-circle':
+                                                                item.iscompleted ===
+                                                                1,
+                                                            'fa fa-circle':
+                                                                item.iscompleted !==
+                                                                1,
+                                                        }"
+                                                        style="font-size: 15px"
+                                                        @click="
+                                                            handleCompleteTask(
+                                                                item
+                                                            )
+                                                        "
+                                                    ></i>
 
-                                                    class="fa fa-trash text-danger"
-                                                    @click="delTask(item)"
-                                                ></i>
-                                        </div>
-
-                                         </div>
+                                                    <span
+                                                        :class="{
+                                                            'font-italic':
+                                                                item.iscompleted ===
+                                                                1,
+                                                            '':
+                                                                item.iscompleted !==
+                                                                1,
+                                                        }"
+                                                    >
+                                                        <del>{{
+                                                            item.task_name
+                                                        }}</del>
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex">
+                                                    <i
+                                                        class="fa fa-trash text-danger"
+                                                        @click="delTask(item)"
+                                                    ></i>
+                                                </div>
+                                            </div>
                                         </li>
                                     </ul>
                                 </div>
@@ -1539,7 +1573,6 @@ a {
     background-color: #0069d9;
     border-color: #0069d9;
 }
-
 
 .image-container {
     position: relative;

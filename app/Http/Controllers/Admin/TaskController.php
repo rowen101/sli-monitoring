@@ -107,6 +107,12 @@ class TaskController extends Controller
         return response()->json(['message' => 'success']);
     }
 
+    public function update(Request $request,$id)
+    {
+        $task = Task::findOrFail($id);
+        $task->update($request->all());
+        return response()->json(['message' => 'success']);
+    }
     public function onhandler(Request $request, $dailytask_id)
     {
 
