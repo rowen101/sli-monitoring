@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Site;
+
 use App\Models\Task;
 use App\Enums\TaskType;
 use App\Models\ListTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use function PHPSTORM_META\map;
+
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-
-use function PHPSTORM_META\map;
 
 class TaskController extends Controller
 {
@@ -21,7 +22,7 @@ class TaskController extends Controller
         ->join('tbl_sites', 'tbl_sites.id', '=', 'tbl_dailytask.site') // Assuming 'tasks' is the actual table name for the Task model
         ->when(request('query'), function ($query, $searchQuery) {
             $query->where('tbl_sites.site_name', 'like', "%{$searchQuery}%");
-            $query->where('type', TaskType::from(request('type')));
+            $query->where('type', TaskType::from(request('type'))->value);
         })
         ->where(function ($query) {
             $query->whereNull('tbl_dailytask.status_task')
