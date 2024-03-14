@@ -71,23 +71,24 @@ class TaskController extends Controller
         request()->validate([
             'site' => 'required',
             'tasktype' => 'required',
-            'plandate' => 'required',
-            'planenddate' => 'required',
+           // 'plandate' => 'required',
+            //'planenddate' => 'required',
         ]);
 
         // Parse the date range
         $startDate = Carbon::parse(request('plandate'));
-        $endDate = Carbon::parse(request('planenddate'));
+        $endDate = Carbon::parse(request('enddates'));
 
         // Loop through the date range and create tasks
         while ($startDate <= $endDate) {
+            $planEndDate = $startDate->copy()->setTimeFrom($endDate); // Copy start date and set time from end date for plan end date
             Task::create([
                 'site' => request('site'),
                 'user_id' => request('user_id'),
                 'taskdate' => $startDate,
                 'project' => request('project'),
-                'plandate' => request('plandate'),
-                'planenddate' => request('planenddate'),
+                'plandate' => $startDate,
+                'planenddate' => $planEndDate,
                 'startdate' => request('startdate'),
                 'enddate' => request('enddate'),
                 'tasktype' => request('tasktype'),

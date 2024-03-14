@@ -104,6 +104,7 @@ const form = reactive({
     tasktype: 0,
     plandate: "",
     planenddate: "",
+    enddates:"",
 });
 
 // Watch for changes in Sdate and StrHours and update plandate
@@ -118,6 +119,17 @@ watch([Sdate, StrHours], () => {
     form.plandate = `${year}-${month}-${day} ${StrHours.value}`;
 });
 
+watch([Sdate, EndHours], () => {
+    // Create a new Date object from the original date string
+    const originalDate = new Date(Sdate.value);
+
+    // Extract the components of the date
+    const year = originalDate.getFullYear();
+    const month = String(originalDate.getMonth() + 1).padStart(2, "0");
+    const day = String(originalDate.getDate()).padStart(2, "0");
+    //form.planenddate = `${year}-${month}-${day} ${EndHours.value}`;
+});
+
 // Watch for changes in Edate and EndHours and update planenddate
 watch([Edate, EndHours], () => {
     const originalDate = new Date(Edate.value);
@@ -125,7 +137,7 @@ watch([Edate, EndHours], () => {
     const year = originalDate.getFullYear();
     const month = String(originalDate.getMonth() + 1).padStart(2, "0");
     const day = String(originalDate.getDate()).padStart(2, "0");
-    form.planenddate = `${year}-${month}-${day} ${EndHours.value}`;
+    form.enddates = `${year}-${month}-${day} ${EndHours.value}`;
 });
 
 //task
@@ -1559,12 +1571,12 @@ a {
 .nav-tabs .nav-link {
     border: 1px solid transparent;
     border-radius: 0;
-    color: #2196f3;
+    color: #fff;
     transition: background-color 0.3s;
 }
 
 .nav-tabs .nav-link.active {
-    background-color: #2196f3;
+   background-color: #0069d9;
     color: #fff;
     border-color: #2196f3;
 }
@@ -1572,6 +1584,7 @@ a {
 .nav-tabs .nav-link:hover {
     background-color: #0069d9;
     border-color: #0069d9;
+     color: #fff;
 }
 
 .image-container {
