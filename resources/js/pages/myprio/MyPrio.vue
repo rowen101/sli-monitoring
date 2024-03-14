@@ -1462,7 +1462,6 @@ onMounted(() => {
                                                 name="dailytask_id"
                                                 id="dailytask_id"
                                             />
-
                                             <div
                                                 class="m-2"
                                                 style="
@@ -1506,7 +1505,6 @@ onMounted(() => {
             </div>
         </div>
     </div>
-
     <div
         class="modal fade"
         id="deleteClientModal"

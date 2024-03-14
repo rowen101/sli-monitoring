@@ -1,6 +1,6 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.b101597e.js",
+    "file": "assets/app.0bae8aef.js",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
@@ -37,7 +37,7 @@
       "_jspdf.10c44267.js"
     ],
     "css": [
-      "assets/app.de498a56.css"
+      "assets/app.3ca20619.css"
     ]
   },
   "_@babel.afb8673e.js": {
