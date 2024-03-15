@@ -8,23 +8,35 @@ import MenuItemList from "./MenuItemList.vue";
 import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
-import { ContentLoader } from 'vue-content-loader'
+import { ContentLoader } from "vue-content-loader";
 
 const toastr = useToastr();
 const lists = ref({ data: [] });
 const menuOptionlist = ref({ data: [] });
 
-
 const isloading = ref(false);
 const editing = ref(false);
 const formValues = ref();
-const form = ref(null);
+
+const checked = ref(true);
+const form = reactive({
+    menu_id: "",
+    menu_title: "",
+    parent_id: "",
+    menu_icon: "",
+    menu_route: "",
+    sort_order: "",
+    is_active: "",
+    ceated_by: "",
+    updated_by: "",
+});
+
 const authUserStore = useAuthUserStore();
 const selectedStatus = ref(null);
 const selectedParentID = ref();
 
 const getItems = (page = 1) => {
-    isloading.value = true
+    isloading.value = true;
     axios
         .get(`/api/menulist?page=${page}`, {
             params: {
@@ -32,15 +44,14 @@ const getItems = (page = 1) => {
             },
         })
         .then((response) => {
-            isloading.value = false
+            isloading.value = false;
             lists.value = response.data;
             selectedItems.value = [];
             selectAll.value = false;
-
         });
 };
 
-const parentMenus =() =>{
+const parentMenus = () => {
     axios
         .get(`/api/GetParentId`)
         .then((response) => {
@@ -49,15 +60,13 @@ const parentMenus =() =>{
         .catch((error) => {
             console.error(error);
         });
-
-}
+};
 const createUserSchema = yup.object({
     menu_title: yup.string().required(),
     parent_id: yup.string().required(),
     sort_order: yup.string().required(),
     menu_icon: yup.string().required(),
     menu_route: yup.string().required(),
-
 });
 
 const editUserSchema = yup.object({
@@ -68,15 +77,19 @@ const editUserSchema = yup.object({
     menu_route: yup.string().required(),
 });
 
-const createData = (values, { resetForm, setErrors }) => {
+const updateIsActive = (checked) => {
+        form.is_active = checked ? 1 : 0;
+        alert(form.is_active)
+    }
+const createData = ( { resetForm, setErrors }) => {
     axios
         .post("/api/menulist", {
-            menu_title: values.menu_title,
-            parent_id: selectedParentID.value,
-            menu_icon:values.menu_icon,
-            menu_route: values.menu_route,
-            sort_order: values.sort_order,
-            is_active: values.is_active
+            menu_title: form.menu_title,
+            parent_id: form.parent_id,
+            menu_icon: form.menu_icon,
+            menu_route: form.menu_route,
+            sort_order: form.sort_order,
+            is_active: form.is_active,
         })
         .then((response) => {
             lists.value.data.unshift(response.data);
@@ -89,10 +102,7 @@ const createData = (values, { resetForm, setErrors }) => {
                 setErrors(error.response.data.errors);
             }
         });
-
-
 };
-
 
 const addUser = () => {
     editing.value = false;
@@ -101,44 +111,33 @@ const addUser = () => {
 
 const editUser = (item) => {
 
-    editing.value = true;
-    form.value.resetForm();
+     editing.value = true;
+    form.menu_id = item.menu_id;
+    form.menu_title = item.menu_title;
+    form.parent_id = item.parent_id;
+    form.menu_icon = item.menu_icon;
+    form.menu_route = item.menu_route;
+    form.sort_order = item.sort_order;
+    if (form.is_active === 1) {
+        checked.value = true;
+    } else {
+        checked.value = false;
+    }
+    form.is_active = item.is_active;
+
+
+
     $("#FormModal").modal("show");
-     formValues.value = {
-        menu_id: item.menu_id,
-        menu_title: item.menu_title,
-        menu_icon: item.menu_icon,
-        parent_id: item.parent_id,
-        menu_route: item.menu_route,
-        sort_order: item.sort_order,
-        is_active: item.is_active,
-    };
     selectedParentID.value = item.parent_id;
-
 };
 
-const viewItem = (item) => {
-    editing.value = true;
-    form.value.resetForm();
-    $("#FormModalView").modal("show");
-    formValues.value = {
-        menu_id: item.menu_id,
-        menu_title: item.menu_title,
-        menu_icon: item.menu_icon,
-        parent_id: item.parent_id,
-        menu_route: item.menu_route,
-        sort_order: item.sort_order,
-        is_active: item.is_active,
 
-    };
-};
 
-const updateData = (values, { setErrors }) => {
+const updateData = ( { setErrors }) => {
     axios
-        .post("/api/menulist", values)
+        .post("/api/menulist", form)
         .then((response) => {
-
-          getItems();
+            getItems();
             $("#FormModal").modal("hide");
             toastr.success("successfully Updated!");
         })
@@ -178,15 +177,13 @@ const confirmItemDeletion = (id) => {
 };
 
 const deleteUser = () => {
-    axios
-        .delete(`menulist/${userIdBeingDeleted.value}`)
-        .then(() => {
-            $("#deleteClientModal").modal("hide");
-            toastr.success("Client deleted successfully!");
-            lists.value.data = lists.value.data.filter(
-                (user) => user.id !== userIdBeingDeleted.value
-            );
-        });
+    axios.delete(`menulist/${userIdBeingDeleted.value}`).then(() => {
+        $("#deleteClientModal").modal("hide");
+        toastr.success("Client deleted successfully!");
+        lists.value.data = lists.value.data.filter(
+            (user) => user.id !== userIdBeingDeleted.value
+        );
+    });
 };
 
 const bulkDelete = () => {
@@ -219,6 +216,9 @@ const selectAllUsers = () => {
 const updateStatus = (status) => {
     selectedStatus.value = status;
 };
+watch([checked], (val) => {
+     form.is_active = val ? 1 : 0;
+});
 
 watch(
     searchQuery,
@@ -234,8 +234,6 @@ onMounted(() => {
 </script>
 
 <template>
-
-
     <div class="content">
         <div class="container-fluid">
             <div class="d-flex justify-content-between">
@@ -274,57 +272,84 @@ onMounted(() => {
             </div>
             <div class="card">
                 <div class="card-body">
-
                     <ContentLoader v-if="isloading" viewBox="0 0 250 110">
-                    <rect x="0" y="0" rx="3" ry="3" width="250" height="10" />
-                    <rect x="0" y="20" rx="3" ry="3" width="250" height="10" />
-                    <rect x="0" y="40" rx="3" ry="3" width="250" height="10" />
-                    <rect x="0" y="60" rx="3" ry="3" width="250" height="10" />
+                        <rect
+                            x="0"
+                            y="0"
+                            rx="3"
+                            ry="3"
+                            width="250"
+                            height="10"
+                        />
+                        <rect
+                            x="0"
+                            y="20"
+                            rx="3"
+                            ry="3"
+                            width="250"
+                            height="10"
+                        />
+                        <rect
+                            x="0"
+                            y="40"
+                            rx="3"
+                            ry="3"
+                            width="250"
+                            height="10"
+                        />
+                        <rect
+                            x="0"
+                            y="60"
+                            rx="3"
+                            ry="3"
+                            width="250"
+                            height="10"
+                        />
                     </ContentLoader>
-                   <div class="table-responsive">
-                    <table class="table table-bordered table-sm">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <input
-                                        type="checkbox"
-                                        v-model="selectAll"
-                                        @change="selectAllUsers"
-                                    />
-                                </th>
-                                <th style="width: 10px">#</th>
-                                <th>Title</th>
-                                <th>Parent Menu</th>
-                                <th>Route</th>
-                                <th>Icon</th>
-                                <th>Sort</th>
-                                <th>Active</th>
-                                <th>Date</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody v-if="lists.data.length > 0">
-                            <MenuItemList
-                                v-for="(item, index) in lists.data"
-                                :key="item.id"
-                                :item="item"
-                                :index="index"
-                                @edit-user="editUser"
-                                @show-item="viewItem"
-                                @confirm-user-deletion="confirmItemDeletion"
-                                @toggle-selection="toggleSelection"
-                                :select-all="selectAll"
-                            />
-                        </tbody>
-                        <tbody v-else>
-                            <tr>
-                                <td colspan="9" class="text-center">
-                                    No results found...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                   </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input
+                                            type="checkbox"
+                                            v-model="selectAll"
+                                            @change="selectAllUsers"
+                                        />
+                                    </th>
+                                    <th style="width: 10px">#</th>
+                                    <th>Title</th>
+                                    <th>Parent Menu</th>
+                                    <th>Route</th>
+                                    <th>Icon</th>
+                                    <th>Sort</th>
+                                    <th>Active</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody v-if="lists.data.length > 0">
+                                <MenuItemList
+                                    v-for="(item, index) in lists.data"
+                                    :key="item.id"
+                                    :item="item"
+                                    :index="index"
+                                    @edit-user="editUser"
+                                    @show-item="viewItem"
+                                    @confirm-user-deletion="confirmItemDeletion"
+                                    @toggle-selection="toggleSelection"
+                                    :select-all="selectAll"
+                                />
+                            </tbody>
+                            <tbody v-else>
+                                <tr>
+                                    <td colspan="9" class="text-center">
+                                        No results found...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <Bootstrap4Pagination
@@ -333,8 +358,6 @@ onMounted(() => {
             />
         </div>
     </div>
-
-
 
     <div
         class="modal fade"
@@ -362,11 +385,10 @@ onMounted(() => {
                     </button>
                 </div>
                 <Form
-                    ref="form"
-                    @submit="handleSubmit"
 
+                    @submit="handleSubmit"
                     v-slot="{ errors }"
-                    :initial-values="formValues"
+
                 >
                     <div class="modal-body">
                         <div class="col-md-12">
@@ -378,7 +400,6 @@ onMounted(() => {
                                         id="created_by"
                                         v-model="authUserStore.user.id"
                                     />
-
 
                                     <div class="form-group">
                                         <label for="user">Menu Title</label>
@@ -392,6 +413,7 @@ onMounted(() => {
                                             id="menu_title"
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Menu title"
+                                            v-model="form.menu_title"
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.menu_title
@@ -402,13 +424,20 @@ onMounted(() => {
                                         <label for="department"
                                             >Parent Menu</label
                                         >
-                                        <select  class="form-control" id="parentMenu" v-model="selectedParentID">
-                                                        <option value=0>None</option>
-                                                        <option v-for="parent in menuOptionlist" :key="parent.menu_id" :value="parent.menu_id">
-                                                            {{ parent.menu_title }}
-                                                        </option>
-                                                    </select>
-
+                                        <select
+                                            class="form-control"
+                                            id="parentMenu"
+                                            v-model="form.parent_id"
+                                        >
+                                            <option value="0">None</option>
+                                            <option
+                                                v-for="parent in menuOptionlist"
+                                                :key="parent.menu_id"
+                                                :value="parent.menu_id"
+                                            >
+                                                {{ parent.menu_title }}
+                                            </option>
+                                        </select>
                                     </div>
 
                                     <div class="form-group">
@@ -423,6 +452,7 @@ onMounted(() => {
                                             id="menu_icon"
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Menu Icon"
+                                            v-model="form.menu_icon"
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.menu_icon
@@ -440,6 +470,7 @@ onMounted(() => {
                                             id="menu_route"
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Route"
+                                            v-model="form.menu_route"
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.menu_route
@@ -457,24 +488,23 @@ onMounted(() => {
                                             id="sort_order"
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Sort Order"
+                                            v-model="form.sort_order"
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.sort_order
                                         }}</span>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="user">Active</label>
-                                        <Field
-
+                                   <div class="form-group">
+                                        <label for="is_active">Active</label>
+                                        <input
                                             name="is_active"
                                             type="checkbox"
-
-
+                                            id="is_active"
+                                            v-model="checked"
+                                            @change="updateIsActive"
                                         />
-
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
