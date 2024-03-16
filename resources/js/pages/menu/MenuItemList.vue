@@ -13,7 +13,7 @@ const props = defineProps({
     selectAll: Boolean,
 });
 
-const emit = defineEmits(["userDeleted", "editUser", "confirmUserDeletion","showItem"]);
+const emit = defineEmits(["userDeleted", "editMenu", "confirmDeletion"]);
 
 const toggleSelection = () => {
     emit("toggleSelection", props.item);
@@ -33,10 +33,10 @@ const toggleSelection = () => {
         <td style="text-align: center;"><i :class="{'fas fa-check-circle': item.is_active === 1, 'far fa-circle': item.is_active !== 1}"></i></td>
         <td>{{ item.created_at }}</td>
           <td class="text-center">
-        <button class="btn btn-sm bg-primary" @click.prevent="$emit('editUser', item)">
+        <button class="btn btn-sm bg-primary" @click.prevent="$emit('editMenu', item)">
             <i class="fa fa-edit" ></i>
         </button>&nbsp;
-         <button class="btn btn-sm bg-danger" @click.prevent="$emit('trash', item)">
+         <button class="btn btn-sm bg-danger" @click.prevent="$emit('confirmDeletion', item.menu_id)">
             <i class="fa fa-trash "></i>
         </button>
 

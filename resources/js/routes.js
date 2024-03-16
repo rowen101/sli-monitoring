@@ -16,6 +16,7 @@ import Menu from './pages/menu/MenuList.vue';
 import page404 from "./404.vue";
 import TechRecomApprove from "./pages/techrecomm/TechRecommApprove.vue";
 import Notifications from './pages/notification/index.vue';
+import AssetMonitoring from './pages/assetmonitoring/AssetmList.vue';
 export default [
     {
         path: '/login',
@@ -121,6 +122,11 @@ export default [
         path: '/admin/tech-approved/:id/view',
         name: 'Tech-Approved',
         component: TechRecomApprove, // Replace with your actual 404 component
+    },
+    {
+        path: '/asset-monitoring',
+        name: 'Asset Monitoring',
+        component: AssetMonitoring, // Replace with your actual 404 component
     },
 
 

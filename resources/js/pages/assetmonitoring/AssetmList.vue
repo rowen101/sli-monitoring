@@ -4,7 +4,7 @@ import { ref, onMounted, reactive, watch } from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
-import MenuItemList from "./MenuItemList.vue";
+import MenuItemList from "./AssetmItemList.vue";
 import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
@@ -38,7 +38,7 @@ const selectedParentID = ref();
 const getItems = (page = 1) => {
     isloading.value = true;
     axios
-        .get(`/api/menulist?page=${page}`, {
+        .get(`/web/asset-monitoring?page=${page}`, {
             params: {
                 query: searchQuery.value,
             },
@@ -79,7 +79,7 @@ const editUserSchema = yup.object({
 
 const updateIsActive = (checked) => {
         form.is_active = checked ? 1 : 0;
-      
+
     }
 const createData = ( { resetForm, setErrors }) => {
     axios
@@ -305,7 +305,7 @@ onMounted(() => {
                         />
                     </ContentLoader>
                     <div class="table-responsive">
-                        <table class="table table-bordered table-sm">
+                        <table class="table table-bordered table-sm table-striped hover">
                             <thead>
                                 <tr>
                                     <th>
@@ -316,14 +316,14 @@ onMounted(() => {
                                         />
                                     </th>
                                     <th style="width: 10px">#</th>
-                                    <th>Title</th>
-                                    <th>Parent Menu</th>
-                                    <th>Route</th>
-                                    <th>Icon</th>
-                                    <th>Sort</th>
-                                    <th>Active</th>
-                                    <th>Date</th>
-                                    <th>Action</th>
+                                    <th>Asset</th>
+                                    <th>Asset type</th>
+                                    <th>Serial</th>
+                                    <th>Date Aquired</th>
+                                    <th>Suppliear</th>
+                                    <th>Unit</th>
+                                    <th>Location</th>
+                                 
                                 </tr>
                             </thead>
                             <tbody v-if="lists.data.length > 0">

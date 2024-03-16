@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\MyClosePrioController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\DashboardStatController;
 use App\Http\Controllers\Admin\AppointmentStatusController;
+use App\Http\Controllers\Admin\SliassetmonitoringController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,6 +119,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/api/notifications', NotificationController::class);
     Route::put('/api/notifications/{id}/markAsRead',[NotificationController::class, 'markAsRead']);
+
+    Route::resource('/web/asset-monitoring', SliassetmonitoringController::class);
 
 
 
