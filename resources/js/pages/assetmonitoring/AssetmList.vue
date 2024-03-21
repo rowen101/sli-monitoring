@@ -9,7 +9,9 @@ import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
 import { ContentLoader } from "vue-content-loader";
+import { useRoute } from "vue-router";
 
+const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
 const menuOptionlist = ref({ data: [] });
@@ -228,6 +230,8 @@ watch(
 onMounted(() => {
     getItems();
     parentMenus();
+    document.title = pageTitle;
+
 });
 </script>
 
@@ -323,7 +327,7 @@ onMounted(() => {
                                     <th>Suppliear</th>
                                     <th>Unit</th>
                                     <th>Location</th>
-                                 
+
                                 </tr>
                             </thead>
                             <tbody v-if="lists.data.length > 0">

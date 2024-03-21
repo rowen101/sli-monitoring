@@ -2,10 +2,10 @@
 import { onMounted, reactive, ref } from 'vue';
 import { useToastr } from '@/toastr';
 import { useAuthUserStore } from '../../stores/AuthUserStore';
-
+import { useRoute } from "vue-router";
 const authUserStore = useAuthUserStore();
 const toastr = useToastr();
-
+const pageTitle = `${useRoute().name}`;
 const errors = ref([]);
 const updateProfile = () => {
     axios.put('/api/profile', {
@@ -65,9 +65,13 @@ const handleFileChange = (event) => {
         toastr.success('Image uploaded successfully!');
     });
 };
+onMounted(()=>{
+    document.title = pageTitle;
+
+})
 </script>
 <template>
-   
+
 
 
     <div class="content">

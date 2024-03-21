@@ -12,6 +12,9 @@ import html2canvas from "html2canvas";
 import { ContentLoader } from "vue-content-loader";
 import Datepicker from "vue3-datepicker";
 import moment from 'moment';
+import { useRoute } from "vue-router";
+
+const pageTitle = `${useRoute().name}`;
 const isloading = ref(false);
 const toastr = useToastr();
 const lists = ref({ data: [] });
@@ -82,6 +85,8 @@ watch(
 
 onMounted(() => {
     getItems();
+    document.title = pageTitle;
+
 });
 </script>
 

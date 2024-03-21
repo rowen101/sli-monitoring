@@ -3,6 +3,9 @@ import { ref, onMounted, reactive, watch, computed } from "vue";
 import { useToastr } from "@/toastr";
 import { ContentLoader } from "vue-content-loader";
 import { Form, Field, useResetForm } from "vee-validate";
+import { useRoute } from "vue-router";
+
+const pageTitle = `${useRoute().name}`;
 const settings = ref([]);
 const toastr = useToastr();
 const showList = ref(true);
@@ -149,6 +152,8 @@ const updateSettings = () => {
 onMounted(() => {
     getItems();
     getSettings();
+    document.title = pageTitle;
+
 });
 </script>
 
@@ -437,7 +442,7 @@ onMounted(() => {
                                                             @click="edit(item)"
                                                         ></i>
                                                     </div>
-                                                  
+
                                                 </div>
                                             </li>
                                         </ul>

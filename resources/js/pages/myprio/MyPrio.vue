@@ -16,6 +16,9 @@ import { inject } from "vue";
 import { ContentLoader } from "vue-content-loader";
 
 import Datepicker from "vue3-datepicker";
+import { useRoute } from "vue-router";
+
+const pageTitle = `${useRoute().name}`;
 const isloading = ref(false);
 const isloadingTask = ref(false);
 const swal = inject("$swal");
@@ -545,6 +548,8 @@ onMounted(() => {
         defaultHour: 10,
     });
     getItems();
+    document.title = pageTitle;
+
 });
 </script>
 

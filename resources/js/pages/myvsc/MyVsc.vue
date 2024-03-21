@@ -6,6 +6,9 @@ import ListItem from "./ListItem.vue";
 import html2canvas from "html2canvas";
 import { ContentLoader } from "vue-content-loader";
 import Datepicker from "vue3-datepicker";
+import { useRoute } from "vue-router";
+
+const pageTitle = `${useRoute().name}`;
 
 const authUserStore = useAuthUserStore();
 
@@ -68,7 +71,9 @@ const capturevsc = () => {
         const dataURL = canvas.toDataURL();
         const link = document.createElement("a");
         link.href = dataURL;
-        link.download = "My VSC.png";
+        link.download = `${ authUserStore.user.first_name +
+                                    " " +
+                                    authUserStore.user.last_name} - ${pageTitle}.png`;
         link.click();
     });
 };
@@ -80,7 +85,9 @@ const capturehitrate = () => {
         const dataURL = canvas.toDataURL();
         const link = document.createElement("a");
         link.href = dataURL;
-        link.download = "My HITRATE.png";
+        link.download = `${ authUserStore.user.first_name +
+                                    " " +
+                                    authUserStore.user.last_name} - My HIT RATE.png`;
         link.click();
     });
 };
@@ -193,6 +200,8 @@ const handleThemeClick = (item) => {
 
 onMounted(() => {
     getItems();
+    document.title = pageTitle;
+
 });
 </script>
 <template>
@@ -208,7 +217,7 @@ onMounted(() => {
                                     " " +
                                     authUserStore.user.last_name
                                 }}
-                                - My VSC
+                                - {{pageTitle}}
                             </h5>
                         </div>
 

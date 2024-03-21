@@ -7,7 +7,9 @@ import { useToastr } from "../../toastr.js";
 import UserMenuListItem from "./UserMenuListItem.vue";
 import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
+import { useRoute } from "vue-router";
 
+const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const users = ref({ data: [] });
 const editing = ref(false);
@@ -130,6 +132,8 @@ watch(
 
 onMounted(() => {
     getUsers();
+    document.title = pageTitle;
+
 });
 </script>
 

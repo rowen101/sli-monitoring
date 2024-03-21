@@ -9,7 +9,9 @@ import { useToastr } from "../../toastr.js";
 import UserListItem from "./UserListItem.vue";
 import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
+import { useRoute } from "vue-router";
 
+const pageTitle = `${useRoute().name}`;
 const authUserStore = useAuthUserStore();
 const toastr = useToastr();
 const users = ref({ data: [] });
@@ -212,6 +214,8 @@ watch(
 onMounted(() => {
     getUsers();
     getOptionUsers();
+    document.title = pageTitle;
+
 });
 </script>
 
