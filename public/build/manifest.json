@@ -1,6 +1,6 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.104a0ace.js",
+    "file": "assets/app.f5b9c583.js",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
@@ -10,7 +10,7 @@
       "_admin-lte.f5ef7270.js",
       "_vue.6c11729d.js",
       "_pinia.177553b5.js",
-      "_vue-router.ea66a290.js",
+      "_vue-router.5b9d2a42.js",
       "_@vue.4ae0f184.js",
       "_vue-chartjs.a660a76a.js",
       "_chart.js.562acd0f.js",
@@ -180,8 +180,8 @@
       "_@vue.4ae0f184.js"
     ]
   },
-  "_vue-router.ea66a290.js": {
-    "file": "assets/vue-router.ea66a290.js",
+  "_vue-router.5b9d2a42.js": {
+    "file": "assets/vue-router.5b9d2a42.js",
     "imports": [
       "_@vue.4ae0f184.js"
     ]

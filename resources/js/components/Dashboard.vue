@@ -11,7 +11,7 @@ import {
   CategoryScale,
   LinearScale,
 } from "chart.js";
-
+import { useRoute } from "vue-router";
 ChartJS.register(
   Title,
   Tooltip,
@@ -21,7 +21,7 @@ ChartJS.register(
   LinearScale
 );
 
-
+const pageTitle = `${useRoute().name}`;
 const authUserStore = useAuthUserStore();
 const selectedAppointmentStatus = ref('all');
 const totalAppointmentsCount = ref(0);
@@ -74,6 +74,7 @@ const getUsersCount = () => {
 onMounted(() => {
     getChart();
     getUsersCount();
+    document.title = pageTitle;
 
 });
 </script>

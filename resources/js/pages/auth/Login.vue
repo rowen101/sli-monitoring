@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios';
-import { reactive, ref } from 'vue';
+import { reactive, ref,onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthUserStore } from '../../stores/AuthUserStore';
 import { useToastr } from '../../toastr.js';
@@ -15,7 +15,7 @@ const form = reactive({
 });
 
 const loading = ref(false);
-
+const pageTitle = `Login`;
 const errorMessage = ref('');
 const handleSubmit = () => {
     loading.value = true;
@@ -33,7 +33,9 @@ const handleSubmit = () => {
             loading.value = false;
         });
 };
-
+onMounted(() => {
+    document.title = pageTitle;
+});
 
 </script>
 

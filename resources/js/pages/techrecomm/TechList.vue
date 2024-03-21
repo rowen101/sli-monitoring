@@ -9,7 +9,7 @@ import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
 import { ContentLoader } from "vue-content-loader";
-
+import { useRoute } from "vue-router";
 const statusid = ref();
 const listsite = ref();
 const toastr = useToastr();
@@ -28,6 +28,7 @@ const tecstatus = ref([
         value: 3,
     },
 ]);
+const pageTitle = `${useRoute().name}`;
 const getSite = () => {
     axios
         .get(`/api/getsite`)
@@ -275,6 +276,8 @@ watch(
 onMounted(() => {
     getItems();
     getSite();
+    document.title = pageTitle;
+
 });
 </script>
 
