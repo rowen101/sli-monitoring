@@ -17,6 +17,9 @@ import page404 from "./404.vue";
 import TechRecomApprove from "./pages/techrecomm/TechRecommApprove.vue";
 import Notifications from './pages/notification/index.vue';
 import AssetMonitoring from './pages/assetmonitoring/AssetmList.vue';
+import PalletMonitoring from './pages/palletmonitoring/PalletList.vue';
+import UserSite from './pages/usersite/UserSite.vue';
+
 export default [
     {
         path: '/login',
@@ -29,81 +32,81 @@ export default [
     //     component: Register,
     // },
     {
-        path: '/admin/dashboard',
+        path: '/dashboard',
         name: 'Dashboard',
         component: Dashboard,
     },
 
     {
-        path: '/admin/appointments',
+        path: '/appointments',
         name: 'Appointments',
         component: ListAppointments,
     },
 
     {
-        path: '/admin/appointments/create',
+        path: '/appointments/create',
         name: 'Appointments',
         component: AppointmentForm,
     },
 
     {
-        path: '/admin/appointments/:id/edit',
+        path: '/appointments/:id/edit',
         name: 'Appointments',
         component: AppointmentForm,
     },
 
     {
-        path: '/admin/user',
+        path: '/user',
         name: 'User',
         component: UserList,
     },
 
     {
-        path: '/admin/settings',
+        path: '/settings',
         name: 'Setting',
         component: UpdateSetting,
     },
 
     {
-        path: '/admin/profile',
+        path: '/profile',
         name: 'Profile',
         component: UpdateProfile,
     },
 
     {
-        path: '/admin/client',
+        path: '/client',
         name: 'Client',
         component: ClientList,
     },
 
     {
-        path: '/admin/tech-recommendation',
+        path: '/tech-recommendation',
         name: 'Tech Recomm',
         component: TechList,
     },
     {
-        path: '/admin/weekly-task-schedule/myprio',
+        path: '/weekly-task-schedule/myprio',
         name: 'My Prio',
         component: MyPrio,
     },
 
     {
-        path: '/admin/weekly-task-schedule/my-closed-prio',
+        path: '/weekly-task-schedule/my-closed-prio',
         name: 'My Closed Prio',
         component: MyClosedPrio,
     },
     {
-        path: '/admin/weekly-task-schedule/myvsc',
-        name: 'My VSC',
+        path: '/weekly-task-schedule/mycoa',
+        name: 'My COA',
         component: MyVsc,
     },
     {
-        path: '/admin/usermenu',
+        path: '/usermenu',
         name: 'User Menu',
         component: UserMenu,
     },
     {
-        path: '/admin/menu',
+        path: '/menu',
         name: 'Menu',
         component: Menu,
     },
@@ -114,12 +117,12 @@ export default [
         component: page404, // Replace with your actual 404 component
     },
     {
-        path: '/admin/notifications',
+        path: '/notifications',
         name: 'Notifications',
         component: Notifications, // Replace with your actual 404 component
     },
     {
-        path: '/admin/tech-approved/:id/view',
+        path: '/tech-approved/:id/view',
         name: 'Tech-Approved',
         component: TechRecomApprove, // Replace with your actual 404 component
     },
@@ -128,6 +131,14 @@ export default [
         name: 'Asset Monitoring',
         component: AssetMonitoring, // Replace with your actual 404 component
     },
-
-
+  {
+        path: '/pallet-monitoring',
+        name: 'Pallet Monitoring',
+        component: PalletMonitoring, // Replace with your actual 404 component
+    },
+  {
+        path: '/usersite',
+        name: 'User Site',
+        component: UserSite, // Replace with your actual 404 component
+    },
 ]

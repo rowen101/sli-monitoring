@@ -55,7 +55,7 @@ class UserMenuController extends Controller
             ->get();
 
         // // For each top-level menu item, fetch and attach its submenus based on user access
-        $menu->each(function ($menuItem)use ($user_id){
+        $menu->each(function ($menuItem) use ($user_id) {
             $menuItem->submenus = Menu::select('menus.*')
                 ->where('menus.is_active', 1)
                 ->where('menus.parent_id', $menuItem->menu_id)
@@ -89,46 +89,44 @@ class UserMenuController extends Controller
      */
     public function store(Request $request)
     {
-        //dd($request->all());
 
-       // Validate the request data if needed
-    $request->validate([
-        'user_id' => 'required|integer',
-        'menu_id' => 'required|array',
-        'menu_id.*' => 'integer', // Validate each menu_id in the array
-    ]);
+        $request->validate([
+            'user_id' => 'required|integer',
+            'menu_id' => 'required|array',
+            'menu_id.*' => 'integer',
+        ]);
 
-    try {
-        // Begin transaction
-        DB::beginTransaction();
+        try {
+            // Begin transaction
+            DB::beginTransaction();
 
-        // Extract user_id and menu_ids from the request
-        $user_id = $request->input('user_id');
-        $menu_ids = $request->input('menu_id');
+            // Extract user_id and menu_ids from the request
+            $user_id = $request->input('user_id');
+            $menu_ids = $request->input('menu_id');
 
-        // Delete existing user-menu relationships for the specified user_id
-        UserMenus::where('user_id', $user_id)->delete();
+            // Delete existing user-menu relationships for the specified user_id
+            UserMenus::where('user_id', $user_id)->delete();
 
-        // Prepare the data array for bulk insert
-        $data = [];
-        foreach ($menu_ids as $menu_id) {
-            $data[] = ['user_id' => $user_id, 'menu_id' => $menu_id];
+            // Prepare the data array for bulk insert
+            $data = [];
+            foreach ($menu_ids as $menu_id) {
+                $data[] = ['user_id' => $user_id, 'menu_id' => $menu_id];
+            }
+
+            // Bulk insert the new user-menu relationships
+            UserMenus::insert($data);
+
+            // Commit transaction
+            DB::commit();
+
+            return response()->json(['message' => 'Data saved successfully']);
+        } catch (\Exception $e) {
+            // Rollback transaction on failure
+            DB::rollback();
+
+            // Handle the exception, you can log it or return an error response
+            return response()->json(['message' => 'Failed to save data', 'error' => $e->getMessage()], 500);
         }
-
-        // Bulk insert the new user-menu relationships
-        UserMenus::insert($data);
-
-        // Commit transaction
-        DB::commit();
-
-        return response()->json(['message' => 'Data saved successfully']);
-    } catch (\Exception $e) {
-        // Rollback transaction on failure
-        DB::rollback();
-
-        // Handle the exception, you can log it or return an error response
-        return response()->json(['message' => 'Failed to save data', 'error' => $e->getMessage()], 500);
-    }
     }
 
     public function retrieveUserMenu($id)

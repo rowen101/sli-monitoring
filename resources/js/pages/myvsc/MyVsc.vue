@@ -543,7 +543,7 @@ onMounted(() => {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">
-                        <span>My VSC Summary Report</span>
+                        <span>{{pageTitle}} Summary Report</span>
                     </h5>
                     <button
                         type="button"

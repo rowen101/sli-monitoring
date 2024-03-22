@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\DashboardStatController;
 use App\Http\Controllers\Admin\AppointmentStatusController;
 use App\Http\Controllers\Admin\SliassetmonitoringController;
+use App\Http\Controllers\Admin\UserSiteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -122,7 +123,11 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/web/asset-monitoring', SliassetmonitoringController::class);
 
+    Route::get('/api/usersite/{id}',[UserSiteController::class,'index']);
 
+    Route::get('/api/getsitewithoutuser',[UserSiteController::class,'getsitewthuserid']);
+
+    Route::post('/api/saveusersites',[UserSiteController::class,'store']);
 
 });
 

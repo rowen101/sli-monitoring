@@ -22,7 +22,7 @@ const handleSubmit = () => {
     errorMessage.value = '';
     axios.post('/login', form)
         .then(() => {
-            router.push('/admin/dashboard');
+            router.push('/dashboard');
             toastr.success("Login Success");
         })
         .catch((error) => {

@@ -7,7 +7,7 @@ enum TaskType: int
     case LEAVE = 1;
     case OBT = 2;
     case SV = 3;
-    case VSC = 4;
+    case COA = 4;
     case WFH = 5;
 
     public function listtask(): string
@@ -16,7 +16,7 @@ enum TaskType: int
             TaskType::LEAVE => 'LEAVE',
             TaskType::OBT => 'OBT',
             TaskType::SV => 'SITE VISIT',
-            TaskType::VSC => 'VSC',
+            TaskType::COA => 'COA',
             TaskType::WFH => 'WORK FROM HOME',
         };
     }

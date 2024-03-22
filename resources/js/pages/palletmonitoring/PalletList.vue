@@ -4,13 +4,13 @@ import { ref, onMounted, reactive, watch } from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
-import AssetmItemList from "./AssetmItemList.vue";
+import PalletItemList from "./PalletItemList.vue";
 import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
 import { ContentLoader } from "vue-content-loader";
 import { useRoute } from "vue-router";
-
+import Datepicker from "vue3-datepicker";
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
@@ -105,6 +105,34 @@ const createData = ( { resetForm, setErrors }) => {
             }
         });
 };
+const applyFilter = () => {
+    //alert(`${form.value.start_date} ${form.value.end_date}`);
+
+    isloading.value = true;
+
+    axios
+        .get("/api/filter-vsc", {
+             params:{
+                start_date: form.value.start_date,
+                end_date: form.value.end_date,
+            }
+
+        })
+        .then((response) => {
+            isloading.value = false;
+            lists.value = response.data.dailyTasks;
+            listscount.value = response.data.TaskList;
+
+        })
+        .catch((error) => {
+            // Handle errors
+            console.error(error);
+        })
+        .finally(() => {
+            // Close the modal or perform any other actions
+            $("#FormModalfilterDate").modal("hide");
+        });
+};
 
 const addUser = () => {
     editing.value = false;
@@ -186,6 +214,9 @@ const deleteUser = () => {
     });
 };
 
+const onFilterDate = () => {
+    $("#FormModalfilterDate").modal("show");
+};
 const bulkDelete = () => {
     axios
         .delete("menulist", {
@@ -238,6 +269,9 @@ onMounted(() => {
 <template>
     <div class="content">
         <div class="container-fluid">
+
+
+
             <div class="d-flex justify-content-between">
                 <div class="d-flex">
                     <button
@@ -246,7 +280,7 @@ onMounted(() => {
                         class="mb-2 btn btn-primary"
                     >
                         <i class="fa fa-plus-circle mr-1"></i>
-                        Menu
+                        Pallet
                     </button>
                     <div v-if="selectedItems.length > 0">
                         <button
@@ -273,6 +307,15 @@ onMounted(() => {
                 </div>
             </div>
             <div class="card">
+                  <div class="card-header">
+
+                    <div class="card-tools">
+                            <i
+                                    class="fa fa-filter mr-1"
+                                    @click="onFilterDate"
+                                ></i>
+                        </div>
+                </div>
                 <div class="card-body">
                     <ContentLoader v-if="isloading" viewBox="0 0 250 110">
                         <rect
@@ -331,7 +374,7 @@ onMounted(() => {
                                 </tr>
                             </thead>
                             <tbody v-if="lists.data.length > 0">
-                                <AssetmItemList
+                                <PalletItemList
                                     v-for="(item, index) in lists.data"
                                     :key="item.id"
                                     :item="item"
@@ -373,8 +416,8 @@ onMounted(() => {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">
-                        <span v-if="editing">Edit Menu</span>
-                        <span v-else>Add Menu</span>
+                        <span v-if="editing">Edit Pallet</span>
+                        <span v-else>Add Pallet</span>
                     </h5>
                     <button
                         type="button"
@@ -403,7 +446,7 @@ onMounted(() => {
                                     />
 
                                     <div class="form-group">
-                                        <label for="user">Menu Title</label>
+                                        <label for="user">Allocated Pallet Space</label>
                                         <Field
                                             name="menu_title"
                                             type="text"
@@ -421,28 +464,10 @@ onMounted(() => {
                                         }}</span>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="department"
-                                            >Parent Menu</label
-                                        >
-                                        <select
-                                            class="form-control"
-                                            id="parentMenu"
-                                            v-model="form.parent_id"
-                                        >
-                                            <option value="0">None</option>
-                                            <option
-                                                v-for="parent in menuOptionlist"
-                                                :key="parent.menu_id"
-                                                :value="parent.menu_id"
-                                            >
-                                                {{ parent.menu_title }}
-                                            </option>
-                                        </select>
-                                    </div>
+
 
                                     <div class="form-group">
-                                        <label for="warehouse">Icon</label>
+                                        <label for="warehouse">Space Utilization Total</label>
                                         <Field
                                             name="menu_icon"
                                             type="text"
@@ -460,7 +485,7 @@ onMounted(() => {
                                         }}</span>
                                     </div>
                                     <div class="form-group">
-                                        <label for="user">Route</label>
+                                        <label for="user">Case Per Pallet</label>
                                         <Field
                                             name="menu_route"
                                             type="text"
@@ -477,34 +502,7 @@ onMounted(() => {
                                             errors.menu_route
                                         }}</span>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="user">Sort</label>
-                                        <Field
-                                            name="sort_order"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid': errors.sort_order,
-                                            }"
-                                            id="sort_order"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Sort Order"
-                                            v-model="form.sort_order"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.sort_order
-                                        }}</span>
-                                    </div>
-                                   <div class="form-group">
-                                        <label for="is_active">Active</label>
-                                        <input
-                                            name="is_active"
-                                            type="checkbox"
-                                            id="is_active"
-                                            v-model="checked"
-                                            @change="updateIsActive"
-                                        />
-                                    </div>
+                                  
                                 </div>
                             </div>
                         </div>
@@ -572,4 +570,71 @@ onMounted(() => {
             </div>
         </div>
     </div>
+
+      <div
+        class="modal fade"
+        id="FormModalfilterDate"
+        data-backdrop="static"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">
+                        <span>{{pageTitle}} Report</span>
+                    </h5>
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="fromtocenter">
+                        <div>
+                            <label for="fromDate">From:</label>
+                            <datepicker v-model="fromDate"></datepicker>
+                        </div>
+
+                        <div>
+                            <label for="toDate">To:</label>
+                            <datepicker v-model="toDate"></datepicker>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        @click="applyFilter"
+                        type="button"
+                        class="btn btn-primary"
+                    >
+                        Generate
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
+<style scoped>
+.fromtocenter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Optional: Add additional styling if needed */
+    margin-top: 5px; /* Adjust as needed */
+}
+</style>

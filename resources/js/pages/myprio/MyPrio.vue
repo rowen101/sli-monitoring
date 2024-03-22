@@ -68,7 +68,7 @@ const taskoptions = ref([
         value: 3,
     },
     {
-        name: "VSC",
+        name: "COA",
         value: 4,
     },
     {
