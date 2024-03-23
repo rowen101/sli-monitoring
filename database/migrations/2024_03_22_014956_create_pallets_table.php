@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('pallets', function (Blueprint $table) {
             $table->increments('id');
-            $table->foreignId('site_id')->references('id')->on('tbl_sites');
-            $table->foreignId('user_id')->references('id')->on('users');
+            $table->integer('site_id');
+            $table->integer('user_id');
             $table->date('date');
             $table->integer('allocatedpalletspace');
             $table->integer('spaceuteltotal');

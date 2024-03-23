@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('user_sites', function (Blueprint $table) {
             $table->increments('id');
-            $table->foreignId('user_id')->references('id')->on('users');
-            $table->foreignId('site_id')->references('id')->on('tbl_sites');
+            $table->integer('user_id');
+            $table->integer('site_id');
             $table->timestamps();
         });
     }
