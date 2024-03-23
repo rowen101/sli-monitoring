@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('sliassetmonitoring', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('site_id')->references('id')->on('tbl_sites');
+            $table->foreignId('site_id')->constrained();
             $table->string('asset_name')->nullable(false);
             $table->string('asset_type')->nullable(false);
             $table->string('serial')->nullable();
