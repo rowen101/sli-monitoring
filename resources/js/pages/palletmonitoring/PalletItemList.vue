@@ -5,6 +5,8 @@ import { useToastr } from "../../toastr.js";
 import axios from "axios";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
 import DOMPurify from "dompurify";
+import moment from "moment";
+
 const toastr = useToastr();
 const authUserStore = useAuthUserStore();
 const props = defineProps({
@@ -13,14 +15,14 @@ const props = defineProps({
     selectAll: Boolean,
 });
 
-const emit = defineEmits(["userDeleted", "editMenu", "confirmDeletion"]);
+const emit = defineEmits(["dataDeleted", "editData", "confirmDeletion"]);
 
 const toggleSelection = () => {
     emit("toggleSelection", props.item);
 };
 </script>
 <template>
-    <tr>
+    <tr style="text-align:center;">
         <td>
             <input
                 type="checkbox"
@@ -28,16 +30,25 @@ const toggleSelection = () => {
                 @change="toggleSelection"
             />
         </td>
-        <td>{{ index + 1 }}</td>
-        <td>{{ item.asset_name }}</td>
-        <td>{{ item.asset_type }}</td>
-        <td>{{ item.serial }}</td>
-        <td>{{ item.date_acquired }}</td>
-        <td>{{ item.man_supplier }}</td>
-        <td>{{ item.unit }}</td>
-        <td>{{ item.location }}</td>
+
+        <td>{{ moment(item.date).format("MMMM DD, YY")}}</td>
+        
+        <td>{{ item.allocatedpalletspace }}</td>
+        <td>{{ item.spaceuteltotal }}</td>
+        <td>{{ item.spacetotalutelpercent }}</td>
+        <td>{{ item.excess }}</td>
+        <td>{{ item.caseperpallet }}</td>
+        <td>{{item.cost}}</td>
+        <td>EXCESS {{ item.excess }} PALLETS</td>
+
         <td>
-            {{ item.paccountable }}
+            <a href="#" @click.prevent="$emit('editData', item)"
+                ><i class="fa fa-edit"></i
+            ></a>
+
+            <a href="#" @click.prevent="$emit('confirmUserDeletion', item.id)"
+                ><i class="fa fa-trash text-danger ml-2"></i
+            ></a>
         </td>
     </tr>
 </template>

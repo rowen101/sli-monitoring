@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\MyClosePrioController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\DashboardStatController;
 use App\Http\Controllers\Admin\AppointmentStatusController;
+use App\Http\Controllers\Admin\PalletController;
 use App\Http\Controllers\Admin\SliassetmonitoringController;
 use App\Http\Controllers\Admin\UserSiteController;
 
@@ -90,7 +91,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/api/dailytask/drop/{id}',[TaskController::class, 'drop']);
      Route::delete('/api/dailytask/deleteTask/{id}',[TaskController::class, 'deleteTask']);
      Route::get('/api/dailytask/filter-taskdate',[TaskController::class,'FilterTaskdate']);
-     Route::get('/api/getsite',[TaskController::class,'getSite']);
+     Route::get('/web/getsite',[TaskController::class,'getSite']);
      //myvsc controller
 
      Route::post('/api/changethemes',[VirtualASController::class, 'changethemes']);
@@ -123,11 +124,15 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/web/asset-monitoring', SliassetmonitoringController::class);
 
-    Route::get('/api/usersite/{id}',[UserSiteController::class,'index']);
+    Route::get('/web/usersite/{id}',[UserSiteController::class,'index']);
 
-    Route::get('/api/getsitewithoutuser',[UserSiteController::class,'getsitewthuserid']);
+    Route::get('/web/getsitewithoutuser',[UserSiteController::class,'getsitewthuserid']);
 
-    Route::post('/api/saveusersites',[UserSiteController::class,'store']);
+    Route::post('/web/onSaveupdate',[UserSiteController::class,'onSaveupdate']);
+
+    Route::resource('/web/pallet', PalletController::class);
+    Route::delete('/web/bulkDelete',[PalletController::class,'bulkDelete']);
+
 
 });
 

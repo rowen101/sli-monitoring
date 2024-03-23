@@ -11,37 +11,35 @@ import { useAuthUserStore } from "../../stores/AuthUserStore";
 import { ContentLoader } from "vue-content-loader";
 import { useRoute } from "vue-router";
 import Datepicker from "vue3-datepicker";
+
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
-const menuOptionlist = ref({ data: [] });
 
 const isloading = ref(false);
 const editing = ref(false);
-const formValues = ref();
+const authUserStore = useAuthUserStore();
 
 const checked = ref(true);
 const form = reactive({
-    menu_id: "",
-    menu_title: "",
-    parent_id: "",
-    menu_icon: "",
-    menu_route: "",
-    sort_order: "",
-    is_active: "",
-    ceated_by: "",
-    updated_by: "",
+    id: "",
+    site_id: "",
+    user_id: authUserStore.user.id,
+    date: "",
+    allocatedpalletspace: "",
+    spaceuteltotal: "",
+    caseperpallet: "",
 });
 
-const authUserStore = useAuthUserStore();
 const selectedStatus = ref(null);
 const selectedParentID = ref();
 
-const getItems = (page = 1) => {
+const getItems = () => {
     isloading.value = true;
     axios
-        .get(`/web/asset-monitoring?page=${page}`, {
+        .get(`/web/pallet`, {
             params: {
+                site_id: form.site_id,
                 query: searchQuery.value,
             },
         })
@@ -53,16 +51,6 @@ const getItems = (page = 1) => {
         });
 };
 
-const parentMenus = () => {
-    axios
-        .get(`/api/GetParentId`)
-        .then((response) => {
-            menuOptionlist.value = response.data;
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-};
 const createUserSchema = yup.object({
     menu_title: yup.string().required(),
     parent_id: yup.string().required(),
@@ -79,32 +67,55 @@ const editUserSchema = yup.object({
     menu_route: yup.string().required(),
 });
 
-const updateIsActive = (checked) => {
-        form.is_active = checked ? 1 : 0;
+const listsite = ref();
 
-    }
-const createData = ( { resetForm, setErrors }) => {
+const ClearForm = () => {
+    form.id = "";
+    form.site_id = "";
+    form.user_id = authUserStore.user.id;
+    form.date = "";
+    form.allocatedpalletspace = "";
+    form.spaceuteltotal = "";
+    form.caseperpallet = "";
+}
+const createData = ({ resetForm, setErrors }) => {
     axios
-        .post("/api/menulist", {
-            menu_title: form.menu_title,
-            parent_id: form.parent_id,
-            menu_icon: form.menu_icon,
-            menu_route: form.menu_route,
-            sort_order: form.sort_order,
-            is_active: form.is_active,
+        .post("/web/pallet", {
+            site_id: form.site_id,
+            user_id: form.user_id,
+            date: form.date,
+            allocatedpalletspace: form.allocatedpalletspace,
+            spaceuteltotal: form.spaceuteltotal,
+            caseperpallet: form.caseperpallet,
         })
         .then((response) => {
-            lists.value.data.unshift(response.data);
+            // lists.value.data.unshift(response.data);
+            getItems();
+
             $("#FormModal").modal("hide");
-            resetForm();
+            ClearForm();
             toastr.success("User created successfully!");
         })
         .catch((error) => {
-            if (error.response.data.errors) {
-                setErrors(error.response.data.errors);
-            }
+           console.log(error);
         });
 };
+
+const getSite = () => {
+    axios
+        .get(`/web/getsite`)
+        .then((response) => {
+            listsite.value = response.data.sites;
+
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+};
+
+const changeSite = () => {
+    getItems(form.site_id);
+}
 const applyFilter = () => {
     //alert(`${form.value.start_date} ${form.value.end_date}`);
 
@@ -112,17 +123,15 @@ const applyFilter = () => {
 
     axios
         .get("/api/filter-vsc", {
-             params:{
+            params: {
                 start_date: form.value.start_date,
                 end_date: form.value.end_date,
-            }
-
+            },
         })
         .then((response) => {
             isloading.value = false;
             lists.value = response.data.dailyTasks;
             listscount.value = response.data.TaskList;
-
         })
         .catch((error) => {
             // Handle errors
@@ -134,36 +143,31 @@ const applyFilter = () => {
         });
 };
 
-const addUser = () => {
+const addData = () => {
     editing.value = false;
+
     $("#FormModal").modal("show");
 };
 
-const editMenu = (item) => {
+const editData = (item) => {
+    editing.value = true;
+    form.id = item.id;
+    form.user_id = item.user_id;
+    form.site_id = item.site_id;
+    form.date = item.date;
+    form.allocatedpalletspace = item.allocatedpalletspace;
+    form.spaceuteltotal = item.spaceuteltotal;
+    form.caseperpallet = item.caseperpallet;
 
-     editing.value = true;
-    form.menu_id = item.menu_id;
-    form.menu_title = item.menu_title;
-    form.parent_id = item.parent_id;
-    form.menu_icon = item.menu_icon;
-    form.menu_route = item.menu_route;
-    form.sort_order = item.sort_order;
-    if (form.is_active === 1) {
-        checked.value = true;
-    } else {
-        checked.value = false;
-    }
-    form.is_active = item.is_active;
     $("#FormModal").modal("show");
-    selectedParentID.value = item.parent_id;
+
 };
 
-
-
-const updateData = ( { setErrors }) => {
+const updateData = ({ setErrors }) => {
     axios
-        .post("/api/menulist", form)
+        .post("/web/pallet", form)
         .then((response) => {
+            ClearForm();
             getItems();
             $("#FormModal").modal("hide");
             toastr.success("successfully Updated!");
@@ -186,10 +190,11 @@ const handleSubmit = (values, actions) => {
 const searchQuery = ref(null);
 
 const selectedItems = ref([]);
-const toggleSelection = (user) => {
-    const index = selectedItems.value.indexOf(user.id);
+
+const toggleSelection = (data) => {
+    const index = selectedItems.value.indexOf(data.id);
     if (index === -1) {
-        selectedItems.value.push(user.id);
+        selectedItems.value.push(data.id);
     } else {
         selectedItems.value.splice(index, 1);
     }
@@ -200,42 +205,40 @@ const valIdBeingDeleted = ref(null);
 
 const confirmDeletion = (id) => {
     valIdBeingDeleted.value = id;
-    $("#deleteClientModal").modal("show");
-
+    $("#deleteDataModal").modal("show");
 };
 
-const deleteUser = () => {
-    axios.delete(`/api/menu/${valIdBeingDeleted.value}`).then(() => {
-        $("#deleteClientModal").modal("hide");
-        toastr.success("Menu deleted successfully!");
+const deleteData = () => {
+    axios.delete(`/web/pallet/${valIdBeingDeleted.value}`).then(() => {
+        $("#deleteDataModal").modal("hide");
+        toastr.success("Pallet deleted successfully!");
         lists.value.data = lists.value.data.filter(
-            (val) => val.menu_id !== valIdBeingDeleted.value
+            (val) => val.id !== valIdBeingDeleted.value
         );
     });
 };
 
-const onFilterDate = () => {
-    $("#FormModalfilterDate").modal("show");
-};
 const bulkDelete = () => {
     axios
-        .delete("menulist", {
+        .delete("/web/bulkDelete", {
             data: {
                 ids: selectedItems.value,
             },
         })
         .then((response) => {
-            lists.value.data = lists.value.data.filter(
-                (user) => !selectedItems.value.includes(user.id)
-            );
+            getItems();
             selectedItems.value = [];
             selectAll.value = false;
             toastr.success(response.data.message);
         });
 };
+const onFilterDate = () => {
+    $("#FormModalfilterDate").modal("show");
+};
 
 const selectAll = ref(false);
-const selectAllUsers = () => {
+
+const selectAllItems = () => {
     if (selectAll.value) {
         selectedItems.value = lists.value.data.map((user) => user.id);
     } else {
@@ -248,7 +251,7 @@ const updateStatus = (status) => {
     selectedStatus.value = status;
 };
 watch([checked], (val) => {
-     form.is_active = val ? 1 : 0;
+    form.is_active = val ? 1 : 0;
 });
 
 watch(
@@ -259,23 +262,19 @@ watch(
 );
 
 onMounted(() => {
+    getSite();
     getItems();
-    parentMenus();
     document.title = pageTitle;
-
 });
 </script>
 
 <template>
     <div class="content">
         <div class="container-fluid">
-
-
-
             <div class="d-flex justify-content-between">
                 <div class="d-flex">
                     <button
-                        @click="addUser"
+                        @click="addData"
                         type="button"
                         class="mb-2 btn btn-primary"
                     >
@@ -292,8 +291,7 @@ onMounted(() => {
                             Delete Selected
                         </button>
                         <span class="ml-2"
-                            >Selected
-                            {{ selectedItems.length }} techrecomm</span
+                            >Selected {{ selectedItems.length }} Pallet</span
                         >
                     </div>
                 </div>
@@ -307,14 +305,30 @@ onMounted(() => {
                 </div>
             </div>
             <div class="card">
-                  <div class="card-header">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="form-group" style="display: inline-block">
+                            <select
+                                class="form-control"
+                                id="siteDropdown"
+                                v-model="form.site_id"
+                                @change="changeSite()"
+                            >
+                                <option value="" disabled>Select a site</option>
+                                <option
+                                    v-for="site in listsite"
+                                    :key="site.id"
+                                    :value="site.id"
+                                >
+                                    {{ site.site_name }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="card-tools">
-                            <i
-                                    class="fa fa-filter mr-1"
-                                    @click="onFilterDate"
-                                ></i>
-                        </div>
+                        <i class="fa fa-filter mr-1" @click="onFilterDate"></i>
+                    </div>
                 </div>
                 <div class="card-body">
                     <ContentLoader v-if="isloading" viewBox="0 0 250 110">
@@ -351,55 +365,60 @@ onMounted(() => {
                             height="10"
                         />
                     </ContentLoader>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm table-striped hover">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <input
-                                            type="checkbox"
-                                            v-model="selectAll"
-                                            @change="selectAllUsers"
-                                        />
-                                    </th>
-                                    <th style="width: 10px">#</th>
-                                    <th>Asset</th>
-                                    <th>Asset type</th>
-                                    <th>Serial</th>
-                                    <th>Date Aquired</th>
-                                    <th>Suppliear</th>
-                                    <th>Unit</th>
-                                    <th>Location</th>
+                    <div v-else class="table-responsive">
+                        <font size="2" face="Courier New">
+                            <table
+                                class="table table-bordered table-sm table-striped hover"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input
+                                                type="checkbox"
+                                                v-model="selectAll"
+                                                @change="selectAllItems"
+                                            />
+                                        </th>
 
-                                </tr>
-                            </thead>
-                            <tbody v-if="lists.data.length > 0">
-                                <PalletItemList
-                                    v-for="(item, index) in lists.data"
-                                    :key="item.id"
-                                    :item="item"
-                                    :index="index"
-                                    @edit-menu="editMenu"
-                                    @confirm-deletion="confirmDeletion"
-                                    @toggle-selection="toggleSelection"
-                                    :select-all="selectAll"
-                                />
-                            </tbody>
-                            <tbody v-else>
-                                <tr>
-                                    <td colspan="9" class="text-center">
-                                        No results found...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                        <th>Date</th>
+                                        <th>Allocated Pallet Space</th>
+                                        <th>SPACE UTILIZATION TOTAL</th>
+                                        <th>Space Utilization %</th>
+                                        <th>Excess</th>
+                                        <th>Cost per Pallet</th>
+                                        <th>Cost</th>
+                                        <th>Remarks</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-if="lists.length > 0">
+                                    <PalletItemList
+                                        v-for="(item, index) in lists"
+                                        :key="item.id"
+                                        :item="item"
+                                        :index="index"
+                                        @edit-data="editData"
+                                        @confirm-deletion="confirmDeletion"
+                                        @toggle-selection="toggleSelection"
+                                        :select-all="selectAll"
+                                    />
+                                </tbody>
+                                <tbody v-else>
+                                    <tr>
+                                        <td colspan="10" class="text-center">
+                                            No results found...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </font>
                     </div>
                 </div>
             </div>
-            <Bootstrap4Pagination
+            <!-- <Bootstrap4Pagination
                 :data="lists"
                 @pagination-change-page="getItems"
-            />
+            /> -->
         </div>
     </div>
 
@@ -428,81 +447,100 @@ onMounted(() => {
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <Form
-
-                    @submit="handleSubmit"
-                    v-slot="{ errors }"
-
-                >
+                <Form @submit="handleSubmit" v-slot="{ errors }">
                     <div class="modal-body">
                         <div class="col-md-12">
                             <div class="row">
                                 <div class="col-12">
                                     <Field
+                                        v-model="form.user_id"
                                         type="hidden"
-                                        name="created_by"
-                                        id="created_by"
-                                        v-model="authUserStore.user.id"
+                                        name="user_id"
+                                        id="user_id"
                                     />
 
                                     <div class="form-group">
-                                        <label for="user">Allocated Pallet Space</label>
+                                        <label for="date">Date</label>
                                         <Field
-                                            name="menu_title"
+                                            name="date"
+                                            type="date"
+                                            class="form-control"
+                                            :class="{
+                                                'is-invalid': errors.date,
+                                            }"
+                                            id="date"
+                                            aria-describedby="dateHelp"
+                                            placeholder="Select Date"
+                                            v-model="form.date"
+                                        />
+                                        <span class="invalid-feedback">{{
+                                            errors.date
+                                        }}</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="user"
+                                            >Allocated Pallet Space</label
+                                        >
+                                        <Field
+                                            name="allocatedpalletspace"
                                             type="text"
                                             class="form-control"
                                             :class="{
-                                                'is-invalid': errors.menu_title,
+                                                'is-invalid':
+                                                    errors.allocatedpalletspace,
                                             }"
-                                            id="menu_title"
+                                            id="allocatedpalletspace"
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Menu title"
-                                            v-model="form.menu_title"
+                                            v-model="form.allocatedpalletspace"
                                         />
                                         <span class="invalid-feedback">{{
-                                            errors.menu_title
+                                            errors.allocatedpalletspace
                                         }}</span>
                                     </div>
 
-
-
                                     <div class="form-group">
-                                        <label for="warehouse">Space Utilization Total</label>
+                                        <label for="warehouse"
+                                            >Space Utilization Total</label
+                                        >
                                         <Field
-                                            name="menu_icon"
+                                            name="spaceuteltotal"
                                             type="text"
                                             class="form-control"
                                             :class="{
-                                                'is-invalid': errors.menu_icon,
+                                                'is-invalid':
+                                                    errors.spaceuteltotal,
                                             }"
-                                            id="menu_icon"
+                                            id="spaceuteltotal"
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Menu Icon"
-                                            v-model="form.menu_icon"
+                                            v-model="form.spaceuteltotal"
                                         />
                                         <span class="invalid-feedback">{{
-                                            errors.menu_icon
+                                            errors.spaceuteltotal
                                         }}</span>
                                     </div>
                                     <div class="form-group">
-                                        <label for="user">Case Per Pallet</label>
+                                        <label for="user"
+                                            >Case Per Pallet</label
+                                        >
                                         <Field
-                                            name="menu_route"
+                                            name="caseperpallet"
                                             type="text"
                                             class="form-control"
                                             :class="{
-                                                'is-invalid': errors.menu_route,
+                                                'is-invalid':
+                                                    errors.caseperpallet,
                                             }"
-                                            id="menu_route"
+                                            id="caseperpallet"
                                             aria-describedby="nameHelp"
-                                            placeholder="Enter Route"
-                                            v-model="form.menu_route"
+                                            placeholder="Enter Case Per Pallet"
+                                            v-model="form.caseperpallet"
                                         />
                                         <span class="invalid-feedback">{{
-                                            errors.menu_route
+                                            errors.caseperpallet
                                         }}</span>
                                     </div>
-                                  
                                 </div>
                             </div>
                         </div>
@@ -560,7 +598,7 @@ onMounted(() => {
                         Cancel
                     </button>
                     <button
-                        @click.prevent="deleteUser"
+                        @click.prevent="deleteData"
                         type="button"
                         class="btn btn-primary"
                     >
@@ -571,7 +609,7 @@ onMounted(() => {
         </div>
     </div>
 
-      <div
+    <div
         class="modal fade"
         id="FormModalfilterDate"
         data-backdrop="static"
@@ -584,7 +622,7 @@ onMounted(() => {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">
-                        <span>{{pageTitle}} Report</span>
+                        <span>{{ pageTitle }} Report</span>
                     </h5>
                     <button
                         type="button"

@@ -11,6 +11,9 @@ import { useAuthUserStore } from "../../stores/AuthUserStore";
 import { ContentLoader } from "vue-content-loader";
 import { useRoute } from "vue-router";
 import Datepicker from "vue3-datepicker";
+
+
+const authUserStore = useAuthUserStore();
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
@@ -25,7 +28,7 @@ const form = reactive({
     user_id: "",
 });
 
-const authUserStore = useAuthUserStore();
+
 const selectedStatus = ref(null);
 const selectedParentID = ref();
 const listsite = ref();
@@ -47,7 +50,7 @@ const getSite = (userId) => {
 
     if (userId !== null) {
         axios
-            .get(`/api/usersite/${userId}`) // Updated endpoint with userId as a route parameter
+            .get(`/web/usersite/${userId}`) // Updated endpoint with userId as a route parameter
             .then((response) => {
                 listsite.value = response.data;
             })
@@ -57,7 +60,7 @@ const getSite = (userId) => {
             });
     } else {
         axios
-            .get("/api/getsitewithoutuser")
+            .get("/web/getsitewithoutuser")
             .then((response) => {
                 listsite.value = response.data;
             })
@@ -68,19 +71,23 @@ const getSite = (userId) => {
     }
 };
 
-const getItems = (page = 1) => {
-    isloading.value = true;
+const handleSubmit = () => {
+    // Prepare the data to be sent to your API
+    const postData = {
+        user_id: form.user_id,
+        site_id: selectedsite.value,
+        // other data properties
+    };
+    console.log(postData);
+    // Make the API call using your preferred method (Axios, fetch, etc.)
+    // Example using Axios:
     axios
-        .get(`/web/asset-monitoring?page=${page}`, {
-            params: {
-                query: searchQuery.value,
-            },
-        })
+        .post("/web/onSaveupdate", postData)
         .then((response) => {
-            isloading.value = false;
-            lists.value = response.data;
-            selectedItems.value = [];
-            selectAll.value = false;
+            toastr.success("User Site Save successfully!");
+        })
+        .catch((error) => {
+            setErrors(error.response.data.errors);
         });
 };
 
@@ -104,7 +111,7 @@ onMounted(() => {
                             <div class="form-group m-3">
                                 <Field
                                     as="select"
-                                    name="branch"
+                                    name="user_id"
                                     class="form-control"
                                     id="userid"
                                     v-model="form.user_id"
@@ -126,32 +133,38 @@ onMounted(() => {
                         </div>
 
                         <div class="card-body">
-                            <fieldset class="border p-2">
-                                <legend class="w-auto">Site</legend>
-                                <ul
-                                    class="list-group"
-                                    style="max-height: 300px; overflow-y: auto"
+
+                            <ul class="list-group">
+                                <li
                                     v-for="site in listsite"
-                                    :key="site.site_name"
-                                    :value="site.site_name"
+                                    :key="site.id"
+                                    class="list-group-item"
                                 >
-                                    <li class="list-group-item">
+                                    <div class="custom-control custom-checkbox">
                                         <input
                                             class="custom-control-input"
                                             type="checkbox"
                                             v-model="selectedsite"
                                             :value="site.id"
                                             :id="'site_id_' + site.id"
-                                        />&nbsp;{{ site.site_name }}
-                                    </li>
-                                </ul>
-                            </fieldset>
+                                            :checked="site.hasAccess"
+                                        />
+                                        <label
+                                            :for="'site_id_' + site.id"
+                                            class="custom-control-label"
+                                        >
+                                            {{ site.site_name }}
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
 
                             <div class="card-footer">
-                                <button type="button" class="btn btn-primary">
+                                <button type="button" @click="handleSubmit()" class="btn btn-primary">
                                     Submit
                                 </button>
                             </div>
+
                         </div>
                     </div>
                 </div>

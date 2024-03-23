@@ -10,31 +10,24 @@ use App\Http\Controllers\Controller;
 
 class UserSiteController extends Controller
 {
-    public function index(Request $request,$id)
+    public function index(Request $request)
     {
-        // Validate and sanitize input
+        $user_id = $request->input('user_id');
 
-        //Fetch sites with user access information
         $sites = tbl_site::select('tbl_sites.*')
-            ->leftJoin('user_sites', function ($join) use ($id) {
-                $join->on('tbl_sites.id', '=', 'user_sites.site_id')
-                    ->where('user_sites.user_id', '=', $id);
-            })
             ->where('tbl_sites.is_active', 1)
             ->orderBy('tbl_sites.site_name', 'ASC')
             ->get();
 
-        // Transform data
-        $data = $sites->map(function ($site) {
-            return [
-                'id' => $site->id,
-                'site_name' => $site->site_name,
-                'hasAccess' => !is_null($site->user_id) // Check if user has access to the site
-            ];
-        });
+            $sites->each(function ($sitesItem) use ($user_id) {
 
-        // Return JSON response
-        return response()->json($data);
+                $sitesItem->hasAccess = UserSites::where('user_id', $user_id)
+                    ->where('user_id', $sitesItem->user_id)
+                    ->exists();
+
+             });
+
+        return response()->json($sites);
     }
 
     public function getsitewthuserid()
@@ -46,7 +39,7 @@ class UserSiteController extends Controller
         return response()->json();
     }
 
-    public function onSaveupdat(Request $request)
+    public function onSaveupdate(Request $request)
     {
         try {
             // Begin transaction

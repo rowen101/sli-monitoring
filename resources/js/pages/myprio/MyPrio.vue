@@ -103,7 +103,7 @@ const endhours = ref(
 const form = reactive({
     dailytask_id:"",
     site: "",
-    user_id: authUserStore.user.id, // Make sure authUserStore is defined
+    user_id: authUserStore.user.id, 
     tasktype: 0,
     plandate: "",
     planenddate: "",
@@ -167,7 +167,7 @@ const formatDate = (dateString) => {
 
 const getSite = () => {
     axios
-        .get(`/api/getsite`)
+        .get(`/web/getsite`)
         .then((response) => {
             listsite.value = response.data.sites;
         })
