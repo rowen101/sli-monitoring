@@ -164,6 +164,7 @@ onMounted(() => {
                             <div>
                                 <div class="dispatch-table">
                                     <div class="table-responsive">
+                                        <font size="2" >
                                         <table
                                             class="table table-bordered table-sm table-striped table-hover"
                                         >
@@ -201,6 +202,7 @@ onMounted(() => {
                                                 </tr>
                                             </tbody>
                                         </table>
+                                    </font>
                                     </div>
                                 </div>
 

@@ -259,6 +259,7 @@ onMounted(() => {
                 <div class="card-body">
                     <div class="dispatch-table">
                         <div class="table-responsive">
+                            <font size="2" >
                             <table
                                 class="table table-bordered table-hover table-sm"
                             >
@@ -302,6 +303,7 @@ onMounted(() => {
                                     </tr>
                                 </tbody>
                             </table>
+                        </font>
                         </div>
                     </div>
                     <div

@@ -259,7 +259,7 @@ onMounted(() => {
                         </button>
                         <span class="ml-2"
                             >Selected
-                            {{ selectedItems.length }} techrecomm</span
+                            {{ selectedItems.length }} Menu</span
                         >
                     </div>
                 </div>
@@ -309,6 +309,7 @@ onMounted(() => {
                         />
                     </ContentLoader>
                     <div class="table-responsive">
+                        <font size="2" >
                         <table class="table table-bordered table-sm">
                             <thead>
                                 <tr>
@@ -350,6 +351,7 @@ onMounted(() => {
                                 </tr>
                             </tbody>
                         </table>
+                    </font>
                     </div>
                 </div>
             </div>

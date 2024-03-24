@@ -15,7 +15,7 @@ import Datepicker from "vue3-datepicker";
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
-
+const listsite = ref();
 const isloading = ref(false);
 const editing = ref(false);
 const authUserStore = useAuthUserStore();
@@ -29,7 +29,10 @@ const form = reactive({
     allocatedpalletspace: "",
     spaceuteltotal: "",
     caseperpallet: "",
+
 });
+
+
 
 const selectedStatus = ref(null);
 const selectedParentID = ref();
@@ -67,7 +70,57 @@ const editUserSchema = yup.object({
     menu_route: yup.string().required(),
 });
 
-const listsite = ref();
+const fromDate = ref("");
+const toDate = ref("");
+
+const formfilter = ref({
+    start_date: "",
+    end_date: "",
+});
+
+// Watch for changes in Sdate and StrHours and update plandate
+watch([fromDate], () => {
+    const originalDate = new Date(fromDate.value);
+    const year = originalDate.getFullYear();
+    const month = String(originalDate.getMonth() + 1).padStart(2, "0");
+    const day = String(originalDate.getDate()).padStart(2, "0");
+    formfilter.value.start_date = `${year}-${month}-${day}`;
+});
+
+// Watch for changes in Edate and EndHours and update planenddate
+watch([toDate], () => {
+    const originalDate = new Date(toDate.value);
+    const year = originalDate.getFullYear();
+    const month = String(originalDate.getMonth() + 1).padStart(2, "0");
+    const day = String(originalDate.getDate()).padStart(2, "0");
+    formfilter.value.end_date = `${year}-${month}-${day}`;
+});
+
+
+const applyFilter = () => {
+    isloading.value = true;
+    axios
+        .get("/web/filter-pallet", {
+            params: {
+                start_date: formfilter.value.start_date,
+                end_date: formfilter.value.end_date,
+                site_id: form.site_id,
+            },
+        })
+        .then((response) => {
+            isloading.value = false;
+            lists.value = response.data;
+
+        })
+        .catch((error) => {
+            // Handle errors
+            console.error(error);
+        })
+        .finally(() => {
+            // Close the modal or perform any other actions
+            $("#FormModalfilterDate").modal("hide");
+        });
+};
 
 const ClearForm = () => {
     form.id = "";
@@ -116,32 +169,7 @@ const getSite = () => {
 const changeSite = () => {
     getItems(form.site_id);
 }
-const applyFilter = () => {
-    //alert(`${form.value.start_date} ${form.value.end_date}`);
 
-    isloading.value = true;
-
-    axios
-        .get("/api/filter-vsc", {
-            params: {
-                start_date: form.value.start_date,
-                end_date: form.value.end_date,
-            },
-        })
-        .then((response) => {
-            isloading.value = false;
-            lists.value = response.data.dailyTasks;
-            listscount.value = response.data.TaskList;
-        })
-        .catch((error) => {
-            // Handle errors
-            console.error(error);
-        })
-        .finally(() => {
-            // Close the modal or perform any other actions
-            $("#FormModalfilterDate").modal("hide");
-        });
-};
 
 const addData = () => {
     editing.value = false;
@@ -263,7 +291,7 @@ watch(
 
 onMounted(() => {
     getSite();
-    getItems();
+
     document.title = pageTitle;
 });
 </script>
@@ -295,14 +323,14 @@ onMounted(() => {
                         >
                     </div>
                 </div>
-                <div>
+                <!-- <div>
                     <input
                         type="text"
                         v-model="searchQuery"
                         class="form-control"
                         placeholder="Search..."
                     />
-                </div>
+                </div> -->
             </div>
             <div class="card">
                 <div class="card-header">
@@ -366,7 +394,7 @@ onMounted(() => {
                         />
                     </ContentLoader>
                     <div v-else class="table-responsive">
-                        <font size="2" face="Courier New">
+                        <font size="2" >
                             <table
                                 class="table table-bordered table-sm table-striped hover"
                             >
@@ -655,7 +683,7 @@ onMounted(() => {
                         Cancel
                     </button>
                     <button
-                        @click="applyFilter"
+                        @click="applyFilter()"
                         type="button"
                         class="btn btn-primary"
                     >

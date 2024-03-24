@@ -23,7 +23,6 @@ class UserController extends Controller
     public function listuser()
     {
         $data = User::where('is_active', 1)
-        ->where('name', '!=', 'admin')
         ->get();
 
         return response()->json($data);

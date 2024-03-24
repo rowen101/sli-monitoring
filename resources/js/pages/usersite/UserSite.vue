@@ -134,7 +134,7 @@ onMounted(() => {
 
                         <div class="card-body">
 
-                            <ul class="list-group">
+                            <ul class="list-group" style="max-height: 300px; overflow-y: auto">
                                 <li
                                     v-for="site in listsite"
                                     :key="site.id"

@@ -356,6 +356,7 @@ onMounted(() => {
                     </ContentLoader>
                     <div class="dispatch-table">
                         <div class="table-responsive">
+                            <font size="2" >
                             <table class="table table-bordered table-sm">
                                 <thead>
                                     <tr>
@@ -400,6 +401,7 @@ onMounted(() => {
                                     </tr>
                                 </tbody>
                             </table>
+                        </font>
                         </div>
                     </div>
                     <div

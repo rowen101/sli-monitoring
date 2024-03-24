@@ -132,7 +132,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/web/pallet', PalletController::class);
     Route::delete('/web/bulkDelete',[PalletController::class,'bulkDelete']);
-
+    Route::get('/web/filter-pallet',[PalletController::class,'filter']);
 
 });
 
