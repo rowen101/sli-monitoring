@@ -19,8 +19,8 @@ return new class extends Migration
             $table->integer('user_id');
             $table->date('date');
             $table->integer('allocatedpalletspace');
-            $table->integer('spaceuteltotal');
-            $table->integer('caseperpallet');
+            $table->integer('spaceuteltotal')->nullable();
+            $table->integer('caseperpallet')->nullable();
             $table->timestamps();
         });
     }

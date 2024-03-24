@@ -103,7 +103,7 @@ const endhours = ref(
 const form = reactive({
     dailytask_id:"",
     site: "",
-    user_id: authUserStore.user.id, 
+    user_id: authUserStore.user.id,
     tasktype: 0,
     plandate: "",
     planenddate: "",

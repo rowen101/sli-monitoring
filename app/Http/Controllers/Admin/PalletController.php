@@ -17,48 +17,56 @@ class PalletController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-{
+    {
+        $site_id = $request->input('site_id');
+        $data = Pallet::query()
+            ->when(request('query'), function ($query, $searchQuery) {
+                $query->where('site_id', 'like', "%{$searchQuery}%");
+            })
+            ->latest()
+            ->when($site_id, function ($query, $site_id) {
+                $query->where('site_id', $site_id);
+            })
+            ->whereMonth('date', now()->month)
+            ->get()
+            ->map(function ($item) {
+                $user = User::find($item->user_id);
+                $site = tbl_site::find($item->site_id);
 
-    $site_id = $request->input('site_id');
-    $data = Pallet::query()
-        ->when(request('query'), function ($query, $searchQuery) {
-            $query->where('site_id', 'like', "%{$searchQuery}%");
-        })
-        ->latest()
-        ->when($site_id, function ($query, $site_id) { // Filter by site_id if provided
-            $query->where('site_id', $site_id);
-        })
-        ->get() // Removed pagination, using get() to fetch all records
-        ->map(function ($item) {
-            $user = User::find($item->user_id);
-            $site = tbl_site::find($item->site_id);
+                $createdAt = ($item->created_at instanceof \DateTime) ? $item->created_at->format('Y-m-d h:i A') : null;
 
-            $date = ($item->date instanceof \DateTime) ? $item->date->format('Y-m-d') : null;
-            $createdAt = ($item->created_at instanceof \DateTime) ? $item->created_at->format('Y-m-d h:i A') : null;
+                $spacetotalutelpercent = ($item->allocatedpalletspace != 0) ? ($item->spaceuteltotal / $item->allocatedpalletspace) * 100 : null;
+                $excess = $item->spaceuteltotal - $item->allocatedpalletspace;
+                $cost = number_format($item->spaceuteltotal * $item->caseperpallet, 2);
 
-            $spacetotalutelpercent = ($item->allocatedpalletspace != 0) ? ($item->spaceuteltotal / $item->allocatedpalletspace) * 100 : null;
-            $excess = $item->spaceuteltotal - $item->allocatedpalletspace;
-            $cost = number_format($item->spaceuteltotal * $item->caseperpallet, 2);
+                return [
+                    'id' => $item->id,
+                    'site' => $site ? $site->site_name : null,
+                    'user_id' => $item->user_id,
+                    'site_id' => $item->site_id,
+                    'created_user' => $user ? $user->first_name . ' ' . $user->last_name : null,
+                    'date' => $item->date,
+                    'allocatedpalletspace' => $item->allocatedpalletspace,
+                    'spaceuteltotal' => $item->spaceuteltotal,
+                    'spacetotalutelpercent' => $spacetotalutelpercent . '%',
+                    'excess' => $excess,
+                    'caseperpallet' => $item->caseperpallet,
+                    'cost' => '₱' . $cost,
+                    'created_at' => $createdAt,
+                    'cost_value' => $item->spaceuteltotal * $item->caseperpallet,
+                ];
+            });
 
-            return [
-                'id' => $item->id,
-                'site' => $site ? $site->site_name : null,
-                'user_id' => $item->user_id,
-                'site_id' => $item->site_id,
-                'created_user' => $user ? $user->first_name . ' ' . $user->last_name : null,
-                'date' => $item->date,
-                'allocatedpalletspace' => $item->allocatedpalletspace,
-                'spaceuteltotal' => $item->spaceuteltotal,
-                'spacetotalutelpercent' => $spacetotalutelpercent . '%',
-                'excess' => $excess,
-                'caseperpallet' => $item->caseperpallet,
-                'cost' => '₱' . $cost,
-                'created_at' => $createdAt,
-            ];
-        });
+        // Calculate total cost
+        $totalCost = $data->sum('cost_value');
 
-    return $data;
-}
+        // Format the total cost
+        $formattedTotal = '₱' . number_format($totalCost, 2);
+
+        return response()->json(['data' => $data, 'sum' => $formattedTotal]);
+    }
+
+
 
 
     /**
@@ -79,6 +87,17 @@ class PalletController extends Controller
      */
     public function store(Request $request)
     {
+
+        $existingRecord = Pallet::where([
+            'date' => $request->date,
+            'user_id' => $request->user_id,
+            'site_id' => $request->site_id
+        ])->first();
+
+        if ($existingRecord) {
+
+            return response()->json(['message' => 'This data is already in the database.'], 422);
+        }
         Pallet::updateOrCreate(
             [
                 'id' => $request->id
@@ -191,10 +210,16 @@ class PalletController extends Controller
                     'caseperpallet' => $item->caseperpallet,
                     'cost' => '₱' . $cost,
                     'created_at' => $createdAt,
+                    'cost_value' => $item->spaceuteltotal * $item->caseperpallet,
                 ];
             });
 
-        return $data;
-    }
+        // Calculate total cost
+        $totalCost = $data->sum('cost_value');
 
+        // Format the total cost
+        $formattedTotal = '₱' . number_format($totalCost, 2);
+
+        return response()->json(['data' => $data, 'sum' => $formattedTotal]);
+    }
 }

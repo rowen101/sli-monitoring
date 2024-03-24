@@ -35,7 +35,8 @@ const form = reactive({
 
 
 const selectedStatus = ref(null);
-const selectedParentID = ref();
+
+const totalcost = ref();
 
 const getItems = () => {
     isloading.value = true;
@@ -48,7 +49,8 @@ const getItems = () => {
         })
         .then((response) => {
             isloading.value = false;
-            lists.value = response.data;
+            lists.value = response.data.data;
+            totalcost.value = response.data.sum;
             selectedItems.value = [];
             selectAll.value = false;
         });
@@ -109,7 +111,8 @@ const applyFilter = () => {
         })
         .then((response) => {
             isloading.value = false;
-            lists.value = response.data;
+            lists.value = response.data.data;
+            totalcost.value = response.data.sum;
 
         })
         .catch((error) => {
@@ -149,10 +152,22 @@ const createData = ({ resetForm, setErrors }) => {
             ClearForm();
             toastr.success("User created successfully!");
         })
-        .catch((error) => {
-           console.log(error);
-        });
-};
+        .catch(function (error) {
+            // Handle error
+        if (error.response) {
+
+            toastr.error(error.response.data.message);
+
+            } else if (error.request) {
+
+            toastr.error(error.request);
+            } else {
+            toastr.error('Error', error.message);
+            }
+        })
+    };
+
+
 
 const getSite = () => {
     axios
@@ -430,6 +445,10 @@ onMounted(() => {
                                         @toggle-selection="toggleSelection"
                                         :select-all="selectAll"
                                     />
+                                    <tr>
+ <td colspan="7" style="text-align: right"><b>Total:</b></td>
+    <td colspan="3"><b>{{ totalcost }}</b></td>
+   </tr>
                                 </tbody>
                                 <tbody v-else>
                                     <tr>

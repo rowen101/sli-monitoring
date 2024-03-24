@@ -32,7 +32,7 @@ const toggleSelection = () => {
         </td>
 
         <td>{{ moment(item.date).format("MMMM DD, YY")}}</td>
-        
+
         <td>{{ item.allocatedpalletspace }}</td>
         <td>{{ item.spaceuteltotal }}</td>
         <td>{{ item.spacetotalutelpercent }}</td>
@@ -51,6 +51,7 @@ const toggleSelection = () => {
             ></a>
         </td>
     </tr>
+   
 </template>
 
 <style scoped>
