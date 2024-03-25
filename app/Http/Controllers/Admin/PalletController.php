@@ -94,8 +94,7 @@ class PalletController extends Controller
             'site_id' => $request->site_id
         ])->first();
 
-        if ($existingRecord) {
-
+        if ($existingRecord && !$request->id) {
             return response()->json(['message' => 'This data is already in the database.'], 422);
         }
         Pallet::updateOrCreate(

@@ -1,6 +1,6 @@
 <script setup>
 import axios from "axios";
-import { ref, onMounted, reactive, watch } from "vue";
+import { ref, onMounted, reactive, watch, inject } from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
@@ -11,6 +11,8 @@ import { useAuthUserStore } from "../../stores/AuthUserStore";
 import { ContentLoader } from "vue-content-loader";
 import { useRoute } from "vue-router";
 import Datepicker from "vue3-datepicker";
+const swal = inject("$swal");
+
 
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
@@ -56,20 +58,19 @@ const getItems = () => {
         });
 };
 
-const createUserSchema = yup.object({
-    menu_title: yup.string().required(),
-    parent_id: yup.string().required(),
-    sort_order: yup.string().required(),
-    menu_icon: yup.string().required(),
-    menu_route: yup.string().required(),
+const createSchema = yup.object({
+    date: yup.string().required(),
+    allocatedpalletspace: yup.string().required(),
+    spaceuteltotal: yup.string().required(),
+    caseperpallet: yup.string().required(),
+
 });
 
-const editUserSchema = yup.object({
-    menu_title: yup.string().required(),
-    parent_id: yup.string().required(),
-    sort_order: yup.string().required(),
-    menu_icon: yup.string().required(),
-    menu_route: yup.string().required(),
+const editSchema = yup.object({
+    date: yup.string().required(),
+    allocatedpalletspace: yup.string().required(),
+    spaceuteltotal: yup.string().required(),
+    caseperpallet: yup.string().required(),
 });
 
 const fromDate = ref("");
@@ -100,6 +101,7 @@ watch([toDate], () => {
 
 
 const applyFilter = () => {
+
     isloading.value = true;
     axios
         .get("/web/filter-pallet", {
@@ -127,7 +129,6 @@ const applyFilter = () => {
 
 const ClearForm = () => {
     form.id = "";
-    form.site_id = "";
     form.user_id = authUserStore.user.id;
     form.date = "";
     form.allocatedpalletspace = "";
@@ -187,6 +188,17 @@ const changeSite = () => {
 
 
 const addData = () => {
+
+     // Check if listtasks is null
+     if (!form.site_id || form.site_id.length === 0) {
+            // Show a warning message using SweetAlert2
+            swal.fire({
+                title: "Warning!",
+                text: "Select the Site First",
+                icon: "warning",
+            });
+            return; // Exit the function early
+        }
     editing.value = false;
 
     $("#FormModal").modal("show");
@@ -276,6 +288,16 @@ const bulkDelete = () => {
         });
 };
 const onFilterDate = () => {
+    // Check if listtasks is null
+    if (!form.site_id || form.site_id.length === 0) {
+            // Show a warning message using SweetAlert2
+            swal.fire({
+                title: "Warning!",
+                text: "Select the Site First",
+                icon: "warning",
+            });
+            return; // Exit the function early
+        }
     $("#FormModalfilterDate").modal("show");
 };
 
@@ -415,13 +437,14 @@ onMounted(() => {
                             >
                                 <thead>
                                     <tr>
-                                        <th>
+                                        <!-- <th>
                                             <input
                                                 type="checkbox"
                                                 v-model="selectAll"
                                                 @change="selectAllItems"
                                             />
-                                        </th>
+                                        </th> -->
+                                        <th></th>
 
                                         <th>Date</th>
                                         <th>Allocated Pallet Space</th>
@@ -494,7 +517,11 @@ onMounted(() => {
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <Form @submit="handleSubmit" v-slot="{ errors }">
+                <Form @submit="handleSubmit" v-slot="{ errors }"  :validation-schema="
+                        editing ? editSchema : createSchema
+                    "
+
+                    :initial-values="formValues">
                     <div class="modal-body">
                         <div class="col-md-12">
                             <div class="row">
@@ -519,6 +546,7 @@ onMounted(() => {
                                             aria-describedby="dateHelp"
                                             placeholder="Select Date"
                                             v-model="form.date"
+
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.date
@@ -540,6 +568,7 @@ onMounted(() => {
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Menu title"
                                             v-model="form.allocatedpalletspace"
+
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.allocatedpalletspace
@@ -562,6 +591,7 @@ onMounted(() => {
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Menu Icon"
                                             v-model="form.spaceuteltotal"
+                                            required
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.spaceuteltotal
@@ -583,6 +613,7 @@ onMounted(() => {
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Case Per Pallet"
                                             v-model="form.caseperpallet"
+
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.caseperpallet
