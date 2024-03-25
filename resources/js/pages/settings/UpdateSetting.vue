@@ -99,10 +99,9 @@ const handleSubmit = () => {
 
 // click task item to complete or cancel
 const handleIsActiveSite = (item) => {
-    // Assuming formtask is a ref
+
     formSite.value.is_active = item.is_active === 1 ? 0 : 1;
-    //  alert(formSite.value.is_active)
-    //   // Continue with the POST request
+
     axios
         .post("/api/site", {
             id: item.id,
@@ -128,6 +127,11 @@ const handleIsActiveSite = (item) => {
         });
 };
 
+const editData = (item) => {
+
+    formSite.value.id = item.id;
+    formSite.value.site_name = item.site_name;
+}
 const getSettings = () => {
     axios.get("/api/settings").then((response) => {
         settings.value = response.data;
@@ -186,7 +190,7 @@ onMounted(() => {
 
                         <div class="tab-content">
                             <!-- General Settings Tab -->
-                            <div class="tab-pane fade show active" id="general">
+                            <div class="tab-pane fade show active" id="general-tab">
                                 <form @submit.prevent="updateSettings()">
                                     <div class="card-body">
                                         <div class="form-group">
@@ -351,14 +355,16 @@ onMounted(() => {
                                                         }"
                                                     >
                                                         {{ item.site_name }}
+
                                                     </span>
                                                 </div>
                                                 <div class="d-flex">
                                                     <i
                                                         class="fa fa-pen text-success"
-                                                        @click="edit(item)"
+                                                        @click="editData(item)"
                                                     ></i>
-                                                    <!-- <i  class="fa fa-trash text-danger" @click="del(item)"></i> -->
+
+
                                                 </div>
                                             </div>
                                         </li>
@@ -432,16 +438,16 @@ onMounted(() => {
                                                             }}</del>
                                                         </span>
                                                     </div>
-                                                    <div class="d-flex">
+                                                    <!-- <div class="d-flex">
                                                         <i
                                                             v-if="
                                                                 item.is_active ===
                                                                 1
                                                             "
                                                             class="fa fa-pen text-success mr-2"
-                                                            @click="edit(item)"
+                                                            @click="editData(item)"
                                                         ></i>
-                                                    </div>
+                                                    </div> -->
 
                                                 </div>
                                             </li>
