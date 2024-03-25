@@ -451,7 +451,7 @@ onMounted(() => {
                                         <th>SPACE UTILIZATION TOTAL</th>
                                         <th>Space Utilization %</th>
                                         <th>Excess</th>
-                                        <th>Cost per Pallet</th>
+                                        <th>Case per Pallet</th>
                                         <th>Cost</th>
                                         <th>Remarks</th>
                                         <th>Action</th>
