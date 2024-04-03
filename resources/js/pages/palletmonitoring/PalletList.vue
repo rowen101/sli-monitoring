@@ -12,8 +12,7 @@ import { ContentLoader } from "vue-content-loader";
 import { useRoute } from "vue-router";
 import Datepicker from "vue3-datepicker";
 const swal = inject("$swal");
-
-
+import moment from "moment";
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
@@ -21,7 +20,7 @@ const listsite = ref();
 const isloading = ref(false);
 const editing = ref(false);
 const authUserStore = useAuthUserStore();
-
+const viewcost = ref(true);
 const checked = ref(true);
 const form = reactive({
     id: "",
@@ -31,10 +30,7 @@ const form = reactive({
     allocatedpalletspace: "",
     spaceuteltotal: "",
     caseperpallet: "",
-
 });
-
-
 
 const selectedStatus = ref(null);
 
@@ -63,7 +59,6 @@ const createSchema = yup.object({
     allocatedpalletspace: yup.string().required(),
     spaceuteltotal: yup.string().required(),
     caseperpallet: yup.string().required(),
-
 });
 
 const editSchema = yup.object({
@@ -99,9 +94,7 @@ watch([toDate], () => {
     formfilter.value.end_date = `${year}-${month}-${day}`;
 });
 
-
 const applyFilter = () => {
-
     isloading.value = true;
     axios
         .get("/web/filter-pallet", {
@@ -115,7 +108,6 @@ const applyFilter = () => {
             isloading.value = false;
             lists.value = response.data.data;
             totalcost.value = response.data.sum;
-
         })
         .catch((error) => {
             // Handle errors
@@ -134,7 +126,7 @@ const ClearForm = () => {
     form.allocatedpalletspace = "";
     form.spaceuteltotal = "";
     form.caseperpallet = "";
-}
+};
 const createData = ({ resetForm, setErrors }) => {
     axios
         .post("/web/pallet", {
@@ -155,27 +147,21 @@ const createData = ({ resetForm, setErrors }) => {
         })
         .catch(function (error) {
             // Handle error
-        if (error.response) {
-
-            toastr.error(error.response.data.message);
-
+            if (error.response) {
+                toastr.error(error.response.data.message);
             } else if (error.request) {
-
-            toastr.error(error.request);
+                toastr.error(error.request);
             } else {
-            toastr.error('Error', error.message);
+                toastr.error("Error", error.message);
             }
-        })
-    };
-
-
+        });
+};
 
 const getSite = () => {
     axios
         .get(`/web/getsite`)
         .then((response) => {
             listsite.value = response.data.sites;
-
         })
         .catch((error) => {
             console.log(error);
@@ -184,21 +170,19 @@ const getSite = () => {
 
 const changeSite = () => {
     getItems(form.site_id);
-}
-
+};
 
 const addData = () => {
-
-     // Check if listtasks is null
-     if (!form.site_id || form.site_id.length === 0) {
-            // Show a warning message using SweetAlert2
-            swal.fire({
-                title: "Warning!",
-                text: "Select the Site First",
-                icon: "warning",
-            });
-            return; // Exit the function early
-        }
+    // Check if listtasks is null
+    if (!form.site_id || form.site_id.length === 0) {
+        // Show a warning message using SweetAlert2
+        swal.fire({
+            title: "Warning!",
+            text: "Select the Site First",
+            icon: "warning",
+        });
+        return; // Exit the function early
+    }
     editing.value = false;
 
     $("#FormModal").modal("show");
@@ -215,7 +199,6 @@ const editData = (item) => {
     form.caseperpallet = item.caseperpallet;
 
     $("#FormModal").modal("show");
-
 };
 
 const updateData = ({ setErrors }) => {
@@ -290,14 +273,14 @@ const bulkDelete = () => {
 const onFilterDate = () => {
     // Check if listtasks is null
     if (!form.site_id || form.site_id.length === 0) {
-            // Show a warning message using SweetAlert2
-            swal.fire({
-                title: "Warning!",
-                text: "Select the Site First",
-                icon: "warning",
-            });
-            return; // Exit the function early
-        }
+        // Show a warning message using SweetAlert2
+        swal.fire({
+            title: "Warning!",
+            text: "Select the Site First",
+            icon: "warning",
+        });
+        return; // Exit the function early
+    }
     $("#FormModalfilterDate").modal("show");
 };
 
@@ -392,7 +375,25 @@ onMounted(() => {
                     </div>
 
                     <div class="card-tools">
-                        <i class="fa fa-filter mr-1" @click="onFilterDate"></i>
+                        <div></div>
+                        <div
+                            class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success"
+                        >
+                            <input
+                                type="checkbox"
+                                class="custom-control-input"
+                                id="customSwitch3"
+                                v-model="viewcost"
+                            />
+                            <label
+                                class="custom-control-label"
+                                for="customSwitch3"
+                                >Cost</label
+                            >&nbsp;<i
+                                class="fa fa-filter mr-1"
+                                @click="onFilterDate"
+                            ></i>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -431,9 +432,9 @@ onMounted(() => {
                         />
                     </ContentLoader>
                     <div v-else class="table-responsive">
-                        <font size="2" >
+                        <font size="2">
                             <table
-                                class="table table-bordered table-sm table-striped hover"
+                                class="table table-bordered table-sm table-striped table-hover"
                             >
                                 <thead>
                                     <tr>
@@ -451,27 +452,71 @@ onMounted(() => {
                                         <th>SPACE UTILIZATION TOTAL</th>
                                         <th>Space Utilization %</th>
                                         <th>Excess</th>
-                                        <th>Case per Pallet</th>
-                                        <th>Cost</th>
+                                        <th v-if="viewcost">Case per Pallet</th>
+                                        <th v-if="viewcost">Cost</th>
                                         <th>Remarks</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody v-if="lists.length > 0">
-                                    <PalletItemList
+                                    <tr
                                         v-for="(item, index) in lists"
                                         :key="item.id"
                                         :item="item"
                                         :index="index"
-                                        @edit-data="editData"
-                                        @confirm-deletion="confirmDeletion"
-                                        @toggle-selection="toggleSelection"
-                                        :select-all="selectAll"
-                                    />
-                                    <tr>
- <td colspan="7" style="text-align: right"><b>Total:</b></td>
-    <td colspan="3"><b>{{ totalcost }}</b></td>
-   </tr>
+                                    >
+                                        <td>
+                                            <input
+                                                type="checkbox"
+                                                :checked="selectAll"
+                                                @change="toggleSelection"
+                                            />
+                                        </td>
+
+                                        <td>
+                                            {{
+                                                moment(item.date).format(
+                                                    "MMMM DD, YY"
+                                                )
+                                            }}
+                                        </td>
+
+                                        <td>{{ item.allocatedpalletspace }}</td>
+                                        <td>{{ item.spaceuteltotal }}</td>
+                                        <td>
+                                            {{ item.spacetotalutelpercent }}
+                                        </td>
+                                        <td>{{ item.excess }}</td>
+                                        <td v-if="viewcost">
+                                            {{ item.caseperpallet }}
+                                        </td>
+                                        <td v-if="viewcost">{{ item.cost }}</td>
+                                        <td>
+                                            EXCESS {{ item.excess }} PALLETS
+                                        </td>
+
+                                        <td>
+                                            <a
+                                                href="#"
+                                                @click="editData(item)"
+                                                ><i class="fa fa-edit"></i
+                                            ></a>
+
+
+                                        </td>
+                                    </tr>
+
+                                    <tr v-if="viewcost">
+                                        <td
+                                            colspan="7"
+                                            style="text-align: right"
+                                        >
+                                            <b>Total:</b>
+                                        </td>
+                                        <td colspan="3">
+                                            <b>{{ totalcost }}</b>
+                                        </td>
+                                    </tr>
                                 </tbody>
                                 <tbody v-else>
                                     <tr>
@@ -517,11 +562,12 @@ onMounted(() => {
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <Form @submit="handleSubmit" v-slot="{ errors }"  :validation-schema="
-                        editing ? editSchema : createSchema
-                    "
+                <Form
+                    @submit="handleSubmit"
+                    v-slot="{ errors }"
+                    :validation-schema="editing ? editSchema : createSchema"
 
-                    :initial-values="formValues">
+                >
                     <div class="modal-body">
                         <div class="col-md-12">
                             <div class="row">
@@ -546,7 +592,6 @@ onMounted(() => {
                                             aria-describedby="dateHelp"
                                             placeholder="Select Date"
                                             v-model="form.date"
-
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.date
@@ -568,7 +613,6 @@ onMounted(() => {
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Menu title"
                                             v-model="form.allocatedpalletspace"
-
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.allocatedpalletspace
@@ -613,7 +657,6 @@ onMounted(() => {
                                             aria-describedby="nameHelp"
                                             placeholder="Enter Case Per Pallet"
                                             v-model="form.caseperpallet"
-
                                         />
                                         <span class="invalid-feedback">{{
                                             errors.caseperpallet

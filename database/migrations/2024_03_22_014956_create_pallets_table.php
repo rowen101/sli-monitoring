@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('date');
             $table->integer('allocatedpalletspace');
             $table->integer('spaceuteltotal')->nullable();
-            $table->integer('caseperpallet')->nullable();
+            $table->double('caseperpallet')->nullable();
             $table->timestamps();
         });
     }

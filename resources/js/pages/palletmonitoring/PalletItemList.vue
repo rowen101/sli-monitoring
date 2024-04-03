@@ -7,6 +7,8 @@ import { useAuthUserStore } from "../../stores/AuthUserStore";
 import DOMPurify from "dompurify";
 import moment from "moment";
 
+
+const viewcost = ref(true);
 const toastr = useToastr();
 const authUserStore = useAuthUserStore();
 const props = defineProps({
@@ -15,7 +17,7 @@ const props = defineProps({
     selectAll: Boolean,
 });
 
-const emit = defineEmits(["dataDeleted", "editData", "confirmDeletion"]);
+const emit = defineEmits(["dataDeleted", "editData", "confirmDeletion","viewcost"]);
 
 const toggleSelection = () => {
     emit("toggleSelection", props.item);
@@ -33,12 +35,12 @@ const toggleSelection = () => {
 
         <td>{{ moment(item.date).format("MMMM DD, YY")}}</td>
 
-        <td>{{ item.allocatedpalletspace }}</td>
+        <td >{{ item.allocatedpalletspace }}</td>
         <td>{{ item.spaceuteltotal }}</td>
         <td>{{ item.spacetotalutelpercent }}</td>
         <td>{{ item.excess }}</td>
-        <td>{{ item.caseperpallet }}</td>
-        <td>{{item.cost}}</td>
+        <td v-if="$emit('viewcost')">{{ item.caseperpallet }}</td>
+        <td v-if="$emit('viewcost')">{{item.cost}}</td>
         <td>EXCESS {{ item.excess }} PALLETS</td>
 
         <td>
