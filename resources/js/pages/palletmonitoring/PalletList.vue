@@ -8,7 +8,7 @@ import PalletItemList from "./PalletItemList.vue";
 import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
-import { ContentLoader } from "vue-content-loader";
+import ContentLoader from "../../components/ContentLoader.vue";
 import { useRoute } from "vue-router";
 import Datepicker from "vue3-datepicker";
 const swal = inject("$swal");
@@ -143,7 +143,7 @@ const createData = ({ resetForm, setErrors }) => {
 
             $("#FormModal").modal("hide");
             ClearForm();
-            toastr.success("User created successfully!");
+            toastr.success("Data created successfully!");
         })
         .catch(function (error) {
             // Handle error
@@ -397,40 +397,7 @@ onMounted(() => {
                     </div>
                 </div>
                 <div class="card-body">
-                    <ContentLoader v-if="isloading" viewBox="0 0 250 110">
-                        <rect
-                            x="0"
-                            y="0"
-                            rx="3"
-                            ry="3"
-                            width="250"
-                            height="10"
-                        />
-                        <rect
-                            x="0"
-                            y="20"
-                            rx="3"
-                            ry="3"
-                            width="250"
-                            height="10"
-                        />
-                        <rect
-                            x="0"
-                            y="40"
-                            rx="3"
-                            ry="3"
-                            width="250"
-                            height="10"
-                        />
-                        <rect
-                            x="0"
-                            y="60"
-                            rx="3"
-                            ry="3"
-                            width="250"
-                            height="10"
-                        />
-                    </ContentLoader>
+                    <ContentLoader v-if="isloading"/>
                     <div v-else class="table-responsive">
                         <font size="2">
                             <table
@@ -452,7 +419,7 @@ onMounted(() => {
                                         <th>SPACE UTILIZATION TOTAL</th>
                                         <th>Space Utilization %</th>
                                         <th>Excess</th>
-                                        <th v-if="viewcost">Case per Pallet</th>
+                                        <th v-if="viewcost">Cost per Pallet</th>
                                         <th v-if="viewcost">Cost</th>
                                         <th>Remarks</th>
                                         <th>Action</th>
@@ -643,7 +610,7 @@ onMounted(() => {
                                     </div>
                                     <div class="form-group">
                                         <label for="user"
-                                            >Case Per Pallet</label
+                                            >Cost Per Pallet</label
                                         >
                                         <Field
                                             name="caseperpallet"

@@ -35,6 +35,7 @@
         "vue-sweetalert2": "^5.0.5",
         "vue3-colorpicker": "^2.2.3",
         "vue3-datepicker": "^0.4.0",
+        "vue3-form-wizard": "^0.2.3",
         "vue3-html2canvas": "^0.0.3",
         "vuex": "^4.1.0",
         "yup": "^0.32.11"

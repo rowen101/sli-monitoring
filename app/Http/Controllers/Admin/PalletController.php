@@ -204,7 +204,7 @@ class PalletController extends Controller
                     'date' => $item->date,
                     'allocatedpalletspace' => $item->allocatedpalletspace,
                     'spaceuteltotal' => $item->spaceuteltotal,
-                    'spacetotalutelpercent' => $spacetotalutelpercent . '%',
+                    'spacetotalutelpercent' => ($spacetotalutelpercent !== null) ? round($spacetotalutelpercent, 2) . '%' : null,
                     'excess' => $excess,
                     'caseperpallet' => $item->caseperpallet,
                     'cost' => '₱' . $cost,

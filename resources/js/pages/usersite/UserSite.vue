@@ -4,24 +4,12 @@ import { ref, onMounted, reactive, watch } from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
-
-import { debounce } from "lodash";
-import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
-import { ContentLoader } from "vue-content-loader";
 import { useRoute } from "vue-router";
-import Datepicker from "vue3-datepicker";
-
 
 const authUserStore = useAuthUserStore();
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
-const lists = ref({ data: [] });
-const menuOptionlist = ref({ data: [] });
-
-const isloading = ref(false);
-const editing = ref(false);
-const formValues = ref();
 
 const checked = ref(true);
 const form = reactive({

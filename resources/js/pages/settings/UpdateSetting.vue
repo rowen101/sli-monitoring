@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, reactive, watch, computed } from "vue";
 import { useToastr } from "@/toastr";
-import { ContentLoader } from "vue-content-loader";
+import ContentLoader from "../../components/ContentLoader.vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import { useRoute } from "vue-router";
 
@@ -290,29 +290,8 @@ onMounted(() => {
                                     style="max-height: 300px; overflow-y: auto"
                                 >
                                     <!-- Separate List for incomplete tasks -->
+                                    <ContentLoader v-if="isLoadingSite"/>
 
-                                    <ContentLoader
-                                        v-if="isLoadingSite"
-                                        viewBox="0 0 250 110"
-                                    >
-                                        <rect
-                                            x="0"
-                                            y="0"
-                                            rx="3"
-                                            ry="3"
-                                            width="250"
-                                            height="50"
-                                        />
-
-                                        <rect
-                                            x="0"
-                                            y="0"
-                                            rx="3"
-                                            ry="3"
-                                            width="250"
-                                            height="50"
-                                        />
-                                    </ContentLoader>
                                     <ul
                                         class="list-group"
                                         v-for="item in listItem"

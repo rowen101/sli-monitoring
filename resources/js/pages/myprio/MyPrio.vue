@@ -13,7 +13,7 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/themes/light.css";
 import moment from "moment";
 import { inject } from "vue";
-import { ContentLoader } from "vue-content-loader";
+import ContentLoader from "../../components/ContentLoader.vue";
 
 import Datepicker from "vue3-datepicker";
 import { useRoute } from "vue-router";
@@ -590,43 +590,7 @@ onMounted(() => {
                             </div>
                         </div>
                         <div class="col-12" id="accordion">
-                            <ContentLoader
-                                v-if="isloading"
-                                viewBox="0 0 250 110"
-                            >
-                                <rect
-                                    x="0"
-                                    y="0"
-                                    rx="3"
-                                    ry="3"
-                                    width="250"
-                                    height="10"
-                                />
-                                <rect
-                                    x="0"
-                                    y="20"
-                                    rx="3"
-                                    ry="3"
-                                    width="250"
-                                    height="10"
-                                />
-                                <rect
-                                    x="0"
-                                    y="40"
-                                    rx="3"
-                                    ry="3"
-                                    width="250"
-                                    height="10"
-                                />
-                                <rect
-                                    x="0"
-                                    y="60"
-                                    rx="3"
-                                    ry="3"
-                                    width="250"
-                                    height="10"
-                                />
-                            </ContentLoader>
+                            <ContentLoader v-if="isloading"/>
                             <div v-else>
                                 <div v-if="lists.length === 0">
                                     <!-- Show this card when the list is empty -->

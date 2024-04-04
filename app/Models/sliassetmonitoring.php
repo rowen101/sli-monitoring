@@ -27,10 +27,12 @@ class sliassetmonitoring extends Model
         'notes',
         'purchasecost',
         'insurancewarrantyinfo',
+        'created_by',
+        'updated_by'
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
-       
+
     ];
 }

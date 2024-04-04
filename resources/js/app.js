@@ -13,6 +13,8 @@ import { useSettingStore } from './stores/SettingStore';
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css'
 import html2pdf from "html2pdf.js";
+import Vue3FormWizard from 'vue3-form-wizard'
+import 'vue3-form-wizard/dist/style.css'
 
 const pinia = createPinia();
 const app = createApp(App);
@@ -32,8 +34,7 @@ router.beforeEach(async (to, from) => {
         ]);
     }
 });
-
-
+app.use(Vue3FormWizard);
 app.use(pinia);
 app.use(router);
 app.use(VueSweetalert2);
