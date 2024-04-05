@@ -22,13 +22,19 @@ const formValues = ref();
 
 const checked = ref(true);
 const form = reactive({
-    menu_id: "",
-    menu_title: "",
-    parent_id: "",
-    menu_icon: "",
-    menu_route: "",
-    sort_order: "",
-    is_active: "",
+    id: "",
+    site_id: "",
+    asset_name: "",
+    asset_type: "",
+    serial: "",
+    date_acquired: "",
+    man_supplier: "",
+    unit:"",
+    location:"",
+    paccountable:"",
+    locationchangetranfer:"",
+    cucodition:"",
+    maintenancenotes:"",
     ceated_by: "",
     updated_by: "",
 });
@@ -669,7 +675,7 @@ onMounted(() => {
                                                 <label for="mentenancenotes">Maintenance Notes</label>
                                                 <Field
                                                     name="mentenancenotes"
-                                                    type="text"
+                                                    as="textarea"
                                                     class="form-control"
                                                     :class="{
                                                         'is-invalid':
@@ -723,10 +729,96 @@ onMounted(() => {
                                     </div>
                                 </tab-content>
                                 <tab-content title="Utilization & Ussage">
-                                    Utilization & Ussage
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                                <label for="operationhours">Operating Hours</label>
+                                                <Field
+                                                    name="operationhours"
+                                                    type="number"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.operationhours,
+                                                    }"
+                                                    id="operationhours"
+                                                    aria-describedby="nameHelp"
+
+                                                    v-model="form.operationhours"
+                                                />
+
+                                            </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                                <label for="notes">Notes</label>
+                                                <Field
+                                                    name="notes"
+                                                    as="textarea"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.notes,
+                                                    }"
+                                                    id="notes"
+                                                    aria-describedby="nameHelp"
+                                                    placeholder="Enter notes"
+                                                    v-model="form.notes"
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{ errors.notes }}</span
+                                                >
+                                        </div>
+
+                                    </div>
+                                </div>
                                 </tab-content>
                                 <tab-content title="Financial Information" icon="fas fa-receipt">
-                                    Financial Information
+                                    <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                                <label for="purchasecost">Purchase Cost</label>
+                                                <Field
+                                                    name="purchasecost"
+                                                    type="number"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.purchasecost,
+                                                    }"
+                                                    id="purchasecost"
+                                                    aria-describedby="nameHelp"
+
+                                                    v-model="form.purchasecost"
+                                                />
+
+                                            </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                                <label for="insurancewarrantyinfo">WARRANTY Information</label>
+                                                <Field
+                                                    name="insurancewarrantyinfo"
+                                                    as="textarea"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.insurancewarrantyinfo,
+                                                    }"
+                                                    id="insurancewarrantyinfo"
+                                                    aria-describedby="nameHelp"
+                                                    placeholder="Enter insurancewarrantyinfo"
+                                                    v-model="form.insurancewarrantyinfo"
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{ errors.insurancewarrantyinfo }}</span
+                                                >
+                                        </div>
+
+                                    </div>
+                                </div>
                                 </tab-content>
                             </form-wizard>
                         </div>
