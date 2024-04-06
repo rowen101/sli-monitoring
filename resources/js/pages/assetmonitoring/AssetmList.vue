@@ -11,6 +11,7 @@ import { useAuthUserStore } from "../../stores/AuthUserStore";
 import ContentLoader from "../../components/ContentLoader.vue";
 import { useRoute } from "vue-router";
 
+const authUserStore = useAuthUserStore();
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
@@ -22,6 +23,7 @@ const formValues = ref();
 
 const checked = ref(true);
 const form = reactive({
+    site_name:"",
     id: "",
     site_id: "",
     asset_name: "",
@@ -29,19 +31,17 @@ const form = reactive({
     serial: "",
     date_acquired: "",
     man_supplier: "",
-    unit:"",
-    location:"",
-    paccountable:"",
-    locationchangetranfer:"",
-    cucodition:"",
-    maintenancenotes:"",
-    ceated_by: "",
-    updated_by: "",
+    unit: "",
+    location: "",
+    paccountable: "",
+    locationchangetranfer: "",
+    cucodition: "",
+    maintenancenotes: "",
 });
 
-const authUserStore = useAuthUserStore();
 const selectedStatus = ref(null);
 const selectedParentID = ref();
+const listsite = ref();
 
 const getItems = (page = 1) => {
     isloading.value = true;
@@ -59,16 +59,6 @@ const getItems = (page = 1) => {
         });
 };
 
-const parentMenus = () => {
-    axios
-        .get(`/api/GetParentId`)
-        .then((response) => {
-            menuOptionlist.value = response.data;
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-};
 const createUserSchema = yup.object({
     menu_title: yup.string().required(),
     parent_id: yup.string().required(),
@@ -88,59 +78,71 @@ const editUserSchema = yup.object({
 const updateIsActive = (checked) => {
     form.is_active = checked ? 1 : 0;
 };
-const createData = ({ resetForm, setErrors }) => {
+const createData = () => {
     axios
-        .post("/api/menulist", {
-            menu_title: form.menu_title,
-            parent_id: form.parent_id,
-            menu_icon: form.menu_icon,
-            menu_route: form.menu_route,
-            sort_order: form.sort_order,
-            is_active: form.is_active,
-        })
+        .post("/web/asset-monitoring", form)
         .then((response) => {
-            lists.value.data.unshift(response.data);
             $("#FormModal").modal("hide");
-            resetForm();
-            toastr.success("User created successfully!");
+            getItems();
+            toastr.success(response.data.message);
         })
         .catch((error) => {
-            if (error.response.data.errors) {
-                setErrors(error.response.data.errors);
-            }
+            toastr.error(error.data.message);
         });
 };
 
 const addUser = () => {
     editing.value = false;
-    $("#FormModal").modal("show");
 };
 
-const editMenu = (item) => {
+const viewData = (item) => {
+    form.site_name = item.site_name;
+    form.id = item.id;
+    form.site_id = item.site_id;
+    form.asset_name = item.asset_name;
+    form.asset_type = item.asset_type;
+    form.serial = item.serial;
+    form.date_acquired = item.date_acquired;
+    form.man_supplier = item.man_supplier;
+    form.unit = item.unit;
+    form.location = item.location;
+    form.paccountable = item.paccountable;
+    form.locationchangetranfer = item.locationchangetranfer;
+    form.cucodition = item.cucodition;
+    form.maintenancenotes = item.maintenancenotes;
+    form.ceated_by = item.ceated_by;
+    form.updated_by = item.updated_by;
+    $("#ViewRecodeModal").modal("show");
+};
+const editData = (item) => {
     editing.value = true;
-    form.menu_id = item.menu_id;
-    form.menu_title = item.menu_title;
-    form.parent_id = item.parent_id;
-    form.menu_icon = item.menu_icon;
-    form.menu_route = item.menu_route;
-    form.sort_order = item.sort_order;
-    if (form.is_active === 1) {
-        checked.value = true;
-    } else {
-        checked.value = false;
-    }
-    form.is_active = item.is_active;
+    form.id = item.id;
+    form.site_id = item.site_id;
+    form.asset_name = item.asset_name;
+    form.asset_type = item.asset_type;
+    form.serial = item.serial;
+    form.date_acquired = item.date_acquired;
+    form.man_supplier = item.man_supplier;
+    form.unit = item.unit;
+    form.location = item.location;
+    form.paccountable = item.paccountable;
+    form.locationchangetranfer = item.locationchangetranfer;
+    form.cucodition = item.cucodition;
+    form.maintenancenotes = item.maintenancenotes;
+    form.ceated_by = item.ceated_by;
+    form.updated_by = item.updated_by;
+
     $("#FormModal").modal("show");
-    selectedParentID.value = item.parent_id;
+
 };
 
 const updateData = ({ setErrors }) => {
     axios
-        .post("/api/menulist", form)
+        .post("/web/asset-monitoring", form)
         .then((response) => {
             getItems();
             $("#FormModal").modal("hide");
-            toastr.success("successfully Updated!");
+            toastr.success("Data successfully Updated!");
         })
         .catch((error) => {
             setErrors(error.response.data.errors);
@@ -156,7 +158,16 @@ const handleSubmit = (values, actions) => {
         createData(values, actions);
     }
 };
-
+const getSite = () => {
+    axios
+        .get(`/web/getsite`)
+        .then((response) => {
+            listsite.value = response.data.sites;
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+};
 const searchQuery = ref(null);
 
 const selectedItems = ref([]);
@@ -177,29 +188,26 @@ const confirmDeletion = (id) => {
     $("#deleteClientModal").modal("show");
 };
 
-const onComplete = () => {
-    alert("message");
-};
-const deleteUser = () => {
-    axios.delete(`/api/menu/${valIdBeingDeleted.value}`).then(() => {
-        $("#deleteClientModal").modal("hide");
-        toastr.success("Menu deleted successfully!");
-        lists.value.data = lists.value.data.filter(
-            (val) => val.menu_id !== valIdBeingDeleted.value
-        );
-    });
+const deleteData = () => {
+    axios
+        .delete(`/web/asset-monitoring/${valIdBeingDeleted.value}`)
+        .then((response) => {
+            $("#deleteClientModal").modal("hide");
+            toastr.success(response.data.message);
+            getItems();
+        });
 };
 
 const bulkDelete = () => {
     axios
-        .delete("menulist", {
+        .delete("/web/bulkDeleteAsset", {
             data: {
                 ids: selectedItems.value,
             },
         })
         .then((response) => {
             lists.value.data = lists.value.data.filter(
-                (user) => !selectedItems.value.includes(user.id)
+                (data) => !selectedItems.value.includes(data.id)
             );
             selectedItems.value = [];
             selectAll.value = false;
@@ -233,7 +241,8 @@ watch(
 
 onMounted(() => {
     getItems();
-    parentMenus();
+    getSite();
+
     document.title = pageTitle;
 });
 </script>
@@ -261,8 +270,7 @@ onMounted(() => {
                             Delete Selected
                         </button>
                         <span class="ml-2"
-                            >Selected
-                            {{ selectedItems.length }} techrecomm</span
+                            >Selected {{ selectedItems.length }} Record</span
                         >
                     </div>
                 </div>
@@ -293,13 +301,17 @@ onMounted(() => {
                                             />
                                         </th>
                                         <th style="width: 10px">#</th>
+                                        <th>Site</th>
                                         <th>Asset</th>
                                         <th>Asset type</th>
                                         <th>Serial</th>
                                         <th>Date Aquired</th>
-                                        <th>Suppliear</th>
+                                        <th>Supplier</th>
                                         <th>Unit</th>
-                                        <th>Location</th>
+                                        <th>Createdby</th>
+                                        <th>CreatedAt</th>
+                                        <th>Updatedby</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody v-if="lists.data.length > 0">
@@ -308,7 +320,8 @@ onMounted(() => {
                                         :key="item.id"
                                         :item="item"
                                         :index="index"
-                                        @edit-menu="editMenu"
+                                        @view-data="viewData"
+                                        @edit-data="editData"
                                         @confirm-deletion="confirmDeletion"
                                         @toggle-selection="toggleSelection"
                                         :select-all="selectAll"
@@ -316,7 +329,7 @@ onMounted(() => {
                                 </tbody>
                                 <tbody v-else>
                                     <tr>
-                                        <td colspan="9" class="text-center">
+                                        <td colspan="14" class="text-center">
                                             No results found...
                                         </td>
                                     </tr>
@@ -369,7 +382,7 @@ onMounted(() => {
                     <div class="modal-body">
                         <div class="col-md-12">
                             <form-wizard
-                                @on-complete="onComplete"
+                                @on-complete="createData"
                                 color="#094899"
                                 step-size="xs"
                             >
@@ -377,13 +390,10 @@ onMounted(() => {
                                     title="Asset Information"
                                     icon="fas fa-book"
                                 >
-
                                     <div class="row">
                                         <div class="col-6">
                                             <div class="form-group">
-                                                <label for="branch"
-                                                    >Branch</label
-                                                >
+                                                <label for="branch">Site</label>
                                                 <Field
                                                     as="select"
                                                     name="branch"
@@ -394,17 +404,17 @@ onMounted(() => {
                                                     }"
                                                     id="branch"
                                                     aria-describedby="branchHelp"
-                                                    v-model="form.branch"
+                                                    v-model="form.site_id"
                                                 >
                                                     <option value="" disabled>
-                                                        Select Branch
+                                                        Select Site
                                                     </option>
                                                     <!-- Default empty option -->
                                                     <!-- Populate options from listsite -->
                                                     <option
                                                         v-for="site in listsite"
-                                                        :key="site.site_name"
-                                                        :value="site.site_name"
+                                                        :key="site.id"
+                                                        :value="site.id"
                                                     >
                                                         {{ site.site_name }}
                                                     </option>
@@ -481,16 +491,11 @@ onMounted(() => {
                                                 />
                                                 <span
                                                     class="invalid-feedback"
-                                                    >{{
-                                                        errors.serial
-                                                    }}</span
+                                                    >{{ errors.serial }}</span
                                                 >
                                             </div>
                                         </div>
                                         <div class="col-6">
-
-
-
                                             <div class="form-group">
                                                 <label for="date_acquired"
                                                     >Date Acquired</label
@@ -565,11 +570,16 @@ onMounted(() => {
                                     </div>
                                 </tab-content>
 
-                                <tab-content title="Asset Allocation"  icon="fa fa-map">
+                                <tab-content
+                                    title="Asset Allocation"
+                                    icon="fa fa-map"
+                                >
                                     <div class="row">
-                                    <div class="col-6">
-                                        <div class="form-group">
-                                                <label for="location">location</label>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="location"
+                                                    >location</label
+                                                >
                                                 <Field
                                                     name="location"
                                                     type="text"
@@ -589,7 +599,9 @@ onMounted(() => {
                                                 >
                                             </div>
                                             <div class="form-group">
-                                                <label for="paccountable">Person Accountable</label>
+                                                <label for="paccountable"
+                                                    >Person Accountable</label
+                                                >
                                                 <Field
                                                     name="paccountable"
                                                     type="text"
@@ -605,13 +617,18 @@ onMounted(() => {
                                                 />
                                                 <span
                                                     class="invalid-feedback"
-                                                    >{{ errors.paccountable }}</span
+                                                    >{{
+                                                        errors.paccountable
+                                                    }}</span
                                                 >
                                             </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="form-group">
-                                                <label for="locationchangetranfer">Transfer Location</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label
+                                                    for="locationchangetranfer"
+                                                    >Transfer Location</label
+                                                >
                                                 <Field
                                                     name="locationchangetranfer"
                                                     type="text"
@@ -623,56 +640,65 @@ onMounted(() => {
                                                     id="locationchangetranfer"
                                                     aria-describedby="nameHelp"
                                                     placeholder="Enter tranfer Location"
-                                                    v-model="form.locationchangetranfer"
+                                                    v-model="
+                                                        form.locationchangetranfer
+                                                    "
                                                 />
                                                 <span
                                                     class="invalid-feedback"
-                                                    >{{ errors.locationchangetranfer }}</span
+                                                    >{{
+                                                        errors.locationchangetranfer
+                                                    }}</span
                                                 >
                                             </div>
-                                    </div>
-
+                                        </div>
                                     </div>
                                 </tab-content>
                                 <tab-content title="Asset Condition">
                                     <div class="row">
                                         <div class="col-6">
                                             <div class="form-group">
-                                                <label for="cucondition"
+                                                <label for="cucodition"
                                                     >Current Condition</label
                                                 >
                                                 <Field
                                                     as="select"
-                                                    name="cucondition"
+                                                    name="cucodition"
                                                     class="form-control"
                                                     :class="{
                                                         'is-invalid':
-                                                            errors.cucondition,
+                                                            errors.cucodition,
                                                     }"
-                                                    id="cucondition"
+                                                    id="cucodition"
                                                     aria-describedby="branchHelp"
-                                                    v-model="form.cucondition"
+                                                    v-model="form.cucodition"
                                                 >
                                                     <option value="" disabled>
                                                         Select Condition
                                                     </option>
                                                     <!-- Default empty option -->
                                                     <!-- Populate options from listsite -->
-                                                    <option
-                                                        v-for="site in listsite"
-                                                        :key="site.site_name"
-                                                        :value="site.site_name"
-                                                    >
-                                                        {{ site.site_name }}
+                                                    <option value="Fair">
+                                                        FAIR
+                                                    </option>
+                                                    <option value="Good">
+                                                        GOOD
+                                                    </option>
+                                                    <option value="Damange">
+                                                        DAMANGE
                                                     </option>
                                                 </Field>
                                                 <span
                                                     class="invalid-feedback"
-                                                    >{{ errors.cucondition }}</span
+                                                    >{{
+                                                        errors.cucodition
+                                                    }}</span
                                                 >
                                             </div>
                                             <div class="form-group">
-                                                <label for="mentenancenotes">Maintenance Notes</label>
+                                                <label for="mentenancenotes"
+                                                    >Maintenance Notes</label
+                                                >
                                                 <Field
                                                     name="mentenancenotes"
                                                     as="textarea"
@@ -684,14 +710,17 @@ onMounted(() => {
                                                     id="mentenancenotes"
                                                     aria-describedby="nameHelp"
                                                     placeholder="Enter Maintenance Notes"
-                                                    v-model="form.mentenancenotes"
+                                                    v-model="
+                                                        form.mentenancenotes
+                                                    "
                                                 />
-
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="form-group">
-                                                <label for="lastmaintenance">Last Maintenance</label>
+                                                <label for="lastmaintenance"
+                                                    >Last Maintenance</label
+                                                >
                                                 <Field
                                                     name="lastmaintenance"
                                                     type="date"
@@ -702,13 +731,15 @@ onMounted(() => {
                                                     }"
                                                     id="lastmaintenance"
                                                     aria-describedby="nameHelp"
-
-                                                    v-model="form.lastmaintenance"
+                                                    v-model="
+                                                        form.lastmaintenance
+                                                    "
                                                 />
-
                                             </div>
                                             <div class="form-group">
-                                                <label for="nextmaintenance">Next Maintenance</label>
+                                                <label for="nextmaintenance"
+                                                    >Next Maintenance</label
+                                                >
                                                 <Field
                                                     name="nextmaintenance"
                                                     type="date"
@@ -719,20 +750,21 @@ onMounted(() => {
                                                     }"
                                                     id="nextmaintenance"
                                                     aria-describedby="nameHelp"
-
-                                                    v-model="form.nextmaintenance"
+                                                    v-model="
+                                                        form.nextmaintenance
+                                                    "
                                                 />
-
                                             </div>
                                         </div>
-
                                     </div>
                                 </tab-content>
                                 <tab-content title="Utilization & Ussage">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <div class="form-group">
-                                                <label for="operationhours">Operating Hours</label>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="operationhours"
+                                                    >Operating Hours</label
+                                                >
                                                 <Field
                                                     name="operationhours"
                                                     type="number"
@@ -743,14 +775,14 @@ onMounted(() => {
                                                     }"
                                                     id="operationhours"
                                                     aria-describedby="nameHelp"
-
-                                                    v-model="form.operationhours"
+                                                    v-model="
+                                                        form.operationhours
+                                                    "
                                                 />
-
                                             </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="form-group">
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
                                                 <label for="notes">Notes</label>
                                                 <Field
                                                     name="notes"
@@ -769,16 +801,20 @@ onMounted(() => {
                                                     class="invalid-feedback"
                                                     >{{ errors.notes }}</span
                                                 >
+                                            </div>
                                         </div>
-
                                     </div>
-                                </div>
                                 </tab-content>
-                                <tab-content title="Financial Information" icon="fas fa-receipt">
+                                <tab-content
+                                    title="Financial Information"
+                                    icon="fas fa-receipt"
+                                >
                                     <div class="row">
-                                    <div class="col-6">
-                                        <div class="form-group">
-                                                <label for="purchasecost">Purchase Cost</label>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label for="purchasecost"
+                                                    >Purchase Cost</label
+                                                >
                                                 <Field
                                                     name="purchasecost"
                                                     type="number"
@@ -789,15 +825,16 @@ onMounted(() => {
                                                     }"
                                                     id="purchasecost"
                                                     aria-describedby="nameHelp"
-
                                                     v-model="form.purchasecost"
                                                 />
-
                                             </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="form-group">
-                                                <label for="insurancewarrantyinfo">WARRANTY Information</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label
+                                                    for="insurancewarrantyinfo"
+                                                    >WARRANTY Information</label
+                                                >
                                                 <Field
                                                     name="insurancewarrantyinfo"
                                                     as="textarea"
@@ -809,54 +846,24 @@ onMounted(() => {
                                                     id="insurancewarrantyinfo"
                                                     aria-describedby="nameHelp"
                                                     placeholder="Enter insurancewarrantyinfo"
-                                                    v-model="form.insurancewarrantyinfo"
+                                                    v-model="
+                                                        form.insurancewarrantyinfo
+                                                    "
                                                 />
                                                 <span
                                                     class="invalid-feedback"
-                                                    >{{ errors.insurancewarrantyinfo }}</span
+                                                    >{{
+                                                        errors.insurancewarrantyinfo
+                                                    }}</span
                                                 >
+                                            </div>
                                         </div>
-
                                     </div>
-                                </div>
                                 </tab-content>
                             </form-wizard>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <div v-if="editing">
-                            <div
-                                v-if="authUserStore.user.role === 'ADMIN'"
-                                class="btn-group float-l ml-auto"
-                            >
-                                <button
-                                    type="button"
-                                    @click="handleGetAction(2)"
-                                    class="btn btn-info"
-                                >
-                                    Approved
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-info dropdown-toggle dropdown-hover dropdown-icon"
-                                    data-toggle="dropdown"
-                                >
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <div class="dropdown-menu" role="menu">
-                                    <span
-                                        @click="handleGetAction(1)"
-                                        class="dropdown-item"
-                                        >Pending</span
-                                    >
-                                    <span
-                                        @click="handleGetAction(3)"
-                                        class="dropdown-item"
-                                        >Disapproved</span
-                                    >
-                                </div>
-                            </div>
-                        </div>
                         <button
                             type="button"
                             class="btn btn-secondary"
@@ -909,11 +916,77 @@ onMounted(() => {
                         Cancel
                     </button>
                     <button
-                        @click.prevent="deleteUser"
+                        @click.prevent="deleteData"
                         type="button"
                         class="btn btn-primary"
                     >
                         Delete Record
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div
+        class="modal fade"
+        id="ViewRecodeModal"
+        data-backdrop="static"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">
+                        <span>Asset Record</span>
+                    </h5>
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+    <div class="d-flex justify-content-between">
+        <div class=" mb-3">
+
+            <!-- info row -->
+            <div class="row">
+                <div class="col-md-12">
+                    <p>
+                        Site: {{ form.site_name }}<br>
+                        Asset Name: {{ form.asset_name }}<br>
+                        Asset Type: {{ form.asset_type }}<br>
+                        Serial: {{ form.serial }}<br>
+                        Date Acquired: {{ form.date_acquired }}<br>
+                    </p>
+                </div>
+                <div class="col-md-12">
+                    <p>
+                        Brand: {{ form.man_supplier }}<br>
+                        Unit: {{ form.unit }}<br>
+                        Person Accountability: {{ form.paccountable }}<br>
+                        Location Transfer: {{ form.locationchangetranfer }}<br>
+                        Condition: {{ form.condition }}<br>
+                        Maintenance Note: {{ form.maintenancenotes }}<br>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                    >
+                        Cancel
                     </button>
                 </div>
             </div>

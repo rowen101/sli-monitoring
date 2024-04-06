@@ -13,7 +13,7 @@ const props = defineProps({
     selectAll: Boolean,
 });
 
-const emit = defineEmits(["userDeleted", "editMenu", "confirmDeletion"]);
+const emit = defineEmits(["userDeleted", "editDa", "confirmDeletion"]);
 
 const toggleSelection = () => {
     emit("toggleSelection", props.item);
@@ -29,15 +29,27 @@ const toggleSelection = () => {
             />
         </td>
         <td>{{ index + 1 }}</td>
+        <td>{{ item.site_name }}</td>
         <td>{{ item.asset_name }}</td>
         <td>{{ item.asset_type }}</td>
         <td>{{ item.serial }}</td>
         <td>{{ item.date_acquired }}</td>
         <td>{{ item.man_supplier }}</td>
         <td>{{ item.unit }}</td>
-        <td>{{ item.location }}</td>
-        <td>
-            {{ item.paccountable }}
+        <td>{{ item.created_by }}</td>
+        <td>{{ item.created_at }}</td>
+        <td>{{ item.updated_by }}</td>
+
+            <td class="text-center">
+                <i class="fa fa-eye text-success" @click.prevent="$emit('viewData', item)"></i>
+&nbsp;
+            <i class="fa fa-edit text-primary" @click.prevent="$emit('editData', item)"></i>
+       &nbsp;
+
+            <i class="fa fa-trash text-danger" @click.prevent="$emit('confirmDeletion', item.id)"></i>
+
+
+
         </td>
     </tr>
 </template>

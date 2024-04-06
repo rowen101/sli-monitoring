@@ -10,6 +10,8 @@ class sliassetmonitoring extends Model
     protected $table = 'sliassetmonitoring';
 
     protected $fillable = [
+        'id',
+        'site_id',
         'asset_name',
         'asset_type',
         'serial',

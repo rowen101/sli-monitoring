@@ -258,7 +258,7 @@ const deleteData = () => {
 
 const bulkDelete = () => {
     axios
-        .delete("/web/bulkDelete", {
+        .delete("/web/bulkDeletePallet", {
             data: {
                 ids: selectedItems.value,
             },

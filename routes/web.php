@@ -123,7 +123,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/api/notifications/{id}/markAsRead',[NotificationController::class, 'markAsRead']);
 
     Route::resource('/web/asset-monitoring', SliassetmonitoringController::class);
-
+    Route::delete('/web/bulkDeleteAsset', [SliassetmonitoringController::class, 'bulkDelete']);
     Route::get('/web/usersite/{id}',[UserSiteController::class,'index']);
 
     Route::get('/web/getsitewithoutuser',[UserSiteController::class,'getsitewthuserid']);
@@ -131,7 +131,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/web/onSaveupdate',[UserSiteController::class,'onSaveupdate']);
 
     Route::resource('/web/pallet', PalletController::class);
-    Route::delete('/web/bulkDelete',[PalletController::class,'bulkDelete']);
+    Route::delete('/web/bulkDeletePallet',[PalletController::class,'bulkDelete']);
+
+
     Route::get('/web/filter-pallet',[PalletController::class,'filter']);
 
 });
