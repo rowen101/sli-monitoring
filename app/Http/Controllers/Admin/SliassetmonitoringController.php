@@ -23,10 +23,12 @@ class SliassetmonitoringController extends Controller
                 $query->where('tbl_sites.site_name', 'like', "%{$searchQuery}%");
                 // Add other conditions as needed
             })
+            ->select('sliassetmonitoring.*', 'tbl_sites.id as siteID')
             ->where('sliassetmonitoring.created_by', auth()->user()->id)
             ->latest('sliassetmonitoring.created_at')
             ->paginate(setting('pagination_limit'))
             ->through(function ($item) {
+
                 $site = tbl_site::find($item->site_id);
                 $siteName = $site ? $site->site_name : null;
                 $usercreate = User::find($item->created_by);

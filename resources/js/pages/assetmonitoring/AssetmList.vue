@@ -93,6 +93,7 @@ const createData = () => {
 
 const addUser = () => {
     editing.value = false;
+    $("#FormModal").modal("show");
 };
 
 const viewData = (item) => {

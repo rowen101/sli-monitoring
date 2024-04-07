@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class sliassetmonitoring extends Model
 {
     protected $table = 'sliassetmonitoring';
-
+    protected $primaryKey = 'id';
     protected $fillable = [
         'id',
         'site_id',
