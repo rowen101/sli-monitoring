@@ -313,7 +313,7 @@ const capturevsc = () => {
         const dataURL = canvas.toDataURL();
         const link = document.createElement("a");
         link.href = dataURL;
-        link.download = `${sitename.value}-${pageTitle}.png`;
+        link.download = `${sitename.value} - ${pageTitle}.png`;
         link.click();
     });
     $("#cost").show();
