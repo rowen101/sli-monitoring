@@ -11,6 +11,7 @@ import { useAuthUserStore } from "../../stores/AuthUserStore";
 import ContentLoader from "../../components/ContentLoader.vue";
 import { useRoute } from "vue-router";
 import Datepicker from "vue3-datepicker";
+import html2canvas from "html2canvas";
 const swal = inject("$swal");
 import moment from "moment";
 const pageTitle = `${useRoute().name}`;
@@ -22,6 +23,7 @@ const editing = ref(false);
 const authUserStore = useAuthUserStore();
 const viewcost = ref(true);
 const checked = ref(true);
+const sitename = ref();
 const form = reactive({
     id: "",
     site_id: "",
@@ -169,7 +171,8 @@ const getSite = () => {
 };
 
 const changeSite = () => {
-    getItems(form.site_id);
+getItems(form.site_id);
+    sitename.value = listsite.value[0].site_name ? listsite.value[0].site_name : '';
 };
 
 const addData = () => {
@@ -292,11 +295,29 @@ const selectAllItems = () => {
     } else {
         selectedItems.value = [];
     }
-    console.log(selectedItems.value);
+
 };
 
 const updateStatus = (status) => {
     selectedStatus.value = status;
+};
+
+//capture function
+const capturevsc = () => {
+
+    $("#cost").hide();
+    $("#capturecamerafilter").hide();
+    const container = document.getElementById("captureDiv");
+
+    html2canvas(container).then((canvas) => {
+        const dataURL = canvas.toDataURL();
+        const link = document.createElement("a");
+        link.href = dataURL;
+        link.download = `${sitename.value}-${pageTitle}.png`;
+        link.click();
+    });
+    $("#cost").show();
+    $("#capturecamerafilter").show();
 };
 watch([checked], (val) => {
     form.is_active = val ? 1 : 0;
@@ -343,19 +364,8 @@ onMounted(() => {
                         >
                     </div>
                 </div>
-                <!-- <div>
-                    <input
-                        type="text"
-                        v-model="searchQuery"
-                        class="form-control"
-                        placeholder="Search..."
-                    />
-                </div> -->
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <div class="form-group" style="display: inline-block">
+                <div class="d-flex">
+                    <div class="form-group">
                             <select
                                 class="form-control"
                                 id="siteDropdown"
@@ -367,15 +377,31 @@ onMounted(() => {
                                     v-for="site in listsite"
                                     :key="site.id"
                                     :value="site.id"
+
                                 >
                                     {{ site.site_name }}
                                 </option>
                             </select>
                         </div>
+                </div>
+                <!-- <div>
+                    <input
+                        type="text"
+                        v-model="searchQuery"
+                        class="form-control"
+                        placeholder="Search..."
+                    />
+                </div> -->
+            </div>
+            <div id="captureDiv">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        {{ sitename || "Select a Site" }}
                     </div>
 
                     <div class="card-tools">
-                        <div></div>
+                        <div id="cost">
                         <div
                             class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success"
                         >
@@ -389,15 +415,38 @@ onMounted(() => {
                                 class="custom-control-label"
                                 for="customSwitch3"
                                 >Cost</label
-                            >&nbsp;<i
-                                class="fa fa-filter mr-1"
-                                @click="onFilterDate"
-                            ></i>
+                            >
                         </div>
+                    </div>
                     </div>
                 </div>
                 <div class="card-body">
+                    <div id="capturecamerafilter">
+                    <div class="d-flex justify-content-between">
+
+                            <div class="d-flex">
+                                <button
+                                    @click="capturevsc"
+                                    type="button"
+                                    class="mb-2 btn btn-sm btn-success"
+                                >
+                                    <i class="fa fa-camera"></i>
+                                </button>
+                            </div>
+
+
+                            <div class="d-flex">
+                                <i
+                                    class="fa fa-filter mr-1"
+                                    @click="onFilterDate"
+                                ></i>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <ContentLoader v-if="isloading"/>
+
                     <div v-else class="table-responsive">
                         <font size="2">
                             <table
@@ -496,6 +545,7 @@ onMounted(() => {
                         </font>
                     </div>
                 </div>
+
             </div>
             <!-- <Bootstrap4Pagination
                 :data="lists"
@@ -503,7 +553,7 @@ onMounted(() => {
             /> -->
         </div>
     </div>
-
+</div>
     <div
         class="modal fade"
         id="FormModal"
