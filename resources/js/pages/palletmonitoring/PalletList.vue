@@ -171,8 +171,12 @@ const getSite = () => {
 };
 
 const changeSite = () => {
-getItems(form.site_id);
-    sitename.value = listsite.value[0].site_name ? listsite.value[0].site_name : '';
+
+    getItems(form.site_id);
+
+    const selectedSite = listsite.value.find(site => site.id === form.site_id);
+    sitename.value = selectedSite ? selectedSite.site_name : '';
+
 };
 
 const addData = () => {
@@ -303,7 +307,7 @@ const updateStatus = (status) => {
 };
 
 //capture function
-const capturevsc = () => {
+const onCapture = () => {
 
     $("#cost").hide();
     $("#capturecamerafilter").hide();
@@ -426,7 +430,7 @@ onMounted(() => {
 
                             <div class="d-flex">
                                 <button
-                                    @click="capturevsc"
+                                    @click="onCapture"
                                     type="button"
                                     class="mb-2 btn btn-sm btn-success"
                                 >
