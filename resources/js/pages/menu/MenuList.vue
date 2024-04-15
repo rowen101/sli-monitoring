@@ -9,6 +9,7 @@ import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
 import ContentLoader from "../../components/ContentLoader.vue";
+import FormCheckRadioGroup from '@/Components/FormCheckRadioGroup.vue'
 import { useRoute } from "vue-router";
 
 const pageTitle = `${useRoute().name}`;
@@ -464,7 +465,7 @@ onMounted(() => {
                                             errors.sort_order
                                         }}</span>
                                     </div>
-                                   <div class="form-group">
+                                   <!-- <div class="form-group">
                                         <label for="is_active">Active</label>
                                         <input
                                             name="is_active"
@@ -472,6 +473,13 @@ onMounted(() => {
                                             id="is_active"
                                             v-model="checked"
                                             @change="updateIsActive"
+                                        />
+                                    </div> -->
+                                    <div class="form-group">
+                                        <FormCheckRadioGroup
+                                        v-model="form.is_active"
+                                        name="is_active"
+                                        :options="{ is_active: 'Active' }"
                                         />
                                     </div>
                                 </div>

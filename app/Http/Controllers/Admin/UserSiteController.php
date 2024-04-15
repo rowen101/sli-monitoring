@@ -14,27 +14,42 @@ class UserSiteController extends Controller
     {
         $user_id = $request->input('user_id');
 
+        // $sites = tbl_site::select('tbl_sites.*')
+        //     ->where('tbl_sites.is_active', 1)
+        //     ->orderBy('tbl_sites.site_name', 'ASC')
+        //     ->get();
+
+        // $sites->each(function ($sitesItem) use ($user_id) {
+
+        //     $sitesItem->hasAccess = UserSites::where('user_id', $user_id)
+        //         ->where('site_id', $sitesItem->id) // Assuming there's a site_id column
+        //         ->exists();
+        // });
+
+        // return response()->json($sites);
+
         $sites = tbl_site::select('tbl_sites.*')
-            ->where('tbl_sites.is_active', 1)
-            ->orderBy('tbl_sites.site_name', 'ASC')
-            ->get();
+        ->leftJoin('user_sites', function($join) use ($user_id) {
+            $join->on('user_sites.site_id', '=', 'tbl_sites.id')
+                 ->where('user_sites.user_id', '=', $user_id);
+        })
+        ->where('tbl_sites.is_active', 1)
+        ->orderBy('tbl_sites.site_name', 'ASC')
+        ->get();
 
-            $sites->each(function ($sitesItem) use ($user_id) {
+    $sites->each(function ($sitesItem) {
+        $sitesItem->hasAccess = $sitesItem->user_id !== null;
+    });
 
-                $sitesItem->hasAccess = UserSites::where('user_id', $user_id)
-                    ->where('user_id', $sitesItem->user_id)
-                    ->exists();
-
-             });
-
-        return response()->json($sites);
+    return response()->json($sites);
     }
+
 
     public function getsitewthuserid()
     {
-        tbl_site::where('is_active',1)
-        ->orderBy('site_name', 'ASC')
-        ->get();
+        tbl_site::where('is_active', 1)
+            ->orderBy('site_name', 'ASC')
+            ->get();
 
         return response()->json();
     }
@@ -73,5 +88,4 @@ class UserSiteController extends Controller
             return response()->json(['message' => 'Failed to save data', 'error' => $e->getMessage()], 500);
         }
     }
-
 }

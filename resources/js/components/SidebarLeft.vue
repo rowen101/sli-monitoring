@@ -39,7 +39,7 @@ onMounted(() => {
 </script>
 
 <template>
-     <aside class="main-sidebar sidebar-dark-primary elevation-4 position-fixed">
+     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <a href="#" class="brand-link">
             <img
                 :src="'/img/safe1.png'"
@@ -104,14 +104,14 @@ onMounted(() => {
                         :key="item.id"
                         :class="{
                             'nav-item': true,
-                            'has-submenu':
+                            'menu-is-opening':
                                 item.submenus && item.submenus.length > 0,
                         }"
                     >
                         <router-link
                             :class="{
                                 'nav-link': true,
-                                active: isCurrentRoute(item.menu_route),
+                                'active': isCurrentRoute(item.menu_route),
                             }"
                             :to="`${item.menu_route}`"
                         >
@@ -136,8 +136,8 @@ onMounted(() => {
                             >
                                 <router-link
                                     :class="{
-                                        'nav-link': true,
-                                        active: isCurrentRoute(
+                                        'nav-link menu-open': true,
+                                        'active': isCurrentRoute(
                                             submenu.menu_route
                                         ),
                                     }"

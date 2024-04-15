@@ -349,7 +349,7 @@ onMounted(() => {
                     <button
                         @click="addData"
                         type="button"
-                        class="mb-2 btn btn-primary"
+                        class=" mb-2 btn btn-primary"
                     >
                         <i class="fa fa-plus-circle mr-1"></i>
                         Pallet

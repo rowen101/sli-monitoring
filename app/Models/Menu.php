@@ -28,7 +28,8 @@ class Menu extends Model
     }
 
     protected $casts = [
-        'created_at' => 'datetime'
+        'created_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
 
