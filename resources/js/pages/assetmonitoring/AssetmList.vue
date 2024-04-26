@@ -37,6 +37,9 @@ const form = reactive({
     locationchangetranfer: "",
     cucodition: "",
     maintenancenotes: "",
+    purchasecost: "",
+    depreciationcost: "",
+    is_active: "",
 });
 
 const selectedStatus = ref(null);
@@ -110,6 +113,7 @@ const viewData = (item) => {
     form.paccountable = item.paccountable;
     form.locationchangetranfer = item.locationchangetranfer;
     form.cucodition = item.cucodition;
+    form.purchasecost = item.purchasecost;
     form.maintenancenotes = item.maintenancenotes;
     form.ceated_by = item.ceated_by;
     form.updated_by = item.updated_by;
@@ -129,6 +133,8 @@ const editData = (item) => {
     form.paccountable = item.paccountable;
     form.locationchangetranfer = item.locationchangetranfer;
     form.cucodition = item.cucodition;
+    form.purchasecost = item.purchasecost;
+    form.depreciationcost = item.depreciationcost;
     form.maintenancenotes = item.maintenancenotes;
     form.ceated_by = item.ceated_by;
     form.updated_by = item.updated_by;
@@ -309,6 +315,8 @@ onMounted(() => {
                                         <th>Date Aquired</th>
                                         <th>Supplier</th>
                                         <th>Unit</th>
+                                        <th>Purchase Cost</th>
+                                        <th>Depreciation Cost</th>
                                         <th>Createdby</th>
                                         <th>CreatedAt</th>
                                         <th>Updatedby</th>
@@ -577,7 +585,7 @@ onMounted(() => {
                                 >
                                     <div class="row">
                                         <div class="col-6">
-                                            <div class="form-group">
+                                            <!-- <div class="form-group">
                                                 <label for="location"
                                                     >location</label
                                                 >
@@ -598,7 +606,7 @@ onMounted(() => {
                                                     class="invalid-feedback"
                                                     >{{ errors.location }}</span
                                                 >
-                                            </div>
+                                            </div> -->
                                             <div class="form-group">
                                                 <label for="paccountable"
                                                     >Person Accountable</label
@@ -697,22 +705,22 @@ onMounted(() => {
                                                 >
                                             </div>
                                             <div class="form-group">
-                                                <label for="mentenancenotes"
+                                                <label for="maintenancenotes"
                                                     >Maintenance Notes</label
                                                 >
                                                 <Field
-                                                    name="mentenancenotes"
+                                                    name="maintenancenotes"
                                                     as="textarea"
                                                     class="form-control"
                                                     :class="{
                                                         'is-invalid':
-                                                            errors.mentenancenotes,
+                                                            errors.maintenancenotes,
                                                     }"
-                                                    id="mentenancenotes"
+                                                    id="maintenancenotes"
                                                     aria-describedby="nameHelp"
                                                     placeholder="Enter Maintenance Notes"
                                                     v-model="
-                                                        form.mentenancenotes
+                                                        form.maintenancenotes
                                                     "
                                                 />
                                             </div>
@@ -816,9 +824,15 @@ onMounted(() => {
                                                 <label for="purchasecost"
                                                     >Purchase Cost</label
                                                 >
+                                                <div class="input-group mb-3">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span>₱</span>
+                            </div>
+                        </div>
                                                 <Field
                                                     name="purchasecost"
-                                                    type="number"
+                                                    type="text"
                                                     class="form-control"
                                                     :class="{
                                                         'is-invalid':
@@ -828,8 +842,34 @@ onMounted(() => {
                                                     aria-describedby="nameHelp"
                                                     v-model="form.purchasecost"
                                                 />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="depreciationcost"
+                                                    >Depreciation cost by year</label
+                                                >
+                                                <div class="input-group mb-3">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span>₱</span>
+                            </div>
+                        </div>
+                                                <Field
+                                                    name="depreciationcost"
+                                                    type="text"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.depreciationcost,
+                                                    }"
+                                                    id="depreciationcost"
+                                                    aria-describedby="nameHelp"
+                                                    v-model="form.depreciationcost"
+                                                />
+                                                </div>
                                             </div>
                                         </div>
+
                                         <div class="col-6">
                                             <div class="form-group">
                                                 <label
@@ -872,9 +912,9 @@ onMounted(() => {
                         >
                             Cancel
                         </button>
-                        <button type="submit" class="btn btn-primary">
+                        <!-- <button type="submit" class="btn btn-primary">
                             Save
-                        </button>
+                        </button> -->
                     </div>
                 </Form>
             </div>
@@ -972,7 +1012,8 @@ onMounted(() => {
                         Unit: {{ form.unit }}<br>
                         Person Accountability: {{ form.paccountable }}<br>
                         Location Transfer: {{ form.locationchangetranfer }}<br>
-                        Condition: {{ form.condition }}<br>
+                        Condition: {{ form.cucodition }}<br>
+                        Purchase cost: {{ form.purchasecost }}<br>
                         Maintenance Note: {{ form.maintenancenotes }}<br>
                     </p>
                 </div>

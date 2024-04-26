@@ -20,7 +20,7 @@ const toggleSelection = () => {
 };
 </script>
 <template>
-    <tr>
+    <tr >
         <td>
             <input
                 type="checkbox"
@@ -29,25 +29,29 @@ const toggleSelection = () => {
             />
         </td>
         <td>{{ index + 1 }}</td>
-        <td>{{ item.site_name }}</td>
-        <td>{{ item.asset_name }}</td>
-        <td>{{ item.asset_type }}</td>
-        <td>{{ item.serial }}</td>
-        <td>{{ item.date_acquired }}</td>
-        <td>{{ item.man_supplier }}</td>
-        <td>{{ item.unit }}</td>
-        <td>{{ item.created_by }}</td>
-        <td>{{ item.created_at }}</td>
-        <td>{{ item.updated_by }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ item.site_name }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ item.asset_name }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ item.asset_type }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ item.serial }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ item.date_acquired }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ item.man_supplier }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ item.unit }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{'₱' + item.purchasecost }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{'₱' + item.depreciationcostbyyear }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ item.created_by }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ item.created_at }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ item.updated_by }}</td>
 
             <td class="text-center">
-                <i class="fa fa-eye text-success" @click.prevent="$emit('viewData', item)"></i>
-&nbsp;
+                <div>
+
             <i class="fa fa-edit text-primary" @click.prevent="$emit('editData', item)"></i>
        &nbsp;
 
             <i class="fa fa-trash text-danger" @click.prevent="$emit('confirmDeletion', item.id)"></i>
 
+
+                </div>
 
 
         </td>

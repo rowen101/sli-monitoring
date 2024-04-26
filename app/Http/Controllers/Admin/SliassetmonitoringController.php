@@ -18,9 +18,11 @@ class SliassetmonitoringController extends Controller
     public function index()
     {
         $data = Sliassetmonitoring::query()
-        ->join('tbl_sites', 'tbl_sites.id', '=', 'sliassetmonitoring.site_id')
+            ->join('tbl_sites', 'tbl_sites.id', '=', 'sliassetmonitoring.site_id')
             ->when(request('query'), function ($query, $searchQuery) {
                 $query->where('tbl_sites.site_name', 'like', "%{$searchQuery}%");
+                $query->where('sliassetmonitoring.asset_name', 'like', "%{$searchQuery}%");
+                $query->where('sliassetmonitoring.man_supplier', 'like', "%{$searchQuery}%");
                 // Add other conditions as needed
             })
             ->select('sliassetmonitoring.*', 'tbl_sites.id as siteID')
@@ -35,6 +37,12 @@ class SliassetmonitoringController extends Controller
                 $usercreated_by = $usercreate ? $usercreate->name : null;
                 $userupdate = User::find($item->updated_by);
                 $userupdated_by = $userupdate ? $userupdate->name : null;
+
+                // Calculate years of depreciation
+                $years = $this->calculateDepreciationYears($item->date_acquired);
+                $depreciationcost = ($item->purchasecost != 0 && $years != 0) ? ($item->purchasecost - ($item->depreciationcost * $years)) : 0;
+
+
                 return [
                     'id' => $item->id,
                     'site_id' => $item->site_id,
@@ -54,19 +62,32 @@ class SliassetmonitoringController extends Controller
                     'nextmaintenance' => $item->nextmaintenance,
                     'operationhours' => $item->operationhours,
                     'notes' => $item->notes,
-                    'purchasecost' => $item->purchasecost,
+                    'purchasecost' =>  $item->purchasecost,
+                    'depreciationcostbyyear' => $depreciationcost,
+                    'depreciationcost' => $item->depreciationcost,
+                    'is_active' => $item->is_active,
                     'insurancewarrantyinfo' => $item->insurancewarrantyinfo,
                     'created_by' => $usercreated_by,
                     'updated_by' => $userupdated_by,
                     'created_at' => ($item->created_at ? $item->created_at->format('Y-m-d h:i A') : null),
                     'updated_at' => ($item->updated_at ? $item->updated_at->format('Y-m-d h:i A') : null),
-
-
                 ];
             });
 
         return response()->json($data);
     }
+
+    private function calculateDepreciationYears($dateAcquired)
+    {
+        // Calculate years between date acquired and current date
+        $dateAcquired = new \DateTime($dateAcquired);
+        $currentDate = new \DateTime();
+        $interval = $currentDate->diff($dateAcquired);
+        $years = $interval->y + $interval->m / 12 + $interval->d / 365;
+
+        return $years;
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -106,7 +127,9 @@ class SliassetmonitoringController extends Controller
             'operationhours' => $request->operationhours,
             'notes' => $request->notes,
             'purchasecost' => $request->purchasecost,
+            'depreciationcost' => $request->depreciationcost,
             'insurancewarrantyinfo' => $request->insurancewarrantyinfo,
+            'is_active'=>$request->is_active,
             'created_by' => $userId,
             'updated_by' => null // Set updated_by to null for new records
         ];

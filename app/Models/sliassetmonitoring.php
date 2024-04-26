@@ -28,7 +28,9 @@ class sliassetmonitoring extends Model
         'operationhours',
         'notes',
         'purchasecost',
+        'depreciationcost',
         'insurancewarrantyinfo',
+        'is_active',
         'created_by',
         'updated_by'
     ];
