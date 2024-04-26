@@ -167,13 +167,13 @@ onMounted(() => {
             <div class="row">
                 <div class="col-md-6">
                     <div class="card">
-                        <ul class="nav nav-tabs" id="settingsTabs">
+                        <ul class="nav nav-tabs">
                             <li class="nav-item">
                                 <a
                                     class="nav-link active"
-                                    id="general-tab"
+                                    id="general"
                                     data-toggle="tab"
-                                    href="#general"
+                                    href="#general-tab"
                                     >General Settings</a
                                 >
                             </li>
