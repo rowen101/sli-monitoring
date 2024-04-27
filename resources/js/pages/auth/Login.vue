@@ -24,7 +24,7 @@ const handleSubmit = () => {
     axios
         .post("/login", form)
         .then(() => {
-            router.push("/dashboard");
+            router.push("/");
             toastr.success("Login Success");
         })
         .catch((error) => {
