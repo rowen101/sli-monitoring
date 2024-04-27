@@ -48,9 +48,9 @@ const toggleSelection = () => {
                 ><i class="fa fa-edit"></i
             ></a>
 
-            <!-- <a href="#" @click.prevent="$emit('confirmUserDeletion', item.id)"
+            <a href="#" @click.prevent="$emit('confirmUserDeletion', item.id)"
                 ><i class="fa fa-trash text-danger ml-2"></i
-            ></a> -->
+            ></a>
         </td>
     </tr>
 

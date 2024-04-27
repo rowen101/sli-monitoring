@@ -32,6 +32,9 @@ const form = reactive({
     allocatedpalletspace: "",
     spaceuteltotal: "",
     caseperpallet: "",
+
+    fromdate:"",
+    todate:""
 });
 
 const selectedStatus = ref(null);
@@ -56,11 +59,21 @@ const getItems = () => {
         });
 };
 
+const createbulkSchema = yup.object({
+
+    allocatedpalletspace: yup.string().required(),
+    spaceuteltotal: yup.string().required(),
+    caseperpallet: yup.string().required(),
+    fromdate: yup.string().required(),
+    todate: yup.string().required(),
+});
+
 const createSchema = yup.object({
     date: yup.string().required(),
     allocatedpalletspace: yup.string().required(),
     spaceuteltotal: yup.string().required(),
     caseperpallet: yup.string().required(),
+
 });
 
 const editSchema = yup.object({
@@ -193,9 +206,14 @@ const addData = () => {
     editing.value = false;
 
     $("#FormModal").modal("show");
+    $("#bulkviewtab2").show();
+
+
 };
 
 const editData = (item) => {
+    $("#bulkviewtab2").hide();
+
     editing.value = true;
     form.id = item.id;
     form.user_id = item.user_id;
@@ -231,6 +249,20 @@ const handleSubmit = (values, actions) => {
         createData(values, actions);
     }
 };
+
+const bulkhandleSubmit =() =>{
+    axios
+        .post("/web/bulkCreatePallet", form)
+        .then((response) => {
+
+            getItems();
+            $("#FormModal").modal("hide");
+            toastr.success(response.data.message);
+        })
+        .catch((error) => {
+            toastr.error(error.response.data.errors);
+        });
+}
 
 const searchQuery = ref(null);
 
@@ -322,6 +354,7 @@ const onCapture = () => {
     });
     $("#cost").show();
     $("#capturecamerafilter").show();
+
 };
 watch([checked], (val) => {
     form.is_active = val ? 1 : 0;
@@ -349,7 +382,7 @@ onMounted(() => {
                     <button
                         @click="addData"
                         type="button"
-                        class=" mb-2 btn btn-primary"
+                        class="mb-2 btn btn-primary"
                     >
                         <i class="fa fa-plus-circle mr-1"></i>
                         Pallet
@@ -478,12 +511,27 @@ onMounted(() => {
                                         <th>Action</th>
                                     </tr>
                                 </thead>
+
                                 <tbody v-if="lists.length > 0">
+                                    <!-- <PalletItemList
+                                        v-for="(item, index) in lists"
+                                        :key="item.id"
+                                        :item="item"
+                                        :index="index"
+                                        @view-data="viewData"
+                                        @edit-data="editData"
+                                        @confirm-deletion="confirmDeletion"
+                                        @toggle-selection="toggleSelection"
+                                        :select-all="selectAll"
+                                    /> -->
                                     <tr
                                         v-for="(item, index) in lists"
                                         :key="item.id"
                                         :item="item"
                                         :index="index"
+                                         @confirm-deletion="confirmDeletion"
+                                        @toggle-selection="toggleSelection"
+                                        :select-all="selectAll"
                                     >
                                         <td>
                                             <input
@@ -583,7 +631,31 @@ onMounted(() => {
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <Form
+                <ul class="nav nav-tabs">
+                            <li id="bulkviewtab1" class="nav-item">
+                                <a
+                                    class="nav-link active"
+                                    id="general"
+                                    data-toggle="tab"
+                                    href="#sigle-pallet-tab"
+                                    >Single Pallet</a
+                                >
+                            </li>
+                            <li id="bulkviewtab2" class="nav-item">
+                                <a
+                                    class="nav-link"
+                                    id="site-tab"
+                                    data-toggle="tab"
+                                    href="#bulk-pallet-tab"
+                                    >Bulk Pallet</a
+                                >
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <!-- General Settings Tab -->
+                            <div class="tab-pane fade show active" id="sigle-pallet-tab">
+                                <Form
                     @submit="handleSubmit"
                     v-slot="{ errors }"
                     :validation-schema="editing ? editSchema : createSchema"
@@ -700,6 +772,149 @@ onMounted(() => {
                         </button>
                     </div>
                 </Form>
+                            </div>
+
+                            <div class="tab-pane fade show" id="bulk-pallet-tab">
+                                <Form
+                    @submit="bulkhandleSubmit"
+                    v-slot="{ errors }"
+                    :validation-schema="createbulkSchema"
+
+                >
+                    <div class="modal-body">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-12">
+                                    <Field
+                                        v-model="form.user_id"
+                                        type="hidden"
+                                        name="user_id"
+                                        id="user_id"
+                                    />
+
+                                    <div class="form-group">
+                                        <label for="fromdate">From:</label>
+                                        <Field
+                                            name="fromdate"
+                                            type="date"
+                                            class="form-control"
+                                            :class="{
+                                                'is-invalid':
+                                                    errors.fromdate,
+                                            }"
+                                            id="fromdate"
+                                            aria-describedby="dateHelp"
+                                            placeholder="Select Date"
+                                            v-model="form.fromdate"
+                                        />   <span class="invalid-feedback">{{
+                                            errors.fromdate
+                                        }}</span>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="todate">To:</label>
+                                        <Field
+                                            name="todate"
+                                            type="date"
+                                            class="form-control"
+                                            :class="{
+                                                'is-invalid':
+                                                    errors.todate,
+                                            }"
+                                            id="todate"
+                                            aria-describedby="dateHelp"
+                                            placeholder="Select Date"
+                                            v-model="form.todate"
+                                        />
+                                        <span class="invalid-feedback">{{
+                                            errors.todate
+                                        }}</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="user"
+                                            >Allocated Pallet Space</label
+                                        >
+                                        <Field
+                                            name="allocatedpalletspace"
+                                            type="text"
+                                            class="form-control"
+                                            :class="{
+                                                'is-invalid':
+                                                    errors.allocatedpalletspace,
+                                            }"
+                                            id="allocatedpalletspace"
+                                            aria-describedby="nameHelp"
+                                            placeholder="Enter Menu title"
+                                            v-model="form.allocatedpalletspace"
+                                        />
+                                        <span class="invalid-feedback">{{
+                                            errors.allocatedpalletspace
+                                        }}</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="warehouse"
+                                            >Space Utilization Total</label
+                                        >
+                                        <Field
+                                            name="spaceuteltotal"
+                                            type="text"
+                                            class="form-control"
+                                            :class="{
+                                                'is-invalid':
+                                                    errors.spaceuteltotal,
+                                            }"
+                                            id="spaceuteltotal"
+                                            aria-describedby="nameHelp"
+                                            placeholder="Enter Menu Icon"
+                                            v-model="form.spaceuteltotal"
+                                            required
+                                        />
+                                        <span class="invalid-feedback">{{
+                                            errors.spaceuteltotal
+                                        }}</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="user"
+                                            >Cost Per Pallet</label
+                                        >
+                                        <Field
+                                            name="caseperpallet"
+                                            type="text"
+                                            class="form-control"
+                                            :class="{
+                                                'is-invalid':
+                                                    errors.caseperpallet,
+                                            }"
+                                            id="caseperpallet"
+                                            aria-describedby="nameHelp"
+                                            placeholder="Enter Case Per Pallet"
+                                            v-model="form.caseperpallet"
+                                        />
+                                        <span class="invalid-feedback">{{
+                                            errors.caseperpallet
+                                        }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Save
+                        </button>
+                    </div>
+                </Form>
+                            </div>
+                        </div>
+
             </div>
         </div>
     </div>
@@ -817,4 +1032,36 @@ onMounted(() => {
     /* Optional: Add additional styling if needed */
     margin-top: 5px; /* Adjust as needed */
 }
+
+
+a {
+    color: #2b2b2b;
+    text-decoration: none;
+}
+.nav-tabs {
+    border-bottom: 2px solid #2196f3;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: -1px;
+}
+
+.nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-radius: 0;
+    color: #2196f3;
+    transition: background-color 0.3s;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #2196f3;
+    color: #fff;
+    border-color: #2196f3;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #0069d9;
+    border-color: #0069d9;
+}
+
 </style>

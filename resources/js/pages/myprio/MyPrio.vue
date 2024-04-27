@@ -1,6 +1,6 @@
 <script setup>
 import axios from "axios";
-import { ref, onMounted, reactive, watch, computed } from "vue";
+import { ref, onMounted, reactive, watch, computed,inject } from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
@@ -12,7 +12,6 @@ import { useSettingStore } from "../../stores/SettingStore";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/themes/light.css";
 import moment from "moment";
-import { inject } from "vue";
 import ContentLoader from "../../components/ContentLoader.vue";
 
 import Datepicker from "vue3-datepicker";
@@ -101,13 +100,13 @@ const endhours = ref(
 
 // Create a reactive form object
 const form = reactive({
-    dailytask_id:"",
+    dailytask_id: "",
     site: "",
     user_id: authUserStore.user.id,
     tasktype: 0,
     plandate: "",
     planenddate: "",
-    enddates:"",
+    enddates: "",
 });
 
 // Watch for changes in Sdate and StrHours and update plandate
@@ -352,7 +351,6 @@ const createData = (values, actions) => {
     axios
         .post("/api/dailytask", form)
         .then((response) => {
-            console.log(response.data);
             getItems();
             $("#FormModal").modal("hide");
             toastr.success("data created successfully!");
@@ -388,14 +386,12 @@ const addTask = (value) => {
         form.dailytask_id = value.dailytask_id;
         form.plandate = value.plandate;
         form.planenddate = value.planenddate;
-
     } else {
         editing.value = false;
     }
     getSite();
     $("#FormModal").modal("show");
 };
-
 
 const handleSubmit = (values, actions) => {
     if (editing.value) {
@@ -549,7 +545,6 @@ onMounted(() => {
     });
     getItems();
     document.title = pageTitle;
-
 });
 </script>
 
@@ -590,7 +585,7 @@ onMounted(() => {
                             </div>
                         </div>
                         <div class="col-12" id="accordion">
-                            <ContentLoader v-if="isloading"/>
+                            <ContentLoader v-if="isloading" />
                             <div v-else>
                                 <div v-if="lists.length === 0">
                                     <!-- Show this card when the list is empty -->
@@ -1285,61 +1280,66 @@ onMounted(() => {
                                         height="50"
                                     />
                                 </ContentLoader>
+
                                 <ul
                                     class="list-group"
                                     v-for="item in listasks"
                                     :key="item.id"
                                 >
                                     <li
+                                        class="list-group-item p-0"
                                         v-if="item.iscompleted !== 1"
-                                        class="list-group-item mt-2"
                                     >
                                         <div
-                                            class="d-flex justify-content-between"
+                                            class="d-flex justify-content-center"
                                         >
-                                            <div class="d-flex">
-                                                <i
-                                                    @click="
-                                                        handleCompleteTask(item)
-                                                    "
-                                                    v-if="startdate"
-                                                    :class="{
-                                                        'cursor-pointer mr-2': true,
-                                                        'fa fa-check-circle text-primary':
-                                                            item.iscompleted ===
-                                                            1,
-                                                        'fa fa-circle text-primary':
-                                                            item.iscompleted !==
-                                                            1,
-                                                    }"
-                                                    style="font-size: 15px"
-                                                ></i>
-
+                                            <div >
                                                 <span
                                                     :class="{
-                                                        'font-italic':
+                                                        'font-italic btn':
                                                             item.iscompleted ===
                                                             1,
-                                                        '':
+                                                        btn:
                                                             item.iscompleted !==
                                                             1,
                                                     }"
-                                                >
+                                                    ><i
+                                                        @click="
+                                                            handleCompleteTask(
+                                                                item
+                                                            )
+                                                        "
+                                                        v-if="startdate"
+                                                        :class="{
+                                                            'cursor-pointer mr-2 ': true,
+                                                            'fa fa-check-circle text-primary':
+                                                                item.iscompleted ===
+                                                                1,
+                                                            'fa fa-circle text-primary':
+                                                                item.iscompleted !==
+                                                                1,
+                                                        }"
+
+                                                    ></i>
                                                     {{ item.task_name }}
                                                 </span>
                                             </div>
-                                            <div class="d-flex">
-                                                <i
-                                                    class="fa fa-trash text-danger"
+                                            <div class="ml-auto my-1 mr-1">
+                                                <button
                                                     @click="delTask(item)"
-                                                ></i>
+                                                    class="btn btn-outline"
+                                                >
+                                                    <i
+                                                        class="fa fa-trash text-danger"
+                                                    ></i>
+                                                </button>
                                             </div>
                                         </div>
                                     </li>
                                 </ul>
 
                                 <!-- List for completed tasks -->
-                                <li class="m-2 list-unstyled">
+                                <li class="mt-2 mb-2 list-unstyled">
                                     <button
                                         class="btn btn-sm bg-secondary"
                                         @click="toggleList"
@@ -1357,61 +1357,64 @@ onMounted(() => {
                                     </button>
                                 </li>
                                 <div v-if="showList">
+
+
                                     <ul
-                                        class="list-group"
-                                        v-for="item in listasks"
-                                        :key="item.id"
+                                    class="list-group"
+                                    v-for="item in listasks"
+                                    :key="item.id"
+                                >
+                                    <li
+                                        class="list-group-item p-0"
+                                        v-if="item.iscompleted === 1"
                                     >
-                                        <li
-                                            v-if="item.iscompleted === 1"
-                                            class="list-group-item mt-2"
+                                        <div
+                                            class="d-flex justify-content-center"
                                         >
-                                            <div
-                                                class="d-flex justify-content-between"
-                                            >
-                                                <div class="d-flex">
-                                                    <i
-                                                        :class="{
-                                                            'cursor-pointer mr-2': true,
-                                                            'fa fa-check-circle':
-                                                                item.iscompleted ===
-                                                                1,
-                                                            'fa fa-circle':
-                                                                item.iscompleted !==
-                                                                1,
-                                                        }"
-                                                        style="font-size: 15px"
+                                            <div >
+                                                <span
+                                                    :class="{
+                                                        'font-italic btn':
+                                                            item.iscompleted ===
+                                                            1,
+                                                        btn:
+                                                            item.iscompleted !==
+                                                            1,
+                                                    }"
+                                                    ><i
                                                         @click="
                                                             handleCompleteTask(
                                                                 item
                                                             )
                                                         "
-                                                    ></i>
-
-                                                    <span
+                                                        v-if="startdate"
                                                         :class="{
-                                                            'font-italic':
+                                                            'cursor-pointer mr-2 ': true,
+                                                            'fa fa-check-circle text-primary':
                                                                 item.iscompleted ===
                                                                 1,
-                                                            '':
+                                                            'fa fa-circle text-primary':
                                                                 item.iscompleted !==
                                                                 1,
                                                         }"
-                                                    >
-                                                        <del>{{
-                                                            item.task_name
-                                                        }}</del>
-                                                    </span>
-                                                </div>
-                                                <div class="d-flex">
+
+                                                    ></i>
+                                                    {{ item.task_name }}
+                                                </span>
+                                            </div>
+                                            <div class="ml-auto my-1 mr-1">
+                                                <button
+                                                    @click="delTask(item)"
+                                                    class="btn btn-outline"
+                                                >
                                                     <i
                                                         class="fa fa-trash text-danger"
-                                                        @click="delTask(item)"
                                                     ></i>
-                                                </div>
+                                                </button>
                                             </div>
-                                        </li>
-                                    </ul>
+                                        </div>
+                                    </li>
+                                </ul>
                                 </div>
                             </div>
                             <div class="mt-2 text-center" v-else>
@@ -1543,7 +1546,7 @@ a {
 }
 
 .nav-tabs .nav-link.active {
-   background-color: #0069d9;
+    background-color: #0069d9;
     color: #fff;
     border-color: #2196f3;
 }
@@ -1551,7 +1554,7 @@ a {
 .nav-tabs .nav-link:hover {
     background-color: #0069d9;
     border-color: #0069d9;
-     color: #fff;
+    color: #fff;
 }
 
 .image-container {

@@ -32,7 +32,7 @@ export default [
     //     component: Register,
     // },
     {
-        path: '/dashboard',
+        path: '/',
         name: 'Dashboard',
         component: Dashboard,
     },

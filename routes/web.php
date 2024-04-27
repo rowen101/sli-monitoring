@@ -131,6 +131,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/web/onSaveupdate',[UserSiteController::class,'onSaveupdate']);
 
     Route::resource('/web/pallet', PalletController::class);
+    Route::post('/web/bulkCreatePallet',[PalletController::class,'bulkpallet']);
     Route::delete('/web/bulkDeletePallet',[PalletController::class,'bulkDelete']);
 
 

@@ -41,7 +41,7 @@ class SliassetmonitoringController extends Controller
                 // Calculate years of depreciation
                 $years = $this->calculateDepreciationYears($item->date_acquired);
                 $depreciationcost = ($item->purchasecost != 0 && $years != 0) ? ($item->purchasecost - ($item->depreciationcost * $years)) : 0;
-
+                $depreciationCost = round($depreciationcost, 2);
 
                 return [
                     'id' => $item->id,
@@ -63,7 +63,7 @@ class SliassetmonitoringController extends Controller
                     'operationhours' => $item->operationhours,
                     'notes' => $item->notes,
                     'purchasecost' =>  $item->purchasecost,
-                    'depreciationcostbyyear' => $depreciationcost,
+                    'depreciationcostbyyear' => $depreciationCost,
                     'depreciationcost' => $item->depreciationcost,
                     'is_active' => $item->is_active,
                     'insurancewarrantyinfo' => $item->insurancewarrantyinfo,

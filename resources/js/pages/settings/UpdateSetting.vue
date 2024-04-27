@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, reactive, watch, computed } from "vue";
+import { ref, onMounted, reactive, watch, computed,inject } from "vue";
 import { useToastr } from "@/toastr";
 import ContentLoader from "../../components/ContentLoader.vue";
 import { Form, Field, useResetForm } from "vee-validate";
@@ -12,6 +12,8 @@ const showList = ref(true);
 const listItem = ref([]);
 const isLoadingSite = ref(false);
 const formValues = ref();
+const swal = inject("$swal");
+
 //site
 const formSite = ref({
     id: "",
@@ -129,6 +131,15 @@ const handleIsActiveSite = (item) => {
 
 const editData = (item) => {
 
+    if (item.is_active === null || item.is_active === 0) {
+            // Show a warning message using SweetAlert2
+            swal.fire({
+                title: "Warning!",
+                text: "This record is deactivate please activate before you edit!",
+                icon: "warning",
+            });
+            return; // Exit the function early
+        }
     formSite.value.id = item.id;
     formSite.value.site_name = item.site_name;
 }
@@ -292,20 +303,30 @@ onMounted(() => {
                                     <!-- Separate List for incomplete tasks -->
                                     <ContentLoader v-if="isLoadingSite"/>
 
+
                                     <ul
-                                        class="list-group"
+                                    class="list-group"
                                         v-for="item in listItem"
                                         :key="item.id"
+                                >
+                                    <li
+                                        class="list-group-item p-0"
+                                        v-if="item.is_active === 1"
                                     >
-                                        <li
-                                            v-if="item.is_active === 1"
-                                            class="list-group-item mt-2"
+                                        <div
+                                            class="d-flex justify-content-center"
                                         >
-                                            <div
-                                                class="d-flex justify-content-between"
-                                            >
-                                                <div class="d-flex">
-                                                    <i
+                                            <div >
+                                                <span
+                                                :class="{
+                                                            'btn font-italic text-red':
+                                                                item.is_active ===
+                                                                0,
+                                                            'btn':
+                                                                item.is_active ===
+                                                                1,
+                                                        }"
+                                                    ><i
                                                         @click="
                                                             handleIsActiveSite(
                                                                 item
@@ -322,32 +343,23 @@ onMounted(() => {
                                                         }"
                                                         style="font-size: 15px"
                                                     ></i>
-
-                                                    <span
-                                                        :class="{
-                                                            'font-italic text-red':
-                                                                item.is_active ===
-                                                                0,
-                                                            '':
-                                                                item.is_active ===
-                                                                1,
-                                                        }"
-                                                    >
-                                                        {{ item.site_name }}
-
-                                                    </span>
-                                                </div>
-                                                <div class="d-flex">
-                                                    <i
-                                                        class="fa fa-pen text-success"
-                                                        @click="editData(item)"
-                                                    ></i>
-
-
-                                                </div>
+                                                    {{ item.site_name }}
+                                                </span>
                                             </div>
-                                        </li>
-                                    </ul>
+                                            <div class="ml-auto my-1 mr-1">
+                                                <button
+                                                @click="editData(item)"
+                                                    class="btn btn-outline"
+                                                >
+                                                    <i
+                                                    class="fa fa-pen text-success"
+
+                                                    ></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
 
                                     <!-- List for completed tasks -->
                                     <li class="m-2 list-unstyled">
@@ -370,67 +382,64 @@ onMounted(() => {
                                     </li>
                                     <div v-if="showList">
                                         <ul
-                                            class="list-group"
-                                            v-for="item in listItem"
-                                            :key="item.id"
+                                    class="list-group"
+                                        v-for="item in listItem"
+                                        :key="item.id"
+                                >
+                                    <li
+                                        class="list-group-item p-0"
+                                        v-if="item.is_active === 0"
+                                    >
+                                        <div
+                                            class="d-flex justify-content-center"
                                         >
-                                            <li
-                                                v-if="item.is_active === 0"
-                                                class="list-group-item mt-2"
-                                            >
-                                                <div
-                                                    class="d-flex justify-content-between"
-                                                >
-                                                    <div class="d-flex">
-                                                        <i
-                                                            @click="
-                                                                handleIsActiveSite(
-                                                                    item
-                                                                )
-                                                            "
-                                                            :class="{
-                                                                'cursor-pointer mr-2': true,
-                                                                'fa fa-check-circle text-primary':
-                                                                    item.is_active ===
-                                                                    1,
-                                                                'fa fa-circle text-primary':
-                                                                    item.is_active ===
-                                                                    0,
-                                                            }"
-                                                            style="
-                                                                font-size: 15px;
-                                                            "
-                                                        ></i>
-
-                                                        <span
-                                                            :class="{
-                                                                'font-italic text-red':
-                                                                    item.is_active ===
-                                                                    0,
-                                                                '':
-                                                                    item.is_active ===
-                                                                    1,
-                                                            }"
-                                                        >
-                                                            <del>{{
+                                            <div >
+                                                <span
+                                                :class="{
+                                                            'btn font-italic text-red':
+                                                                item.is_active ===
+                                                                0,
+                                                            'btn':
+                                                                item.is_active ===
+                                                                1,
+                                                        }"
+                                                    ><i
+                                                        @click="
+                                                            handleIsActiveSite(
+                                                                item
+                                                            )
+                                                        "
+                                                        :class="{
+                                                            'cursor-pointer mr-2': true,
+                                                            'fa fa-check-circle text-primary':
+                                                                item.is_active ===
+                                                                1,
+                                                            'fa fa-circle text-primary':
+                                                                item.is_active ===
+                                                                0,
+                                                        }"
+                                                        style="font-size: 15px"
+                                                    ></i>
+                                                    <del>{{
                                                                 item.site_name
                                                             }}</del>
-                                                        </span>
-                                                    </div>
-                                                    <!-- <div class="d-flex">
-                                                        <i
-                                                            v-if="
-                                                                item.is_active ===
-                                                                1
-                                                            "
-                                                            class="fa fa-pen text-success mr-2"
-                                                            @click="editData(item)"
-                                                        ></i>
-                                                    </div> -->
+                                                </span>
+                                            </div>
+                                            <div
+                                                                 class="ml-auto my-1 mr-1">
+                                                <button 
+                                                @click="editData(item)"
+                                                    class="btn btn-outline"
+                                                >
+                                                    <i
+                                                    class="fa fa-pen text-success"
 
-                                                </div>
-                                            </li>
-                                        </ul>
+                                                    ></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
                                     </div>
                                 </div>
                                 <div class="mt-2 text-center" v-else>

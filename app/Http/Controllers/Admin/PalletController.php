@@ -113,7 +113,32 @@ class PalletController extends Controller
 
         return response()->json(['message' => 'success']);
     }
+    public function bulkpallet()
+    {
+        // Parse the date range
+        $startDate = Carbon::parse(request('fromdate'));
+        $endDate = Carbon::parse(request('todate'));
 
+        // Loop through the date range and create tasks
+        while ($startDate <= $endDate) {
+            // $planEndDate = $startDate->copy()->setTimeFrom($endDate);
+            Pallet::create([
+                'site_id' => request('site_id'),
+                'user_id' => request('user_id'),
+                'date' => $startDate->toDateString(),
+                'allocatedpalletspace' => request('allocatedpalletspace'),
+                'spaceuteltotal' => request('spaceuteltotal'),
+                'caseperpallet' => request('caseperpallet'),
+
+            ]);
+
+            // Move to the next day
+            $startDate->addDay();
+        }
+
+
+        return response()->json(['message' => 'bulk Pallet created successfully!']);
+    }
 
     /**
      * Display the specified resource.

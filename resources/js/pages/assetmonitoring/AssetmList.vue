@@ -39,6 +39,7 @@ const form = reactive({
     maintenancenotes: "",
     purchasecost: "",
     depreciationcost: "",
+    Depreciationcostbyyear :"",
     is_active: "",
 });
 
@@ -117,6 +118,7 @@ const viewData = (item) => {
     form.maintenancenotes = item.maintenancenotes;
     form.ceated_by = item.ceated_by;
     form.updated_by = item.updated_by;
+form.Depreciationcostbyyear = item.depreciationcostbyyear
     $("#ViewRecodeModal").modal("show");
 };
 const editData = (item) => {
@@ -992,34 +994,121 @@ onMounted(() => {
                     </button>
                 </div>
                 <div class="modal-body">
-    <div class="d-flex justify-content-between">
-        <div class=" mb-3">
 
-            <!-- info row -->
-            <div class="row">
-                <div class="col-md-12">
-                    <p>
-                        Site: {{ form.site_name }}<br>
-                        Asset Name: {{ form.asset_name }}<br>
-                        Asset Type: {{ form.asset_type }}<br>
-                        Serial: {{ form.serial }}<br>
-                        Date Acquired: {{ form.date_acquired }}<br>
-                    </p>
-                </div>
-                <div class="col-md-12">
-                    <p>
-                        Brand: {{ form.man_supplier }}<br>
-                        Unit: {{ form.unit }}<br>
-                        Person Accountability: {{ form.paccountable }}<br>
-                        Location Transfer: {{ form.locationchangetranfer }}<br>
-                        Condition: {{ form.cucodition }}<br>
-                        Purchase cost: {{ form.purchasecost }}<br>
-                        Maintenance Note: {{ form.maintenancenotes }}<br>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+
+                    <table class="table table-striped table-sm table-hover">
+    <tbody>
+        <tr>
+        <td colspan="2" class="text-center bg-primary">Asset Information</td>
+      </tr>
+        <tr>
+        <td>Site</td>
+
+        <td>{{ form.site_name }}</td>
+
+      </tr>
+      <tr>
+        <td>Assit Name</td>
+        <td>{{ form.asset_name }}</td>
+
+      </tr>
+      <tr>
+        <td>Assit Type</td>
+        <td>{{ form.asset_type }}</td>
+
+      </tr>
+      <tr>
+        <td>Serial No.</td>
+        <td>{{ form.serial }}</td>
+
+      </tr>
+      <tr>
+        <td>Date Acquired</td>
+        <td>{{ form.date_acquired }}</td>
+
+      </tr>
+      <tr>
+        <td>Brand</td>
+        <td>{{ form.man_supplier }}</td>
+
+      </tr>
+      <tr>
+        <td>Unit</td>
+        <td>{{ form.unit }}</td>
+
+      </tr>
+      <tr>
+        <td colspan="2" class="text-center bg-primary">Asset Allocation</td>
+      </tr>
+      <tr>
+        <td>Personal Accountable</td>
+        <td>{{ form.paccountable }}</td>
+
+      </tr>
+      <tr>
+        <td>Transfer Location</td>
+        <td>{{ form.locationchangetranfer }}</td>
+
+      </tr>
+      <tr>
+        <td colspan="2" class="text-center bg-primary">Asset Condition</td>
+      </tr>
+      <tr>
+        <td>Current Condition</td>
+        <td>{{ form.cucodition }}</td>
+
+      </tr>
+      <tr>
+        <td>Maintenance Note</td>
+        <td>{{ form.maintenancenotes }}</td>
+
+      </tr>
+      <tr>
+        <td>Last Maintenance</td>
+        <td>{{ form.lastmaintenance }}</td>
+
+      </tr>
+      <tr>
+        <td>Next Maintenance</td>
+        <td>{{ form.nextmaintenance }}</td>
+
+      </tr>
+      <tr>
+        <td colspan="2" class="text-center bg-primary">Utilization & Ussage</td>
+      </tr>
+      <tr>
+        <td>Operation Hours</td>
+        <td>{{form.operationhours}}</td>
+
+      </tr>
+      <tr>
+        <td>Notes</td>
+        <td>{{ form.notes }}</td>
+
+      </tr>
+      <tr>
+        <td colspan="2" class="text-center bg-primary">Financial Information</td>
+      </tr>
+      <tr>
+        <td>Purchase Cost</td>
+        <td>{{'₱' + form.purchasecost }}</td>
+
+      </tr>
+      <tr>
+        <td>Depreciation Cost by yr</td>
+        <td>{{'₱' + form.Depreciationcostbyyear }}</td>
+
+      </tr>
+      <tr>
+        <td>Warranty information</td>
+        <td>{{ form.insurancewarrantyinfo }}</td>
+
+      </tr>
+    </tbody>
+                    </table>
+
+
+
 </div>
 
                 <div class="modal-footer">
