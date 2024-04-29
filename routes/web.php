@@ -84,13 +84,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/tech-getaction', [TechController::class, 'getAction']);
 
     //tasks controller
-    Route::resource('/api/dailytask', TaskController::class);
-    Route::put('/api/dailytask/onhandler/{id}', [TaskController::class, 'onhandler']);
-    Route::post('/api/dailytask/addnewTask',[TaskController::class, 'addTask']);
-    Route::get('/api/dailytask/{id}/tasks',[TaskController::class, 'getTask']);
-    Route::put('/api/dailytask/drop/{id}',[TaskController::class, 'drop']);
-     Route::delete('/api/dailytask/deleteTask/{id}',[TaskController::class, 'deleteTask']);
-     Route::get('/api/dailytask/filter-taskdate',[TaskController::class,'FilterTaskdate']);
+    Route::resource('/web/dailytask', TaskController::class);
+    Route::put('/web/dailytask/onhandler/{id}', [TaskController::class, 'onhandler']);
+    Route::put('/web/dailytask/onTashHoliday/{id}',[TaskController::class, 'onTashHoliday']);
+    Route::post('/web/dailytask/addnewTask',[TaskController::class, 'addTask']);
+    Route::get('/web/dailytask/{id}/tasks',[TaskController::class, 'getTask']);
+    Route::put('/web/dailytask/drop/{id}',[TaskController::class, 'drop']);
+     Route::delete('/web/dailytask/deleteTask/{id}',[TaskController::class, 'deleteTask']);
+     Route::get('/web/dailytask/filter-taskdate',[TaskController::class,'FilterTaskdate']);
      Route::get('/web/getsite',[TaskController::class,'getSite']);
      //myvsc controller
 

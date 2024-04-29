@@ -72,6 +72,10 @@ const taskoptions = ref([
     },
     {
         name: "WORK FROM HOME",
+        value: 5,
+    },
+    {
+        name: "HOLIDAY",
         value: 6,
     },
 ]);
@@ -103,7 +107,7 @@ const form = reactive({
     dailytask_id: "",
     site: "",
     user_id: authUserStore.user.id,
-    tasktype: 0,
+    tasktype: "",
     plandate: "",
     planenddate: "",
     enddates: "",
@@ -177,7 +181,7 @@ const getSite = () => {
 const getItems = () => {
     isloading.value = true;
     axios
-        .get(`/api/dailytask`, {
+        .get(`/web/dailytask`, {
             params: {
                 query: searchQuery.value,
             },
@@ -201,7 +205,7 @@ const drop = async (id) => {
     // Check if the user confirmed
     if (result.isConfirmed) {
         isloading.value = true;
-        axios.put(`/api/dailytask/drop/${id}`).then((response) => {
+        axios.put(`/web/dailytask/drop/${id}`).then((response) => {
             toastr.success("Data drop successfully!");
             isloading.value = false;
             getItems();
@@ -221,7 +225,7 @@ const showTasks = (value) => {
     isloadingTask.value = true;
     // Fetch tasks based on dailytask_id
     axios
-        .get(`/api/dailytask/${value.dailytask_id}/tasks`)
+        .get(`/web/dailytask/${value.dailytask_id}/tasks`)
         .then((response) => {
             listasks.value = response.data;
             OpenModalTask();
@@ -236,7 +240,7 @@ const showTasks = (value) => {
 const AddNewTask = () => {
     isloadingTask.value = true;
     axios
-        .post("/api/dailytask/addnewTask", {
+        .post("/web/dailytask/addnewTask", {
             dailytask_id: formtask.value.dailytask_id,
             task_name: formtask.value.task_name,
             iscompleted: formtask.value.iscompleted,
@@ -246,7 +250,7 @@ const AddNewTask = () => {
             toastr.success("Data created successfully!");
             // Fetch tasks using GET request after the POST request is successful
             axios
-                .get(`/api/dailytask/${formtask.value.dailytask_id}/tasks`)
+                .get(`/web/dailytask/${formtask.value.dailytask_id}/tasks`)
                 .then((response) => {
                     listasks.value = response.data;
                     isloadingTask.value = false;
@@ -270,7 +274,7 @@ const handleCompleteTask = (item) => {
 
     // Continue with the POST request
     axios
-        .post("/api/dailytask/addnewTask", {
+        .post("/web/dailytask/addnewTask", {
             id: item.id,
             dailytask_id: item.dailytask_id,
             task_name: item.task_name,
@@ -279,7 +283,7 @@ const handleCompleteTask = (item) => {
         .then((response) => {
             // Fetch tasks using GET request after the POST request is successful
             axios
-                .get(`/api/dailytask/${item.dailytask_id}/tasks`)
+                .get(`/web/dailytask/${item.dailytask_id}/tasks`)
                 .then((response) => {
                     listasks.value = response.data;
                     //toastr.success("Data created successfully!");
@@ -312,11 +316,11 @@ const toggleList = () => {
 const delTask = (item) => {
     // Continue with the POST request
     axios
-        .delete(`/api/dailytask/deleteTask/${item.id}`)
+        .delete(`/web/dailytask/deleteTask/${item.id}`)
         .then((response) => {
             // Fetch tasks using GET request after the POST request is successful
             axios
-                .get(`/api/dailytask/${item.dailytask_id}/tasks`)
+                .get(`/web/dailytask/${item.dailytask_id}/tasks`)
                 .then((response) => {
                     listasks.value = response.data;
                     toastr.success("Todo successfull Deleted");
@@ -349,7 +353,7 @@ const editDataSchema = yup.object({
 
 const createData = (values, actions) => {
     axios
-        .post("/api/dailytask", form)
+        .post("/web/dailytask", form)
         .then((response) => {
             getItems();
             $("#FormModal").modal("hide");
@@ -362,7 +366,7 @@ const createData = (values, actions) => {
 
 const updateData = (values, actions) => {
     axios
-        .put("/api/dailytask/" + form.dailytask_id, form)
+        .put("/web/dailytask/" + form.dailytask_id, form)
         .then((response) => {
             console.log(response.data);
             getItems();
@@ -382,10 +386,14 @@ const addTask = (value) => {
         editing.value = true;
         currentdate.value =
             " on " + moment(value.taskdate).format("MMMM D, YYYY");
-        form.site = value.site;
+        form.site = value.site_name;
         form.dailytask_id = value.dailytask_id;
         form.plandate = value.plandate;
         form.planenddate = value.planenddate;
+        form.tasktype = value.tasktype;
+        console.log(value.site_name)
+        console.log(value.tasktype);
+
     } else {
         editing.value = false;
     }
@@ -400,13 +408,38 @@ const handleSubmit = (values, actions) => {
         createData(values, actions);
     }
 };
+//if holiday
 
+const startTaskComplete  = async(task)=>{
+
+
+    const result = await swal.fire({
+            title: "Are you sure?",
+            text: "You want to complete your task?",
+            icon: "warning",
+            showCancelButton: true,
+        });
+
+    if (result.isConfirmed) {
+            // Make the axios PUT request
+            const updateResponse = await axios.put(
+                `/web/dailytask/onTashHoliday/` + task.dailytask_id,
+                task
+            );
+
+            // Handle the response
+            toastr.success(updateResponse.data.message);
+
+            // Refresh your data or perform any other actions
+            getItems();
+        }
+}
 //start Prio
 const startTaskhandle = async (task) => {
     try {
         // Fetch tasks using GET request after the POST request is successful
         const response = await axios.get(
-            `/api/dailytask/${task.dailytask_id}/tasks`
+            `/web/dailytask/${task.dailytask_id}/tasks`
         );
         listasks.value = response.data;
 
@@ -433,7 +466,7 @@ const startTaskhandle = async (task) => {
         if (result.isConfirmed) {
             // Make the axios PUT request
             const updateResponse = await axios.put(
-                `/api/dailytask/onhandler/` + task.dailytask_id,
+                `/web/dailytask/onhandler/` + task.dailytask_id,
                 task
             );
 
@@ -443,6 +476,7 @@ const startTaskhandle = async (task) => {
             // Refresh your data or perform any other actions
             getItems();
         }
+
     } catch (error) {
         console.error("Error fetching tasks:", error);
         toastr.error("An error occurred while updating the task.");
@@ -477,7 +511,7 @@ const endTaskhandle = async (task) => {
             }
             // Make the axios PUT request
             const response = await axios.put(
-                `/api/dailytask/onhandler/` + task.dailytask_id,
+                `/web/dailytask/onhandler/` + task.dailytask_id,
                 task
             );
 
@@ -514,21 +548,9 @@ const confirmItemDeletion = (id) => {
     $("#deleteClientModal").modal("show");
 };
 
-const deleteUser = () => {
-    axios
-        .delete(`/api/tech-recommendations/${userIdBeingDeleted.value}`)
-        .then(() => {
-            $("#deleteClientModal").modal("hide");
-            toastr.success("Client deleted successfully!");
-            lists.value.data = lists.value.data.filter(
-                (user) => user.id !== userIdBeingDeleted.value
-            );
-        });
-};
 
-const toggleTaskList = () => {
-    showTaskList.value = !showTaskList.value;
-};
+
+
 
 watch(
     searchQuery,
@@ -624,11 +646,7 @@ onMounted(() => {
                                                         task.dailytask_id
                                                     "
                                                 >
-                                                    <!-- <i
-                                                        class="fas fa-calendar-alt"
-                                                    ></i
 
-                                                    >-->
                                                     <img
                                                         :src="'/img/calindar_logo.png'"
                                                         alt=""
@@ -640,12 +658,13 @@ onMounted(() => {
                                                     &nbsp;<b>{{
                                                         moment(
                                                             task.taskdate
-                                                        ).format("MMMM D, YYYY")
+                                                        ).format("MMMM D, YYYY") +" - " + task.site_name
                                                     }}</b>
                                                 </a>
                                             </h4>
                                             <div class="card-tools">
                                                 <button
+                                                v-if="task.tasktypeid && task.tasktypeid !== 6"
                                                     type="button"
                                                     class="btn btn-sm btn-primary float-right"
                                                     style="margin-left: 10px"
@@ -653,7 +672,10 @@ onMounted(() => {
                                                 >
                                                     <i class="fas fa-tasks"></i>
                                                 </button>
+
+
                                                 <button
+                                                v-if="!task.enddate && task.tasktypeid !== 6"
                                                     :disabled="
                                                         task.startdate === null
                                                     "
@@ -664,9 +686,19 @@ onMounted(() => {
                                                 >
                                                     End
                                                 </button>
-
                                                 <button
-                                                    v-if="!task.startdate"
+                                                v-if="task.tasktypeid && task.tasktypeid === 6"
+                                                    type="button"
+                                                    class="btn btn-sm btn-primary float-right"
+                                                    style="margin-left: 10px"
+                                                    @click="
+                                                        startTaskComplete(task)
+                                                    "
+                                                >
+                                                    Complete
+                                                </button>
+                                                <button
+                                                v-if="!task.startdate && task.tasktypeid !== 6"
                                                     type="button"
                                                     class="btn btn-sm btn-success float-right"
                                                     style="margin-left: 10px"
@@ -1159,7 +1191,7 @@ onMounted(() => {
                                         <div class="d-fex"></div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="site">Task</label>
+                                        <label for="site">Type</label>
                                         <Field name="tasktype">
                                             <select
                                                 v-model="form.tasktype"

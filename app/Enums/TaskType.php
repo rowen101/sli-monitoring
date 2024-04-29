@@ -9,6 +9,7 @@ enum TaskType: int
     case SV = 3;
     case COA = 4;
     case WFH = 5;
+    case HOLDAY = 6;
 
     public function listtask(): string
     {
@@ -18,6 +19,7 @@ enum TaskType: int
             TaskType::SV => 'SITE VISIT',
             TaskType::COA => 'COA',
             TaskType::WFH => 'WORK FROM HOME',
+            TaskType::HOLDAY => 'HOLIDAY',
         };
     }
 }

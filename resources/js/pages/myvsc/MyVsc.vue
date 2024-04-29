@@ -14,8 +14,6 @@ const authUserStore = useAuthUserStore();
 
 const isloading = ref(false);
 
-
-
 const themcolor = ref([
     {
         background: "#B98D65",
@@ -27,7 +25,7 @@ const themcolor = ref([
         active_background: "#1769AA",
         font_background: "#F8F9FA",
     },
-     {
+    {
         background: "#FFC400",
         active_background: "#B28900",
         font_background: "#F8F9FA",
@@ -48,7 +46,6 @@ const themcolor = ref([
         active_background: "#37474f",
         font_background: "#F8F9FA",
     },
-
 ]);
 //format date
 const getFormattedDate = () => {
@@ -71,9 +68,9 @@ const capturevsc = () => {
         const dataURL = canvas.toDataURL();
         const link = document.createElement("a");
         link.href = dataURL;
-        link.download = `${ authUserStore.user.first_name +
-                                    " " +
-                                    authUserStore.user.last_name} - ${pageTitle}.png`;
+        link.download = `${
+            authUserStore.user.first_name + " " + authUserStore.user.last_name
+        } - ${pageTitle}.png`;
         link.click();
     });
 };
@@ -85,9 +82,9 @@ const capturehitrate = () => {
         const dataURL = canvas.toDataURL();
         const link = document.createElement("a");
         link.href = dataURL;
-        link.download = `${ authUserStore.user.first_name +
-                                    " " +
-                                    authUserStore.user.last_name} - My HIT RATE.png`;
+        link.download = `${
+            authUserStore.user.first_name + " " + authUserStore.user.last_name
+        } - My HIT RATE.png`;
         link.click();
     });
 };
@@ -138,23 +135,19 @@ watch([toDate], () => {
 });
 
 const applyFilter = () => {
-
-
     isloading.value = true;
 
     axios
         .get("/api/filter-vsc", {
-             params:{
+            params: {
                 start_date: form.value.start_date,
                 end_date: form.value.end_date,
-            }
-
+            },
         })
         .then((response) => {
             isloading.value = false;
             lists.value = response.data.dailyTasks;
             listscount.value = response.data.TaskList;
-
         })
         .catch((error) => {
             // Handle errors
@@ -168,40 +161,39 @@ const applyFilter = () => {
 
 const onPickThemes = () => {
     $("#FormModalPickerThemes").modal("show");
-}
+};
 
 const handleThemeClick = (item) => {
-  if (item) {
+    if (item) {
         const userId = authUserStore.user.id;
 
-        axios.post('/api/changethemes', {
-
-            userid: userId,
-            background: item.background,
-            active_background: item.active_background,
-            font_background: item.font_background
-        })
-        .then(response => {
-            $("#FormModalPickerThemes").modal("hide");
-           isloading.value = true;
-            axios.get(`/api/myvsc`).then((response) => {
-                isloading.value = false;
-                lists.value = response.data.dailyTasks;
-                listscount.value = response.data.TaskList;
+        axios
+            .post("/api/changethemes", {
+                userid: userId,
+                background: item.background,
+                active_background: item.active_background,
+                font_background: item.font_background,
+            })
+            .then((response) => {
+                $("#FormModalPickerThemes").modal("hide");
+                isloading.value = true;
+                axios.get(`/api/myvsc`).then((response) => {
+                    isloading.value = false;
+                    lists.value = response.data.dailyTasks;
+                    listscount.value = response.data.TaskList;
+                });
+            })
+            .catch((error) => {
+                console.error(error);
             });
-        })
-        .catch(error => {
-            console.error(error);
-        });
     } else {
-        console.error('Invalid item:', item);
+        console.error("Invalid item:", item);
     }
-}
+};
 
 onMounted(() => {
     getItems();
     document.title = pageTitle;
-
 });
 </script>
 <template>
@@ -217,12 +209,15 @@ onMounted(() => {
                                     " " +
                                     authUserStore.user.last_name
                                 }}
-                                - {{pageTitle}}
+                                - {{ pageTitle }}
                             </h5>
                         </div>
 
                         <div class="card-tools">
-                            <i @click="onPickThemes()" class='fas fa-palette'></i>
+                            <i
+                                @click="onPickThemes()"
+                                class="fas fa-palette"
+                            ></i>
                         </div>
                     </div>
                     <div class="card-body">
@@ -243,6 +238,7 @@ onMounted(() => {
                                 ></i>
                             </div>
                         </div>
+
                         <ContentLoader v-if="isloading"/>
                         <div v-else class="row">
                             <div
@@ -280,8 +276,11 @@ onMounted(() => {
                                                 }}</div>
 
 
-                                            <div class="m-2" style="color:#F3F5F8; text-align:left;">
+                                            <div class="m-2" v-if="task.tasktype !==6" style="color:#F3F5F8; text-align:left;">
                                                 {{ task.site_name }}
+                                            </div>
+                                            <div class="m-2 text-center" v-if="task.tasktype ===6" style="color:#F3F5F8; text-align:left;">
+                                               Holiday
                                             </div>
                                         <div  style="text-align:left;">
                                             <div
@@ -291,11 +290,12 @@ onMounted(() => {
                                                 "
                                             >
                                                 <span class="text-light badge">Todos</span>
-                                              <ul class="list-group list-group-flush">
+                                              <ul class="list-group list-group-flush"
+                                                 v-for="taskList in task.task_lists"
+                                                        :key="taskList.id">
                                                     <li
                                                         class="list-group-item"
-                                                        v-for="taskList in task.task_lists"
-                                                        :key="taskList.id"
+
                                                     >
                                                     <div style="display: flex; align-items: left;">
                                                          <div class="ml-1">
@@ -321,15 +321,14 @@ onMounted(() => {
                                                 </ul>
                                             </div>
 
-                                            <span v-else
-                                                ></span
-                                            >
+
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                      <div class="float-right">   {{ formattedDate }}</div>
+                        <div class="float-right">{{ formattedDate }}</div>
                     </div>
                 </div>
 
@@ -346,8 +345,6 @@ onMounted(() => {
                                 - My HIT RATE
                             </h5>
                         </div>
-
-
                     </div>
 
                     <div class="card-body">
@@ -421,13 +418,28 @@ onMounted(() => {
                                             <span class="mb-1 dis"
                                                 >Total Task:
                                             </span>
-                                           <span v-if="item.task_lists_count !== 0">{{ item.task_lists_count }}</span>
+                                            <span
+                                                v-if="
+                                                    item.task_lists_count !== 0
+                                                "
+                                                >{{
+                                                    item.task_lists_count
+                                                }}</span
+                                            >
                                         </div>
                                         <div class="list-field">
                                             <span class="mb-1 dis"
                                                 >Completed Task:
                                             </span>
-                                            <span v-if="item.completed_task_count !== 0">{{ item.completed_task_count }}</span>
+                                            <span
+                                                v-if="
+                                                    item.completed_task_count !==
+                                                    0
+                                                "
+                                                >{{
+                                                    item.completed_task_count
+                                                }}</span
+                                            >
                                         </div>
                                         <div class="list-field">
                                             <span class="mb-1 dis"
@@ -478,7 +490,6 @@ onMounted(() => {
                                                             item.percentage_completed ===
                                                             100,
                                                     },
-
                                                 ]"
                                             >
                                                 {{
@@ -491,7 +502,7 @@ onMounted(() => {
                                 </div>
                             </div>
                         </div>
-                        <div class="float-right">   {{ formattedDate }}</div>
+                        <div class="float-right">{{ formattedDate }}</div>
                     </div>
                 </div>
             </div>
@@ -510,7 +521,7 @@ onMounted(() => {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">
-                        <span>{{pageTitle}} Summary Report</span>
+                        <span>{{ pageTitle }} Summary Report</span>
                     </h5>
                     <button
                         type="button"
@@ -554,7 +565,7 @@ onMounted(() => {
         </div>
     </div>
 
-     <div
+    <div
         class="modal fade"
         id="FormModalPickerThemes"
         data-backdrop="static"
@@ -580,16 +591,35 @@ onMounted(() => {
                 </div>
                 <div class="modal-body">
                     <div class="container">
-                        <div class="row" >
-                        <div class="col-md-4" v-for="item in themcolor" :key="item.background">
-                            <div class="box" @click="handleThemeClick(item)">
-                             <div class="column" :style="{ 'background-color': item.background }">&nbsp;</div>
-                            <div class="column" :style="{ 'background-color': item.active_background }">&nbsp;</div>
-
+                        <div class="row">
+                            <div
+                                class="col-md-4"
+                                v-for="item in themcolor"
+                                :key="item.background"
+                            >
+                                <div
+                                    class="box"
+                                    @click="handleThemeClick(item)"
+                                >
+                                    <div
+                                        class="column"
+                                        :style="{
+                                            'background-color': item.background,
+                                        }"
+                                    >
+                                        &nbsp;
+                                    </div>
+                                    <div
+                                        class="column"
+                                        :style="{
+                                            'background-color':
+                                                item.active_background,
+                                        }"
+                                    >
+                                        &nbsp;
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
-
                         </div>
                     </div>
                 </div>
@@ -601,7 +631,6 @@ onMounted(() => {
                     >
                         Cancel
                     </button>
-
                 </div>
             </div>
         </div>

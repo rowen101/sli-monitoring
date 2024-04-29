@@ -42,6 +42,7 @@ class TaskController extends Controller
                     'planenddate' => $dailytask->planenddate->format('m/d/Y h:i A'),
                     'startdate' => $dailytask->startdate,
                     'enddate' => $dailytask->enddate,
+                    'tasktypeid' => $dailytask->tasktype,
                     'tasktype' => [
                         $dailytask->tasktype->listtask(),
                     ],
@@ -140,7 +141,28 @@ class TaskController extends Controller
 
         return response()->json(['message' => 'Task updated successfully!']);
     }
+    public function onTashHoliday(Request $request, $dailytask_id)
+    {
 
+        $task = Task::where('dailytask_id', $dailytask_id)->first();
+
+
+        if (!$task) {
+            return response()->json(['message' => 'Task not found.']);
+        }
+
+
+            $task->startdate = now();
+            $task->enddate = now(); // You may want to replace 'now()' with the appropriate logic to set the end date
+            $task->status = 'HOLIDAY'; // Set the status accordingly
+            $task->remarks = 'HIT'; // Set the status accordingly
+            $task->status_task = 1;
+
+
+        $task->save();
+
+        return response()->json(['message' => 'Complete Task successfully!']);
+    }
     public function getSite()
     {
         $userId = auth()->user()->id;
@@ -210,7 +232,7 @@ class TaskController extends Controller
         $toDate = $request->input('end_date');
 
         $tasks = Task::when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
-          
+
             $toDate = Carbon::parse($toDate)->endOfDay();
             return $query->where('taskdate', '>=', $fromDate)
                          ->where('taskdate', '<=', $toDate);
