@@ -30,9 +30,10 @@ const props = defineProps({
         <td class="text-center" ><span v-if="item.task_lists_count !== 0">{{ item.task_lists_count }}</span></td>
         <td class="text-center"><span v-if="item.completed_task_count !== 0">{{ item.completed_task_count }}</span></td>
         <td class="text-center"><span >{{  item.remarks }}</span></td>
-    <td v-if="item.status === 'HIT'" class="bg-success text-center">{{ item.status }}</td>
+        <td v-if="item.status === 'HIT'" class="bg-success text-center">{{ item.status }}</td>
 <td v-else-if="item.status === 'MISS'" class="bg-danger text-center">{{ item.status }}</td>
-<td v-else-if="item.status === null" class="text-center">{{item.startdate != null ? 'On Going!':''}}</td>
+<td v-else-if="item.status === null || item.status === ''" class="text-center">{{ item.status === null || item.status === '' ? 'On Going!' : '' }}</td>
+
 
 
          <td :class="{
