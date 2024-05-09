@@ -118,6 +118,7 @@ class TaskController extends Controller
     }
     public function onhandler(Request $request, $dailytask_id)
     {
+        //dd($request);
 
         $task = Task::where('dailytask_id', $dailytask_id)->first();
 
@@ -139,7 +140,7 @@ class TaskController extends Controller
 
         $task->save();
 
-        return response()->json(['message' => 'Task updated successfully!']);
+        return response()->json(['message' => 'Task complete successfully!']);
     }
     public function onTashHoliday(Request $request, $dailytask_id)
     {

@@ -29,10 +29,10 @@ const props = defineProps({
         <td>{{moment(item.taskdate).format('MMMM D, YYYY')}}</td>
         <td class="text-center" ><span v-if="item.task_lists_count !== 0">{{ item.task_lists_count }}</span></td>
         <td class="text-center"><span v-if="item.completed_task_count !== 0">{{ item.completed_task_count }}</span></td>
-        <td class="text-center"><span v-if="item.status !== 'On Going'">{{  item.status }}</span></td>
-    <td v-if="item.remarks === 'HIT'" class="bg-success text-center">{{ item.remarks }}</td>
-<td v-else-if="item.remarks === 'MISS'" class="bg-danger text-center">{{ item.remarks }}</td>
-<td v-else-if="item.remarks === null" class="text-center">{{item.startdate != null ? 'On Going!':''}}</td>
+        <td class="text-center"><span >{{  item.remarks }}</span></td>
+    <td v-if="item.status === 'HIT'" class="bg-success text-center">{{ item.status }}</td>
+<td v-else-if="item.status === 'MISS'" class="bg-danger text-center">{{ item.status }}</td>
+<td v-else-if="item.status === null" class="text-center">{{item.startdate != null ? 'On Going!':''}}</td>
 
 
          <td :class="{

@@ -21,9 +21,9 @@ const props = defineProps({
         <td>{{ item.startdate }}</td>
         <td>{{ item.enddate }}</td>
         <td>{{ item.tasktype.listtask }}</td>
-        <td>{{ item.status }}</td>
-        <td class="text-center"><span :class="[ 'badge', item.remarks === 'HIT' ? 'bg-success' : 'bg-danger' ]">
-    {{ item.remarks }}</span></td>
+        <td class="text-center"><span :class="[ 'badge', item.status === 'HIT' ? 'bg-success' : 'bg-danger' ]">
+    {{ item.status }}</span></td>
+        <td >{{ item.remarks}}</td>
 
     </tr>
 </template>

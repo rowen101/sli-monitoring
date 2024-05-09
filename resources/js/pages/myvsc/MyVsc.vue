@@ -371,8 +371,8 @@ onMounted(() => {
                                                     <th>Planed Date</th>
                                                     <th>Total Todos</th>
                                                     <th>Complete</th>
-                                                    <th>Status</th>
                                                     <th>Remarks</th>
+                                                    <th>Status</th>
                                                     <th>Percentage Todos</th>
                                                 </tr>
                                             </thead>
@@ -443,27 +443,28 @@ onMounted(() => {
                                         </div>
                                         <div class="list-field">
                                             <span class="mb-1 dis"
-                                                >Status:
-                                            </span>
-                                            <span
-                                                ><b>{{ item.status }}</b></span
-                                            >
-                                        </div>
-                                        <div class="list-field">
-                                            <span class="mb-1 dis"
                                                 >Remark:
                                             </span>
                                             <span
-                                                :class="[
-                                                    'badge',
-                                                    item.remarks === 'HIT'
-                                                        ? 'bg-success'
-                                                        : 'bg-danger',
-                                                ]"
+
                                             >
                                                 {{ item.remarks }}</span
                                             >
                                         </div>
+                                        <div class="list-field">
+                                            <span class="mb-1 dis"
+                                                >Status:
+                                            </span>
+                                            <span :class="[
+                                                    'badge',
+                                                    item.status === 'HIT'
+                                                        ? 'bg-success'
+                                                        : 'bg-danger',
+                                                ]"
+                                                ><b>{{ item.status }}</b></span
+                                            >
+                                        </div>
+
                                         <div class="list-field">
                                             <span class="mb-1 dis"
                                                 >Percentage Task:

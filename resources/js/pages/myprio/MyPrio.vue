@@ -40,6 +40,8 @@ const tecstatus = ref([
     },
 ]);
 
+const endstart = ref();
+
 const listsite = ref();
 const listtask = ref();
 const showList = ref(true);
@@ -111,7 +113,11 @@ const form = reactive({
     plandate: "",
     planenddate: "",
     enddates: "",
+    remarks: "",
+    status: "",
 });
+
+const starttaskdate = ref("");
 
 // Watch for changes in Sdate and StrHours and update plandate
 watch([Sdate, StrHours], () => {
@@ -484,49 +490,46 @@ const startTaskhandle = async (task) => {
 };
 
 //end start
-const endTaskhandle = async (task) => {
-    // Show the SweetAlert2 dialog
-    const result = await swal({
-        title: "Are you sure?",
-        text: "You wanna end your task now?",
-        icon: "warning",
-        showCancelButton: true,
-    });
+const endTaskhandle =  (task) => {
 
-    // Check if the user confirmed
-    if (result.isConfirmed) {
-        try {
-            const endstart =
-                moment(task.taskdate).format("YYYY-MM-DD") ===
-                moment().format("YYYY-MM-DD");
+   $("#onRemarksModal").modal("show");
+    starttaskdate.value = task;
 
-            if (endstart) {
-                // If taskdate is the same as the current date and time, set status to "HIT"
-                task.remarks = "HIT";
-                task.status = "On Schedule";
-            } else {
-                // If taskdate is different from the current date and time, set status to "MISS"
-                task.remarks = "MISS";
-                task.status = "Behind Schedule";
-            }
-            // Make the axios PUT request
-            const response = await axios.put(
-                `/web/dailytask/onhandler/` + task.dailytask_id,
-                task
-            );
-
-            // Handle the response
-            toastr.success(response.data.message);
-
-            // Refresh your data or perform any other actions
-            getItems();
-        } catch (error) {
-            console.error(error);
-            // Handle the error if needed
-            toastr.error("An error occurred while updating the task.");
-        }
-    }
 };
+const onRemarks = () => {
+    if(form.remarks === null || form.remarks == "") {
+        toastr.error("Remarks is required");
+        
+    }
+    else{
+        const ifendstart =
+            moment(starttaskdate.value.taskdate).format("YYYY-MM-DD") === moment().format("YYYY-MM-DD");
+            if (ifendstart) {
+
+                form.status = "HIT";
+            } else {
+                form.status = "MISS";
+            }
+
+
+            //console.log(form);
+             axios.put(
+                `/web/dailytask/onhandler/` + starttaskdate.value.dailytask_id,
+                {
+                   startdate: starttaskdate.value.startdate,
+                   remarks: form.remarks,
+                   status: form.status,
+                }
+            ).then(response => {
+                console.log(response.data);
+                getItems();
+                $("#onRemarksModal").modal("hide");
+                toastr.success(response.data.message);
+            })
+    }
+
+
+}
 
 const searchQuery = ref(null);
 
@@ -1216,15 +1219,16 @@ onMounted(() => {
                         </div>
                     </div>
                     <div class="modal-footer">
+
+                        <button type="submit" class="btn btn-primary">
+                            submit
+                        </button>
                         <button
                             type="button"
                             class="btn btn-secondary"
                             data-dismiss="modal"
                         >
                             Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            submit
                         </button>
                     </div>
                 </Form>
@@ -1509,6 +1513,71 @@ onMounted(() => {
             </div>
         </div>
     </div>
+
+
+    <div
+        class="modal fade"
+        id="onRemarksModal"
+        data-backdrop="static"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">
+                        <span>Add Remarks</span>
+                    </h5>
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+
+                    <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <Field
+                                                    v-model="form.remarks"
+                                                    name="'remarks"
+                                                    type="text"
+                                                    class="form-control"
+                                                    required
+                                                    placeholder="Remarks"
+
+                                                />
+                                        </div>
+                                    </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        @click.prevent="onRemarks()"
+                        type="button"
+                        class="btn btn-primary"
+                    >
+                       Submit
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                    >
+                        Cancel
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
     <div
         class="modal fade"
         id="deleteClientModal"
@@ -1537,19 +1606,21 @@ onMounted(() => {
                     <h5>Are you sure you want to delete this record ?</h5>
                 </div>
                 <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-dismiss="modal"
-                    >
-                        Cancel
-                    </button>
+
                     <button
                         @click.prevent="deleteUser"
                         type="button"
                         class="btn btn-primary"
                     >
                         Delete User
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                    >
+                        Cancel
                     </button>
                 </div>
             </div>
