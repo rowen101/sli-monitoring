@@ -14,6 +14,10 @@ import Datepicker from "vue3-datepicker";
 import html2canvas from "html2canvas";
 const swal = inject("$swal");
 import moment from "moment";
+import JSONToCSVConvertor from "../../services/JSONToCSVConvertor";
+import JSONToPDFConvertor from "../../services/JSONToPDFConvertor";
+//import { jsPDF } from "jspdf";
+
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
@@ -33,8 +37,8 @@ const form = reactive({
     spaceuteltotal: "",
     caseperpallet: "",
 
-    fromdate:"",
-    todate:""
+    fromdate: "",
+    todate: "",
 });
 
 const selectedStatus = ref(null);
@@ -60,7 +64,6 @@ const getItems = () => {
 };
 
 const createbulkSchema = yup.object({
-
     allocatedpalletspace: yup.string().required(),
     spaceuteltotal: yup.string().required(),
     caseperpallet: yup.string().required(),
@@ -73,7 +76,6 @@ const createSchema = yup.object({
     allocatedpalletspace: yup.string().required(),
     spaceuteltotal: yup.string().required(),
     caseperpallet: yup.string().required(),
-
 });
 
 const editSchema = yup.object({
@@ -142,6 +144,19 @@ const ClearForm = () => {
     form.spaceuteltotal = "";
     form.caseperpallet = "";
 };
+
+const promtSite = () => {
+    if (!form.site_id || form.site_id.length === 0) {
+        // Show a warning message using SweetAlert2
+        swal.fire({
+            title: "Warning!",
+            text: "Select the Site First",
+            icon: "warning",
+        });
+        return true; // Indicate that the site is not selected
+    }
+    return false; // Indicate that the site is selected
+};
 const createData = ({ resetForm, setErrors }) => {
     axios
         .post("/web/pallet", {
@@ -184,31 +199,22 @@ const getSite = () => {
 };
 
 const changeSite = () => {
-
     getItems(form.site_id);
 
-    const selectedSite = listsite.value.find(site => site.id === form.site_id);
-    sitename.value = selectedSite ? selectedSite.site_name : '';
-
+    const selectedSite = listsite.value.find(
+        (site) => site.id === form.site_id
+    );
+    sitename.value = selectedSite ? selectedSite.site_name : "";
 };
 
 const addData = () => {
-    // Check if listtasks is null
-    if (!form.site_id || form.site_id.length === 0) {
-        // Show a warning message using SweetAlert2
-        swal.fire({
-            title: "Warning!",
-            text: "Select the Site First",
-            icon: "warning",
-        });
-        return; // Exit the function early
+    if (promtSite()) {
+        return;
     }
     editing.value = false;
 
     $("#FormModal").modal("show");
     $("#bulkviewtab2").show();
-
-
 };
 
 const editData = (item) => {
@@ -250,11 +256,10 @@ const handleSubmit = (values, actions) => {
     }
 };
 
-const bulkhandleSubmit =() =>{
+const bulkhandleSubmit = () => {
     axios
         .post("/web/bulkCreatePallet", form)
         .then((response) => {
-
             getItems();
             $("#FormModal").modal("hide");
             toastr.success(response.data.message);
@@ -262,7 +267,7 @@ const bulkhandleSubmit =() =>{
         .catch((error) => {
             toastr.error(error.response.data.errors);
         });
-}
+};
 
 const searchQuery = ref(null);
 
@@ -310,15 +315,8 @@ const bulkDelete = () => {
         });
 };
 const onFilterDate = () => {
-    // Check if listtasks is null
-    if (!form.site_id || form.site_id.length === 0) {
-        // Show a warning message using SweetAlert2
-        swal.fire({
-            title: "Warning!",
-            text: "Select the Site First",
-            icon: "warning",
-        });
-        return; // Exit the function early
+    if (promtSite()) {
+        return;
     }
     $("#FormModalfilterDate").modal("show");
 };
@@ -331,7 +329,6 @@ const selectAllItems = () => {
     } else {
         selectedItems.value = [];
     }
-
 };
 
 const updateStatus = (status) => {
@@ -340,7 +337,9 @@ const updateStatus = (status) => {
 
 //capture function
 const onCapture = () => {
-
+    if (promtSite()) {
+        return;
+    }
     $("#cost").hide();
     $("#capturecamerafilter").hide();
     const container = document.getElementById("captureDiv");
@@ -354,8 +353,32 @@ const onCapture = () => {
     });
     $("#cost").show();
     $("#capturecamerafilter").show();
-
 };
+//PDF file
+const onexportPDF = () => {
+    $("#cost").hide();
+    $("#capturecamerafilter").hide();
+    window.html2canvas = html2canvas;
+    var doc = new jsPDF("p", "pt", "a4");
+    doc.html(document.querySelector("#captureDiv"), {
+        callback: function (pdf) {
+            pdf.save("mypdf.pdf");
+        },
+    });
+    $("#cost").show();
+    $("#capturecamerafilter").show();
+};
+
+//CSV file
+const onexport = () => {
+
+    if (promtSite()) {
+        return;
+    }
+    let dataArray = lists.value;
+    JSONToCSVConvertor(dataArray, "PalletList", true);
+};
+
 watch([checked], (val) => {
     form.is_active = val ? 1 : 0;
 });
@@ -403,23 +426,22 @@ onMounted(() => {
                 </div>
                 <div class="d-flex">
                     <div class="form-group">
-                            <select
-                                class="form-control"
-                                id="siteDropdown"
-                                v-model="form.site_id"
-                                @change="changeSite()"
+                        <select
+                            class="form-control"
+                            id="siteDropdown"
+                            v-model="form.site_id"
+                            @change="changeSite()"
+                        >
+                            <option value="" disabled>Select a site</option>
+                            <option
+                                v-for="site in listsite"
+                                :key="site.id"
+                                :value="site.id"
                             >
-                                <option value="" disabled>Select a site</option>
-                                <option
-                                    v-for="site in listsite"
-                                    :key="site.id"
-                                    :value="site.id"
-
-                                >
-                                    {{ site.site_name }}
-                                </option>
-                            </select>
-                        </div>
+                                {{ site.site_name }}
+                            </option>
+                        </select>
+                    </div>
                 </div>
                 <!-- <div>
                     <input
@@ -431,89 +453,98 @@ onMounted(() => {
                 </div> -->
             </div>
             <div id="captureDiv">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        {{ sitename || "Select a Site" }}
-                    </div>
-
-                    <div class="card-tools">
-                        <div id="cost">
-                        <div
-                            class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success"
-                        >
-                            <input
-                                type="checkbox"
-                                class="custom-control-input"
-                                id="customSwitch3"
-                                v-model="viewcost"
-                            />
-                            <label
-                                class="custom-control-label"
-                                for="customSwitch3"
-                                >Cost</label
-                            >
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            {{ sitename || "Select a Site" }}
                         </div>
-                    </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div id="capturecamerafilter">
-                    <div class="d-flex justify-content-between">
 
-                            <div class="d-flex">
-                                <button
-                                    @click="onCapture"
-                                    type="button"
-                                    class="mb-2 btn btn-sm btn-success"
+                        <div class="card-tools">
+                            <div id="cost">
+                                <div
+                                    class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success"
                                 >
-                                    <i class="fa fa-camera"></i>
-                                </button>
-                            </div>
-
-
-                            <div class="d-flex">
-                                <i
-                                    class="fa fa-filter mr-1"
-                                    @click="onFilterDate"
-                                ></i>
+                                    <input
+                                        type="checkbox"
+                                        class="custom-control-input"
+                                        id="customSwitch3"
+                                        v-model="viewcost"
+                                    />
+                                    <label
+                                        class="custom-control-label"
+                                        for="customSwitch3"
+                                        >Cost</label
+                                    >
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="card-body">
+                        <div id="capturecamerafilter">
+                            <div class="d-flex justify-content-between mb-1">
+                                <div class="d-flex">
+                                    <div class="btn-group">
+                                        <button
+                                            @click="onCapture"
+                                            type="button"
+                                            class="btn btn-warning"
+                                        >
+                                            <i class="fa fa-camera"></i>
+                                        </button>
 
+                                        <button
+                                            @click="onexport"
+                                            type="button"
+                                            class="btn btn-success"
+                                        >
+                                            <i class="fas fa-file-excel"></i>
+                                        </button>
+                                    </div>
+                                </div>
 
-                    <ContentLoader v-if="isloading"/>
+                                <div class="d-flex">
+                                    <i
+                                        class="fa fa-filter mr-1"
+                                        @click="onFilterDate"
+                                    ></i>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div v-else class="table-responsive">
-                        <font size="2">
-                            <table
-                                class="table table-bordered table-sm table-striped table-hover"
-                            >
-                                <thead>
-                                    <tr>
-                                        <!-- <th>
+                        <ContentLoader v-if="isloading" />
+
+                        <div v-else class="table-responsive">
+                            <font size="2">
+                                <table
+                                    class="table table-bordered table-sm table-striped table-hover"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <!-- <th>
                                             <input
                                                 type="checkbox"
                                                 v-model="selectAll"
                                                 @change="selectAllItems"
                                             />
                                         </th> -->
-                                        <th></th>
+                                            <th></th>
 
-                                        <th>Date</th>
-                                        <th>Allocated Pallet Space</th>
-                                        <th>SPACE UTILIZATION TOTAL</th>
-                                        <th>Space Utilization %</th>
-                                        <th>Excess</th>
-                                        <th v-if="viewcost">Cost per Pallet</th>
-                                        <th v-if="viewcost">Cost</th>
-                                        <th>Remarks</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
+                                            <th>Date</th>
+                                            <th>Allocated Pallet Space</th>
+                                            <th>SPACE UTILIZATION TOTAL</th>
+                                            <th>Space Utilization %</th>
+                                            <th>Excess</th>
+                                            <th v-if="viewcost">
+                                                Cost per Pallet
+                                            </th>
+                                            <th v-if="viewcost">Cost</th>
+                                            <th>Remarks</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
 
-                                <tbody v-if="lists.length > 0">
-                                    <!-- <PalletItemList
+                                    <tbody v-if="lists.length > 0">
+                                        <!-- <PalletItemList
                                         v-for="(item, index) in lists"
                                         :key="item.id"
                                         :item="item"
@@ -524,88 +555,92 @@ onMounted(() => {
                                         @toggle-selection="toggleSelection"
                                         :select-all="selectAll"
                                     /> -->
-                                    <tr
-                                        v-for="(item, index) in lists"
-                                        :key="item.id"
-                                        :item="item"
-                                        :index="index"
-                                         @confirm-deletion="confirmDeletion"
-                                        @toggle-selection="toggleSelection"
-                                        :select-all="selectAll"
-                                    >
-                                        <td>
-                                            <input
-                                                type="checkbox"
-                                                :checked="selectAll"
-                                                @change="toggleSelection"
-                                            />
-                                        </td>
-
-                                        <td>
-                                            {{
-                                                moment(item.date).format(
-                                                    "MMMM DD, YY"
-                                                )
-                                            }}
-                                        </td>
-
-                                        <td>{{ item.allocatedpalletspace }}</td>
-                                        <td>{{ item.spaceuteltotal }}</td>
-                                        <td>
-                                            {{ item.spacetotalutelpercent }}
-                                        </td>
-                                        <td>{{ item.excess }}</td>
-                                        <td v-if="viewcost">
-                                            {{ item.caseperpallet }}
-                                        </td>
-                                        <td v-if="viewcost">{{ item.cost }}</td>
-                                        <td>
-                                            EXCESS {{ item.excess }} PALLETS
-                                        </td>
-
-                                        <td>
-                                            <a
-                                                href="#"
-                                                @click="editData(item)"
-                                                ><i class="fa fa-edit"></i
-                                            ></a>
-
-
-                                        </td>
-                                    </tr>
-
-                                    <tr v-if="viewcost">
-                                        <td
-                                            colspan="7"
-                                            style="text-align: right"
+                                        <tr
+                                            v-for="(item, index) in lists"
+                                            :key="item.id"
+                                            :item="item"
+                                            :index="index"
+                                            @confirm-deletion="confirmDeletion"
+                                            @toggle-selection="toggleSelection"
+                                            :select-all="selectAll"
                                         >
-                                            <b>Total:</b>
-                                        </td>
-                                        <td colspan="3">
-                                            <b>{{ totalcost }}</b>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                <tbody v-else>
-                                    <tr>
-                                        <td colspan="10" class="text-center">
-                                            No results found...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </font>
+                                            <td>
+                                                <input
+                                                    type="checkbox"
+                                                    :checked="selectAll"
+                                                    @change="toggleSelection"
+                                                />
+                                            </td>
+
+                                            <td>
+                                                {{
+                                                    moment(item.date).format(
+                                                        "MMMM DD, YY"
+                                                    )
+                                                }}
+                                            </td>
+
+                                            <td>
+                                                {{ item.allocatedpalletspace }}
+                                            </td>
+                                            <td>{{ item.spaceuteltotal }}</td>
+                                            <td>
+                                                {{ item.spacetotalutelpercent }}
+                                            </td>
+                                            <td>{{ item.excess }}</td>
+                                            <td v-if="viewcost">
+                                                {{ item.caseperpallet }}
+                                            </td>
+                                            <td v-if="viewcost">
+                                                {{ item.cost }}
+                                            </td>
+                                            <td>
+                                                EXCESS {{ item.excess }} PALLETS
+                                            </td>
+
+                                            <td>
+                                                <a
+                                                    href="#"
+                                                    @click="editData(item)"
+                                                    ><i class="fa fa-edit"></i
+                                                ></a>
+                                            </td>
+                                        </tr>
+
+                                        <tr v-if="viewcost">
+                                            <td
+                                                colspan="7"
+                                                style="text-align: right"
+                                            >
+                                                <b>Total:</b>
+                                            </td>
+                                            <td colspan="3">
+                                                <b>{{ totalcost }}</b>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody v-else>
+                                        <tr>
+                                            <td
+                                                colspan="10"
+                                                class="text-center"
+                                            >
+                                                No results found...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </font>
+                        </div>
                     </div>
                 </div>
-
-            </div>
-            <!-- <Bootstrap4Pagination
+                <!-- <Bootstrap4Pagination
                 :data="lists"
                 @pagination-change-page="getItems"
             /> -->
+            </div>
         </div>
     </div>
-</div>
     <div
         class="modal fade"
         id="FormModal"
@@ -632,289 +667,327 @@ onMounted(() => {
                     </button>
                 </div>
                 <ul class="nav nav-tabs">
-                            <li id="bulkviewtab1" class="nav-item">
-                                <a
-                                    class="nav-link active"
-                                    id="general"
-                                    data-toggle="tab"
-                                    href="#sigle-pallet-tab"
-                                    >Single Pallet</a
-                                >
-                            </li>
-                            <li id="bulkviewtab2" class="nav-item">
-                                <a
-                                    class="nav-link"
-                                    id="site-tab"
-                                    data-toggle="tab"
-                                    href="#bulk-pallet-tab"
-                                    >Bulk Pallet</a
-                                >
-                            </li>
-                        </ul>
+                    <li id="bulkviewtab1" class="nav-item">
+                        <a
+                            class="nav-link active"
+                            id="general"
+                            data-toggle="tab"
+                            href="#sigle-pallet-tab"
+                            >Single Pallet</a
+                        >
+                    </li>
+                    <li id="bulkviewtab2" class="nav-item">
+                        <a
+                            class="nav-link"
+                            id="site-tab"
+                            data-toggle="tab"
+                            href="#bulk-pallet-tab"
+                            >Bulk Pallet</a
+                        >
+                    </li>
+                </ul>
 
-                        <div class="tab-content">
-                            <!-- General Settings Tab -->
-                            <div class="tab-pane fade show active" id="sigle-pallet-tab">
-                                <Form
-                    @submit="handleSubmit"
-                    v-slot="{ errors }"
-                    :validation-schema="editing ? editSchema : createSchema"
+                <div class="tab-content">
+                    <!-- General Settings Tab -->
+                    <div
+                        class="tab-pane fade show active"
+                        id="sigle-pallet-tab"
+                    >
+                        <Form
+                            @submit="handleSubmit"
+                            v-slot="{ errors }"
+                            :validation-schema="
+                                editing ? editSchema : createSchema
+                            "
+                        >
+                            <div class="modal-body">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <Field
+                                                v-model="form.user_id"
+                                                type="hidden"
+                                                name="user_id"
+                                                id="user_id"
+                                            />
 
-                >
-                    <div class="modal-body">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-12">
-                                    <Field
-                                        v-model="form.user_id"
-                                        type="hidden"
-                                        name="user_id"
-                                        id="user_id"
-                                    />
+                                            <div class="form-group">
+                                                <label for="date">Date</label>
+                                                <Field
+                                                    name="date"
+                                                    type="date"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.date,
+                                                    }"
+                                                    id="date"
+                                                    aria-describedby="dateHelp"
+                                                    placeholder="Select Date"
+                                                    v-model="form.date"
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{ errors.date }}</span
+                                                >
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="user"
+                                                    >Allocated Pallet
+                                                    Space</label
+                                                >
+                                                <Field
+                                                    name="allocatedpalletspace"
+                                                    type="text"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.allocatedpalletspace,
+                                                    }"
+                                                    id="allocatedpalletspace"
+                                                    aria-describedby="nameHelp"
+                                                    placeholder="Enter Menu title"
+                                                    v-model="
+                                                        form.allocatedpalletspace
+                                                    "
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{
+                                                        errors.allocatedpalletspace
+                                                    }}</span
+                                                >
+                                            </div>
 
-                                    <div class="form-group">
-                                        <label for="date">Date</label>
-                                        <Field
-                                            name="date"
-                                            type="date"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid': errors.date,
-                                            }"
-                                            id="date"
-                                            aria-describedby="dateHelp"
-                                            placeholder="Select Date"
-                                            v-model="form.date"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.date
-                                        }}</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="user"
-                                            >Allocated Pallet Space</label
-                                        >
-                                        <Field
-                                            name="allocatedpalletspace"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid':
-                                                    errors.allocatedpalletspace,
-                                            }"
-                                            id="allocatedpalletspace"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Menu title"
-                                            v-model="form.allocatedpalletspace"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.allocatedpalletspace
-                                        }}</span>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="warehouse"
-                                            >Space Utilization Total</label
-                                        >
-                                        <Field
-                                            name="spaceuteltotal"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid':
-                                                    errors.spaceuteltotal,
-                                            }"
-                                            id="spaceuteltotal"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Menu Icon"
-                                            v-model="form.spaceuteltotal"
-                                            required
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.spaceuteltotal
-                                        }}</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="user"
-                                            >Cost Per Pallet</label
-                                        >
-                                        <Field
-                                            name="caseperpallet"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid':
-                                                    errors.caseperpallet,
-                                            }"
-                                            id="caseperpallet"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Case Per Pallet"
-                                            v-model="form.caseperpallet"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.caseperpallet
-                                        }}</span>
+                                            <div class="form-group">
+                                                <label for="warehouse"
+                                                    >Space Utilization
+                                                    Total</label
+                                                >
+                                                <Field
+                                                    name="spaceuteltotal"
+                                                    type="text"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.spaceuteltotal,
+                                                    }"
+                                                    id="spaceuteltotal"
+                                                    aria-describedby="nameHelp"
+                                                    placeholder="Enter Menu Icon"
+                                                    v-model="
+                                                        form.spaceuteltotal
+                                                    "
+                                                    required
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{
+                                                        errors.spaceuteltotal
+                                                    }}</span
+                                                >
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="user"
+                                                    >Cost Per Pallet</label
+                                                >
+                                                <Field
+                                                    name="caseperpallet"
+                                                    type="text"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.caseperpallet,
+                                                    }"
+                                                    id="caseperpallet"
+                                                    aria-describedby="nameHelp"
+                                                    placeholder="Enter Case Per Pallet"
+                                                    v-model="form.caseperpallet"
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{
+                                                        errors.caseperpallet
+                                                    }}</span
+                                                >
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-dismiss="modal"
-                        >
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            Save
-                        </button>
-                    </div>
-                </Form>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    data-dismiss="modal"
+                                >
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    Save
+                                </button>
                             </div>
+                        </Form>
+                    </div>
 
-                            <div class="tab-pane fade show" id="bulk-pallet-tab">
-                                <Form
-                    @submit="bulkhandleSubmit"
-                    v-slot="{ errors }"
-                    :validation-schema="createbulkSchema"
+                    <div class="tab-pane fade show" id="bulk-pallet-tab">
+                        <Form
+                            @submit="bulkhandleSubmit"
+                            v-slot="{ errors }"
+                            :validation-schema="createbulkSchema"
+                        >
+                            <div class="modal-body">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <Field
+                                                v-model="form.user_id"
+                                                type="hidden"
+                                                name="user_id"
+                                                id="user_id"
+                                            />
 
-                >
-                    <div class="modal-body">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-12">
-                                    <Field
-                                        v-model="form.user_id"
-                                        type="hidden"
-                                        name="user_id"
-                                        id="user_id"
-                                    />
+                                            <div class="form-group">
+                                                <label for="fromdate"
+                                                    >From:</label
+                                                >
+                                                <Field
+                                                    name="fromdate"
+                                                    type="date"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.fromdate,
+                                                    }"
+                                                    id="fromdate"
+                                                    aria-describedby="dateHelp"
+                                                    placeholder="Select Date"
+                                                    v-model="form.fromdate"
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{ errors.fromdate }}</span
+                                                >
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="todate">To:</label>
+                                                <Field
+                                                    name="todate"
+                                                    type="date"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.todate,
+                                                    }"
+                                                    id="todate"
+                                                    aria-describedby="dateHelp"
+                                                    placeholder="Select Date"
+                                                    v-model="form.todate"
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{ errors.todate }}</span
+                                                >
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="user"
+                                                    >Allocated Pallet
+                                                    Space</label
+                                                >
+                                                <Field
+                                                    name="allocatedpalletspace"
+                                                    type="text"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.allocatedpalletspace,
+                                                    }"
+                                                    id="allocatedpalletspace"
+                                                    aria-describedby="nameHelp"
+                                                    placeholder="Enter Menu title"
+                                                    v-model="
+                                                        form.allocatedpalletspace
+                                                    "
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{
+                                                        errors.allocatedpalletspace
+                                                    }}</span
+                                                >
+                                            </div>
 
-                                    <div class="form-group">
-                                        <label for="fromdate">From:</label>
-                                        <Field
-                                            name="fromdate"
-                                            type="date"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid':
-                                                    errors.fromdate,
-                                            }"
-                                            id="fromdate"
-                                            aria-describedby="dateHelp"
-                                            placeholder="Select Date"
-                                            v-model="form.fromdate"
-                                        />   <span class="invalid-feedback">{{
-                                            errors.fromdate
-                                        }}</span>
-
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="todate">To:</label>
-                                        <Field
-                                            name="todate"
-                                            type="date"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid':
-                                                    errors.todate,
-                                            }"
-                                            id="todate"
-                                            aria-describedby="dateHelp"
-                                            placeholder="Select Date"
-                                            v-model="form.todate"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.todate
-                                        }}</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="user"
-                                            >Allocated Pallet Space</label
-                                        >
-                                        <Field
-                                            name="allocatedpalletspace"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid':
-                                                    errors.allocatedpalletspace,
-                                            }"
-                                            id="allocatedpalletspace"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Menu title"
-                                            v-model="form.allocatedpalletspace"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.allocatedpalletspace
-                                        }}</span>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="warehouse"
-                                            >Space Utilization Total</label
-                                        >
-                                        <Field
-                                            name="spaceuteltotal"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid':
-                                                    errors.spaceuteltotal,
-                                            }"
-                                            id="spaceuteltotal"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Menu Icon"
-                                            v-model="form.spaceuteltotal"
-                                            required
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.spaceuteltotal
-                                        }}</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="user"
-                                            >Cost Per Pallet</label
-                                        >
-                                        <Field
-                                            name="caseperpallet"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid':
-                                                    errors.caseperpallet,
-                                            }"
-                                            id="caseperpallet"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Case Per Pallet"
-                                            v-model="form.caseperpallet"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.caseperpallet
-                                        }}</span>
+                                            <div class="form-group">
+                                                <label for="warehouse"
+                                                    >Space Utilization
+                                                    Total</label
+                                                >
+                                                <Field
+                                                    name="spaceuteltotal"
+                                                    type="text"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.spaceuteltotal,
+                                                    }"
+                                                    id="spaceuteltotal"
+                                                    aria-describedby="nameHelp"
+                                                    placeholder="Enter Menu Icon"
+                                                    v-model="
+                                                        form.spaceuteltotal
+                                                    "
+                                                    required
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{
+                                                        errors.spaceuteltotal
+                                                    }}</span
+                                                >
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="user"
+                                                    >Cost Per Pallet</label
+                                                >
+                                                <Field
+                                                    name="caseperpallet"
+                                                    type="text"
+                                                    class="form-control"
+                                                    :class="{
+                                                        'is-invalid':
+                                                            errors.caseperpallet,
+                                                    }"
+                                                    id="caseperpallet"
+                                                    aria-describedby="nameHelp"
+                                                    placeholder="Enter Case Per Pallet"
+                                                    v-model="form.caseperpallet"
+                                                />
+                                                <span
+                                                    class="invalid-feedback"
+                                                    >{{
+                                                        errors.caseperpallet
+                                                    }}</span
+                                                >
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-dismiss="modal"
-                        >
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            Save
-                        </button>
-                    </div>
-                </Form>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    data-dismiss="modal"
+                                >
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    Save
+                                </button>
                             </div>
-                        </div>
-
+                        </Form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1033,7 +1106,6 @@ onMounted(() => {
     margin-top: 5px; /* Adjust as needed */
 }
 
-
 a {
     color: #2b2b2b;
     text-decoration: none;
@@ -1063,5 +1135,4 @@ a {
     background-color: #0069d9;
     border-color: #0069d9;
 }
-
 </style>

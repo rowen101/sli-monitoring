@@ -29,9 +29,10 @@ const tecstatus = ref([
     },
 ]);
 const pageTitle = `${useRoute().name}`;
+
 const getSite = () => {
     axios
-        .get(`/api/getsite`)
+        .get(`/web/getsite`)
         .then((response) => {
             listsite.value = response.data.sites;
         })
@@ -320,7 +321,7 @@ onMounted(() => {
             </div>
             <div class="card">
                 <div class="card-body">
-                  
+
                         <ContentLoader v-if="isloading"/>
                     <div class="dispatch-table">
                         <div class="table-responsive">

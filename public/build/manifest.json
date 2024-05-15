@@ -1,6 +1,6 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.2f6b1ff4.js",
+    "file": "assets/app.bc68bdde.js",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
@@ -25,24 +25,25 @@
       "_vue-content-loader.639d3101.js",
       "_dompurify.5fe4b1c1.js",
       "_@vueuse.5a8c8091.js",
-      "_vue3-datepicker.b3fccff5.js",
-      "_html2canvas.c4a43e03.js",
-      "_html2pdf.js.44b835e5.js",
+      "_vue3-datepicker.da50a26b.js",
+      "node_modules/html2canvas/dist/html2canvas.esm.js",
+      "_html2pdf.js.2873933b.js",
+      "_jspdf.dfc7da2d.js",
       "_vue-sweetalert2.891f877f.js",
       "_vue3-form-wizard.4fa39827.js",
       "_@kurkle.1fd9dacb.js",
       "_nanoclone.7d3cb5fe.js",
       "_toposort.ef497e49.js",
-      "_date-fns.cc226e2e.js",
-      "_@babel.afb8673e.js",
-      "_jspdf.10c44267.js"
+      "_date-fns.78662ef1.js",
+      "_@babel.483bd58d.js",
+      "_fflate.fca59393.js"
     ],
     "css": [
-      "assets/app.3acff82d.css"
+      "assets/app.0e6861bb.css"
     ]
   },
-  "_@babel.afb8673e.js": {
-    "file": "assets/@babel.afb8673e.js"
+  "_@babel.483bd58d.js": {
+    "file": "assets/@babel.483bd58d.js"
   },
   "_@kurkle.1fd9dacb.js": {
     "file": "assets/@kurkle.1fd9dacb.js"
@@ -65,20 +66,45 @@
   "_axios.82d3905a.js": {
     "file": "assets/axios.82d3905a.js"
   },
+  "node_modules/canvg/lib/index.es.js": {
+    "file": "assets/canvg.fcf4d890.js",
+    "src": "node_modules/canvg/lib/index.es.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_core-js.18ba3e3c.js",
+      "_@babel.483bd58d.js",
+      "_raf.5a365d5b.js",
+      "_rgbcolor.ee75fe19.js",
+      "_svg-pathdata.7155e77f.js",
+      "_stackblur-canvas.21bfb10c.js",
+      "_admin-lte.f5ef7270.js",
+      "_jquery.63d5220e.js",
+      "_performance-now.ed0ca0ef.js"
+    ]
+  },
   "_chart.js.562acd0f.js": {
     "file": "assets/chart.js.562acd0f.js",
     "imports": [
       "_@kurkle.1fd9dacb.js"
     ]
   },
-  "_date-fns.cc226e2e.js": {
-    "file": "assets/date-fns.cc226e2e.js",
+  "_core-js.18ba3e3c.js": {
+    "file": "assets/core-js.18ba3e3c.js",
     "imports": [
-      "_@babel.afb8673e.js"
+      "_admin-lte.f5ef7270.js"
+    ]
+  },
+  "_date-fns.78662ef1.js": {
+    "file": "assets/date-fns.78662ef1.js",
+    "imports": [
+      "_@babel.483bd58d.js"
     ]
   },
   "_dompurify.5fe4b1c1.js": {
     "file": "assets/dompurify.5fe4b1c1.js"
+  },
+  "_fflate.fca59393.js": {
+    "file": "assets/fflate.fca59393.js"
   },
   "_flatpickr.181c7977.js": {
     "file": "assets/flatpickr.181c7977.js",
@@ -86,14 +112,16 @@
       "assets/flatpickr.1cc2260e.css"
     ]
   },
-  "_html2canvas.c4a43e03.js": {
-    "file": "assets/html2canvas.c4a43e03.js"
+  "node_modules/html2canvas/dist/html2canvas.esm.js": {
+    "file": "assets/html2canvas.4d0ab5af.js",
+    "src": "node_modules/html2canvas/dist/html2canvas.esm.js",
+    "isDynamicEntry": true
   },
-  "_html2pdf.js.44b835e5.js": {
-    "file": "assets/html2pdf.js.44b835e5.js",
+  "_html2pdf.js.2873933b.js": {
+    "file": "assets/html2pdf.js.2873933b.js",
     "imports": [
-      "_jspdf.10c44267.js",
-      "_html2canvas.c4a43e03.js"
+      "_admin-lte.f5ef7270.js",
+      "node_modules/html2canvas/dist/html2canvas.esm.js"
     ]
   },
   "_jquery.63d5220e.js": {
@@ -102,10 +130,15 @@
       "_admin-lte.f5ef7270.js"
     ]
   },
-  "_jspdf.10c44267.js": {
-    "file": "assets/jspdf.10c44267.js",
+  "_jspdf.dfc7da2d.js": {
+    "file": "assets/jspdf.dfc7da2d.js",
     "imports": [
-      "_admin-lte.f5ef7270.js"
+      "_@babel.483bd58d.js",
+      "_fflate.fca59393.js"
+    ],
+    "dynamicImports": [
+      "node_modules/html2canvas/dist/html2canvas.esm.js",
+      "node_modules/canvg/lib/index.es.js"
     ]
   },
   "_laravel-vue-pagination.475a8c82.js": {
@@ -126,6 +159,12 @@
   "_nanoclone.7d3cb5fe.js": {
     "file": "assets/nanoclone.7d3cb5fe.js"
   },
+  "_performance-now.ed0ca0ef.js": {
+    "file": "assets/performance-now.ed0ca0ef.js",
+    "imports": [
+      "_admin-lte.f5ef7270.js"
+    ]
+  },
   "_pinia.210ccde5.js": {
     "file": "assets/pinia.210ccde5.js",
     "imports": [
@@ -134,6 +173,22 @@
   },
   "_property-expr.48609aa3.js": {
     "file": "assets/property-expr.48609aa3.js"
+  },
+  "_raf.5a365d5b.js": {
+    "file": "assets/raf.5a365d5b.js",
+    "imports": [
+      "_admin-lte.f5ef7270.js",
+      "_performance-now.ed0ca0ef.js"
+    ]
+  },
+  "_rgbcolor.ee75fe19.js": {
+    "file": "assets/rgbcolor.ee75fe19.js"
+  },
+  "_stackblur-canvas.21bfb10c.js": {
+    "file": "assets/stackblur-canvas.21bfb10c.js"
+  },
+  "_svg-pathdata.7155e77f.js": {
+    "file": "assets/svg-pathdata.7155e77f.js"
   },
   "_sweetalert2.ef56b979.js": {
     "file": "assets/sweetalert2.ef56b979.js",
@@ -190,11 +245,11 @@
   "_vue-sweetalert2.891f877f.js": {
     "file": "assets/vue-sweetalert2.891f877f.js"
   },
-  "_vue3-datepicker.b3fccff5.js": {
-    "file": "assets/vue3-datepicker.b3fccff5.js",
+  "_vue3-datepicker.da50a26b.js": {
+    "file": "assets/vue3-datepicker.da50a26b.js",
     "imports": [
       "_@vue.04713aa0.js",
-      "_date-fns.cc226e2e.js"
+      "_date-fns.78662ef1.js"
     ]
   },
   "_vue3-form-wizard.4fa39827.js": {

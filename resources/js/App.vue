@@ -3,7 +3,7 @@
 <template>
     <div>
         <MainLayout v-if="!is404 && !isTechRecomApprovePage" />
-        <TechRecomApprove v-else-if="isTechRecomApprovePage" />
+        <TechRecommApproved v-else-if="isTechRecomApprovePage" />
         <ErrorLayout v-else />
     </div>
 </template>
@@ -16,7 +16,7 @@ const authUserStore = useAuthUserStore();
 const route = useRoute(); // Access the current route
 import MainLayout from "./CustomMainLayout.vue"; // Import the CustomMainLayout component
 import ErrorLayout from "./404.vue"; // Import the ErrorLayout component
-import TechRecomApprove from "./pages/techrecomm/TechRecommApprove.vue";
+import TechRecommApproved from "./pages/techrecomm/TechRecommApproved.vue";
 
 // Check if the current route is the TechRecomApprove page
 const isTechRecomApprovePage = computed(() => {

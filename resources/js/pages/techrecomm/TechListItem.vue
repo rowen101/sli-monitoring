@@ -33,7 +33,7 @@ const toggleSelection = () => {
         <td>{{ item.created_user }}</td>
         <td style="text-align: center;">
             <router-link v-if="item.statusid ==2"
-                :to="`/admin/tech-approved/${item.recommnum}/view`"
+                :to="`/tech-approved/${item.recommnum}/view`"
                 target="_blank"
             >
                 <span class="badge" :class="`badge-${item.status.color}`">

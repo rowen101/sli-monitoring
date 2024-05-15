@@ -14,7 +14,7 @@ import MyClosedPrio from './pages/mycloseprio/MyClosePrioList.vue';
 import UserMenu from './pages/usermenu/UserMenuList.vue';
 import Menu from './pages/menu/MenuList.vue';
 import page404 from "./404.vue";
-import TechRecomApprove from "./pages/techrecomm/TechRecommApprove.vue";
+import TechRecommApproved from './pages/techrecomm/TechRecommApproved.vue';
 import Notifications from './pages/notification/index.vue';
 import AssetMonitoring from './pages/assetmonitoring/AssetmList.vue';
 import PalletMonitoring from './pages/palletmonitoring/PalletList.vue';
@@ -124,7 +124,7 @@ export default [
     {
         path: '/tech-approved/:id/view',
         name: 'Tech-Approved',
-        component: TechRecomApprove, // Replace with your actual 404 component
+        component: TechRecommApproved, // Replace with your actual 404 component
     },
     {
         path: '/asset-monitoring',

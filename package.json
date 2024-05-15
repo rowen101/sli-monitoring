@@ -22,6 +22,7 @@
         "html2canvas": "^1.4.1",
         "html2pdf.js": "^0.9.3",
         "jquery": "^3.6.0",
+        "jspdf": "^2.5.1",
         "laravel-vue-pagination": "^4.0.0",
         "moment": "^2.29.4",
         "pinia": "^2.1.6",
