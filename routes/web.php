@@ -137,7 +137,8 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('/web/filter-pallet',[PalletController::class,'filter']);
-
+Route::get('/web/filterYear',[PalletController::class,'filterYear']);
+Route::get('/web/filterMonth',[PalletController::class,'filterMonth']);
 });
 
 Route::get('{view}', ApplicationController::class)->where('view', '(.*)')->middleware('auth');

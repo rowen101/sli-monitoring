@@ -318,7 +318,7 @@ onMounted(() => {
                                         <th>Supplier</th>
                                         <th>Unit</th>
                                         <th>Purchase Cost</th>
-                                        <th>Depreciation Cost</th>
+                                        <th>Unit Value</th>
                                         <th>Createdby</th>
                                         <th>CreatedAt</th>
                                         <th>Updatedby</th>
@@ -1091,13 +1091,13 @@ onMounted(() => {
       </tr>
       <tr>
         <td>Purchase Cost</td>
-        <td>{{'₱' + form.purchasecost }}</td>
-
+      
+        <td>{{'₱' + form.purchasecost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
       </tr>
       <tr>
-        <td>Depreciation Cost by yr</td>
-        <td>{{'₱' + form.Depreciationcostbyyear }}</td>
+        <td>Unit Value</td>
 
+        <td>{{'₱' + form.Depreciationcostbyyear.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
       </tr>
       <tr>
         <td>Warranty information</td>

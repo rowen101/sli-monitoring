@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Pallet;
 use App\Models\tbl_site;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class PalletController extends Controller
@@ -245,5 +246,29 @@ class PalletController extends Controller
         $formattedTotal = '₱' . number_format($totalCost, 2);
 
         return response()->json(['data' => $data, 'sum' => $formattedTotal]);
+    }
+
+    public function filterYear(Request $request)
+    {
+        $siteId = $request->input('site_id');
+        $data = Pallet::selectRaw('YEAR(date) as year')
+                 ->where('site_id', 1)
+                 ->groupBy(DB::raw('YEAR(date)'))
+                 ->orderBy(DB::raw('YEAR(date)'))
+                 ->get();
+
+                 return $data;
+    }
+
+    public function filterMonth(Request $request)
+    {
+        $siteId = $request->input('site_id');
+        $data = Pallet::selectRaw('MONTH(date) as month')
+                ->where('site_id', 1)
+                ->groupBy(DB::raw('MONTH(date)'))
+                ->orderBy(DB::raw('MONTH(date)'))
+                ->get();
+
+        return $data;
     }
 }

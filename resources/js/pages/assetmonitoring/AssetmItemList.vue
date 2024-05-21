@@ -36,8 +36,8 @@ const toggleSelection = () => {
         <td @click.prevent="$emit('viewData', item)">{{ item.date_acquired }}</td>
         <td @click.prevent="$emit('viewData', item)">{{ item.man_supplier }}</td>
         <td @click.prevent="$emit('viewData', item)">{{ item.unit }}</td>
-        <td @click.prevent="$emit('viewData', item)">{{'₱' + item.purchasecost }}</td>
-        <td @click.prevent="$emit('viewData', item)">{{'₱' + item.depreciationcostbyyear }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ '₱' + item.purchasecost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
+        <td @click.prevent="$emit('viewData', item)">{{ '₱' + item.depreciationcostbyyear.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
         <td @click.prevent="$emit('viewData', item)">{{ item.created_by }}</td>
         <td @click.prevent="$emit('viewData', item)">{{ item.created_at }}</td>
         <td @click.prevent="$emit('viewData', item)">{{ item.updated_by }}</td>
