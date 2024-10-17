@@ -407,7 +407,7 @@ onMounted(() => {
                                 <div class="list-field">
                                     <span class="mb-1 dis">Status:</span>
                                     <router-link v-if="item.statusid ==2"
-                :to="`/admin/tech-approved/${item.recommnum}/view`"
+                :to="`/tech-approved/${item.recommnum}/view`"
                 target="_blank"
             >
                 <span class="badge" :class="`badge-${item.status.color}`">
@@ -453,7 +453,7 @@ onMounted(() => {
                                             </span>
                                         </button>
 
-                                         <button
+                                         <!-- <button
                                            v-if="item.statusid == 2"
                                             class="btn btnsm btn-success btn-block"
 
@@ -463,7 +463,7 @@ onMounted(() => {
                                             ></i>
                                             Download
 
-                                        </button>
+                                        </button> -->
 
                                     </div>
 
