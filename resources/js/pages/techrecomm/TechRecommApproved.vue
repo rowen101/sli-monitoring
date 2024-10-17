@@ -12,7 +12,7 @@
 
                 <img
                     class="logo"
-                    :src="'/img/safexpress.jpeg'"
+                    :src="'/img/logo.png'"
                     alt="Left Logo"
                 />
             </div>
