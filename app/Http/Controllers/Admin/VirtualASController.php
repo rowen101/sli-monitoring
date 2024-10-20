@@ -79,8 +79,13 @@ class VirtualASController extends Controller
 
             return $task;
         });
-
-        return response()->json(['dailyTasks' => $allTasks, 'TaskList' => $tasksList, 'hasNextWeekTasks' => $hasNextWeekTasks]);
+       // Sum the completed task counts and total task lists
+    $totalcompleted_task_count = $tasksList->sum('completed_task_count');
+    $totaltask_lists_count = $tasksList->sum('task_lists_count');
+    // Calculate total percentage completed and average percentage completed
+    $totalpercentcompleted = $tasksList->sum('percentage_completed');
+    $averagepercentcompleted = ($tasksList->count() > 0) ? round($totalpercentcompleted / $tasksList->count(), 2) : 0;
+        return response()->json(['dailyTasks' => $allTasks, 'TaskList' => $tasksList, 'hasNextWeekTasks' => $hasNextWeekTasks,'totalcomplettask' => $totalcompleted_task_count, 'totaltasklist'=>$totaltask_lists_count,'totalpercentcomplete'=>$averagepercentcompleted]);
     }
 
 

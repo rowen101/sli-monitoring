@@ -13,6 +13,10 @@ const pageTitle = `${useRoute().name}`;
 const authUserStore = useAuthUserStore();
 
 const isloading = ref(false);
+// Variables to store the total counts
+const totalTodos = ref(0);
+const totalCompleted = ref(0);
+const totalPercentage = ref(0);
 
 const themcolor = ref([
     {
@@ -99,6 +103,9 @@ const getItems = () => {
         isloading.value = false;
         lists.value = response.data.dailyTasks;
         listscount.value = response.data.TaskList;
+        totalTodos.value = response.data.totaltasklist;
+        totalCompleted.value = response.data.totalcomplettask;
+        totalPercentage.value = response.data.totalpercentcomplete;
     });
 };
 
@@ -383,6 +390,24 @@ onMounted(() => {
                                                     :key="item.id"
                                                     :item="item"
                                                 />
+
+
+                                                 <!-- Overall Row -->
+    <tr>
+      <td><strong>OVERALL:</strong></td>
+      <td class="text-center"><strong>{{ totalTodos }}</strong></td> <!-- Display total task lists count -->
+      <td class="text-center"><strong>{{ totalCompleted}}</strong></td> <!-- Total number of items -->
+      <td class="text-center"><strong>—</strong></td>
+      <td class="text-center"><strong>—</strong></td>
+      <td :class="{
+          'bg-danger': totalPercentage >= 0 && totalPercentage <= 59,
+          'bg-orange': totalPercentage > 60 && totalPercentage <= 90,
+          'bg-success': totalPercentage === 100,
+          'text-center': true
+        }">
+        <strong>{{ totalPercentage.toFixed(2) + '%' }}</strong>
+      </td>
+    </tr>
                                             </tbody>
                                         </table>
                                     </div>
