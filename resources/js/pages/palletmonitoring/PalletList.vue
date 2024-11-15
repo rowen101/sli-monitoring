@@ -746,7 +746,7 @@ onMounted(() => {
                                                     }"
                                                     id="allocatedpalletspace"
                                                     aria-describedby="nameHelp"
-                                                    placeholder="Enter Menu title"
+
                                                     v-model="
                                                         form.allocatedpalletspace
                                                     "
@@ -774,7 +774,7 @@ onMounted(() => {
                                                     }"
                                                     id="spaceuteltotal"
                                                     aria-describedby="nameHelp"
-                                                    placeholder="Enter Menu Icon"
+
                                                     v-model="
                                                         form.spaceuteltotal
                                                     "
@@ -801,7 +801,7 @@ onMounted(() => {
                                                     }"
                                                     id="caseperpallet"
                                                     aria-describedby="nameHelp"
-                                                    placeholder="Enter Case Per Pallet"
+                                                    
                                                     v-model="form.caseperpallet"
                                                 />
                                                 <span
