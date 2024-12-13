@@ -40,6 +40,7 @@
 - ```npm install```
 - ```php artisan key:generate```
 - Migrate and seed the database with ```php artisan migrate:fresh --seed```
+- or ```php artisan migrate --path=/database/migrations/audit```
 - Run the application:
 - ```php artisan serve```
 - ```npm run dev```
