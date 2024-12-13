@@ -79,9 +79,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/upload-profile-image', [ProfileController::class, 'uploadImage']);
     Route::post('/api/change-user-password', [ProfileController::class, 'changePassword']);
 
+
+    //technical module
     Route::resource('/api/tech-recommendations', TechController::class);
     Route::delete('/api/tech-recommendations', [TechController::class, 'bulkDelete']);
     Route::post('/api/tech-getaction', [TechController::class, 'getAction']);
+
+    //job request module
+ Route::resource('/api/job-request', JobOrderRequiestController::class);
 
     //tasks controller
     Route::resource('/web/dailytask', TaskController::class);
