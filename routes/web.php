@@ -9,20 +9,21 @@ use App\Http\Controllers\Admin\TechController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\PalletController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\MenuListController;
-use App\Http\Controllers\Admin\UserMenuController;
 
+use App\Http\Controllers\Admin\UserMenuController;
+use App\Http\Controllers\Admin\UserSiteController;
 use App\Http\Controllers\Admin\VirtualASController;
+use App\Http\Controllers\JobOrderRequiestController;
 use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\MyClosePrioController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\DashboardStatController;
 use App\Http\Controllers\Admin\AppointmentStatusController;
-use App\Http\Controllers\Admin\PalletController;
 use App\Http\Controllers\Admin\SliassetmonitoringController;
-use App\Http\Controllers\Admin\UserSiteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -86,7 +87,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/tech-getaction', [TechController::class, 'getAction']);
 
     //job request module
- Route::resource('/api/job-request', JobOrderRequiestController::class);
+    Route::resource('/web/job-request', JobOrderRequiestController::class);
 
     //tasks controller
     Route::resource('/web/dailytask', TaskController::class);
@@ -111,8 +112,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('/api/site', SiteController::class);
 
     //menu controller
-    Route::resource('/api/menulist',MenuListController::class);
-    Route::get('/api/GetParentId',[MenuListController::class,'GetParentId']);
+    Route::resource('/web/menulist',MenuListController::class);
+    Route::get('/web/GetParentId',[MenuListController::class,'GetParentId']);
 
     Route::resource('/api/menu', MenuController::class);
 

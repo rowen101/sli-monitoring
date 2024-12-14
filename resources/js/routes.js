@@ -19,6 +19,7 @@ import Notifications from './pages/notification/index.vue';
 import AssetMonitoring from './pages/assetmonitoring/AssetmList.vue';
 import PalletMonitoring from './pages/palletmonitoring/PalletList.vue';
 import UserSite from './pages/usersite/UserSite.vue';
+import joborder from './pages/joborder/JobOrderList.vue';
 
 export default [
     {
@@ -141,4 +142,11 @@ export default [
         name: 'User Site',
         component: UserSite, // Replace with your actual 404 component
     },
+    {
+        path: '/job-request-form',
+        name: 'Job Order Request',
+        component: joborder
+        
+
+    }
 ]

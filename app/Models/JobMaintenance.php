@@ -9,6 +9,8 @@ class JobMaintenance extends Model
 {
     use HasFactory;
     protected $table = 'job_maintenances';
+
+    protected $primaryKey = 'id';
     protected $fillable =[
         'id',
         'job_order_number',
@@ -24,5 +26,10 @@ class JobMaintenance extends Model
         'status',
         'created_by',
         'updated_by'
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'status' => 'boolean',
     ];
 }

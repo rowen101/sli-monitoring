@@ -4,10 +4,10 @@ import { ref, onMounted, reactive, watch } from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
-import MenuItemList from "./MenuItemList.vue";
+import MenuItemList from "./JobOrderAction.vue";
 import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
-import { useAuthUserStore } from "../../stores/AuthUserStore";
+import { useAuthUserStore } from "../../stores/AuthUserStore.js";
 import ContentLoader from "../../components/ContentLoader.vue";
 import FormCheckRadioGroup from '@/Components/FormCheckRadioGroup.vue'
 import { useRoute } from "vue-router";
@@ -41,7 +41,7 @@ const selectedParentID = ref();
 const getItems = (page = 1) => {
     isloading.value = true;
     axios
-        .get(`/web/menulist?page=${page}`, {
+        .get(`/web/job-request?page=${page}`, {
             params: {
                 query: searchQuery.value,
             },
@@ -54,16 +54,7 @@ const getItems = (page = 1) => {
         });
 };
 
-const parentMenus = () => {
-    axios
-        .get(`/web/GetParentId`)
-        .then((response) => {
-            menuOptionlist.value = response.data;
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-};
+
 const createUserSchema = yup.object({
     menu_title: yup.string().required(),
     parent_id: yup.string().required(),
@@ -230,7 +221,6 @@ watch(
 
 onMounted(() => {
     getItems();
-    parentMenus();
     document.title = pageTitle;
 
 });
@@ -241,14 +231,18 @@ onMounted(() => {
         <div class="container-fluid">
             <div class="d-flex justify-content-between">
                 <div class="d-flex">
-                    <button
+                    <!-- <button
                         @click="addUser"
                         type="button"
                         class="mb-2 btn btn-primary"
                     >
                         <i class="fa fa-plus-circle mr-1"></i>
                         Menu
-                    </button>
+                    </button> -->
+                    <router-link :class="'mb-2 btn btn-primary'" :to="{ name: 'JobOrdercreate' }">
+                        <i class="fa fa-plus-circle mr-1"></i>Create
+                    </router-link>
+
                     <div v-if="selectedItems.length > 0">
                         <button
                             @click="bulkDelete"
