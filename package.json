@@ -24,6 +24,8 @@
         "jquery": "^3.6.0",
         "jspdf": "^2.5.1",
         "laravel-vue-pagination": "^4.0.0",
+        "material-design-icons": "^3.0.1",
+        "materialize-css": "^1.0.0-rc.2",
         "moment": "^2.29.4",
         "pinia": "^2.1.6",
         "sweetalert2": "^11.7.3",
@@ -38,6 +40,7 @@
         "vue3-datepicker": "^0.4.0",
         "vue3-form-wizard": "^0.2.3",
         "vue3-html2canvas": "^0.0.3",
+        "vuetify": "^3.7.5",
         "vuex": "^4.1.0",
         "yup": "^0.32.11"
     }

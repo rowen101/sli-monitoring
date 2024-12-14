@@ -20,6 +20,7 @@ import AssetMonitoring from './pages/assetmonitoring/AssetmList.vue';
 import PalletMonitoring from './pages/palletmonitoring/PalletList.vue';
 import UserSite from './pages/usersite/UserSite.vue';
 import joborder from './pages/joborder/JobOrderList.vue';
+import JobOrderAction from './pages/joborder/JobOrderAction.vue';
 
 export default [
     {
@@ -27,73 +28,59 @@ export default [
         name: 'admin.login',
         component: Login,
     },
-    // {
-    //     path: '/register',
-    //     name: 'admin.register',
-    //     component: Register,
-    // },
     {
         path: '/',
         name: 'Dashboard',
         component: Dashboard,
     },
-
     {
         path: '/appointments',
-        name: 'Appointments',
+        name: 'Appointments List',
         component: ListAppointments,
     },
-
     {
         path: '/appointments/create',
-        name: 'Appointments',
+        name: 'Appointments Create',
         component: AppointmentForm,
     },
-
     {
         path: '/appointments/:id/edit',
-        name: 'Appointments',
+        name: 'Appointments Edit',
         component: AppointmentForm,
     },
-
     {
         path: '/user',
-        name: 'User',
+        name: 'User List',
         component: UserList,
     },
-
     {
         path: '/settings',
-        name: 'Setting',
+        name: 'Update Settings',
         component: UpdateSetting,
     },
-
     {
         path: '/profile',
-        name: 'Profile',
+        name: 'Update Profile',
         component: UpdateProfile,
     },
-
     {
         path: '/client',
-        name: 'Client',
+        name: 'Client List',
         component: ClientList,
     },
-
     {
         path: '/tech-recommendation',
-        name: 'Tech Recomm',
+        name: 'Tech Recommendations',
         component: TechList,
     },
     {
         path: '/weekly-task-schedule/myprio',
-        name: 'My Prio',
+        name: 'My Priority Tasks',
         component: MyPrio,
     },
-
     {
         path: '/weekly-task-schedule/my-closed-prio',
-        name: 'My Closed Prio',
+        name: 'My Closed Priority Tasks',
         component: MyClosedPrio,
     },
     {
@@ -108,45 +95,49 @@ export default [
     },
     {
         path: '/menu',
-        name: 'Menu',
+        name: 'Menu List',
         component: Menu,
-    },
-    // Add the following 404 route at the end
-    {
-        path: '/:catchAll(.*)',
-        name: '404 Error Page',
-        component: page404, // Replace with your actual 404 component
     },
     {
         path: '/notifications',
         name: 'Notifications',
-        component: Notifications, // Replace with your actual 404 component
+        component: Notifications,
     },
     {
         path: '/tech-approved/:id/view',
-        name: 'Tech-Approved',
-        component: TechRecommApproved, // Replace with your actual 404 component
+        name: 'Tech Approved View',
+        component: TechRecommApproved,
     },
     {
         path: '/asset-monitoring',
         name: 'Asset Monitoring',
-        component: AssetMonitoring, // Replace with your actual 404 component
-    },
-  {
-        path: '/pallet-monitoring',
-        name: 'Pallet Monitoring',
-        component: PalletMonitoring, // Replace with your actual 404 component
-    },
-  {
-        path: '/usersite',
-        name: 'User Site',
-        component: UserSite, // Replace with your actual 404 component
+        component: AssetMonitoring,
     },
     {
-        path: '/job-request-form',
+        path: '/pallet-monitoring',
+        name: 'Pallet Monitoring',
+        component: PalletMonitoring,
+    },
+    {
+        path: '/usersite',
+        name: 'User Site',
+        component: UserSite,
+    },
+    {
+        path: '/job-order-request-list',
         name: 'Job Order Request',
-        component: joborder
-        
+        component: joborder,
 
-    }
-]
+    },
+    {
+        path: '/job-order-request-list/create', // Relative path
+        name: 'Job Order Create',
+        component: JobOrderAction,
+    },
+    // 404 Route
+    {
+        path: '/:catchAll(.*)',
+        name: '404 Error Page',
+        component: page404,
+    },
+];

@@ -232,14 +232,14 @@ onMounted(() => {
             <div class="d-flex justify-content-between">
                 <div class="d-flex">
                     <!-- <button
-                        @click="addUser"
+                        @click="$router.push('/job-order-request-create')"
                         type="button"
                         class="mb-2 btn btn-primary"
                     >
                         <i class="fa fa-plus-circle mr-1"></i>
                         Menu
                     </button> -->
-                    <router-link :class="'mb-2 btn btn-primary'" :to="{ name: 'JobOrdercreate' }">
+                    <router-link :class="'mb-2 btn btn-primary'" :to="{ name: 'Job Order Create' }">
                         <i class="fa fa-plus-circle mr-1"></i>Create
                     </router-link>
 
