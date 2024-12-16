@@ -25,11 +25,11 @@ class JobMaintenance extends Model
         'commitment_date',
         'status',
         'created_by',
-        'updated_by'
+        'updated_by',
+        'created_at'
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'status' => 'boolean',
+        'created_at' => 'datetime'
     ];
 }

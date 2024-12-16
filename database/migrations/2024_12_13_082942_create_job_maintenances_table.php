@@ -25,7 +25,7 @@ return new class extends Migration
             $table->text('problem_description')->nullable();
             $table->text('findings_recommendations')->nullable();
             $table->date('commitment_date')->nullable();
-            $table->tinyInteger('status');
+            $table->enum('status', ['P', 'A', 'C'])->default('P');
             $table->integer('created_by')->nullable(0);
             $table->integer('updated_by')->nullable(0);
             $table->timestamps();

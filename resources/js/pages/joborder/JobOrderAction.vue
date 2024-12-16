@@ -8,39 +8,42 @@ import { useToastr } from "@/toastr.js";
 import ContentLoader from "@/components/ContentLoader.vue";
 import FormCheckRadioGroup from "@/Components/FormCheckRadioGroup.vue";
 import { useRoute } from "vue-router";
-
-
+import FormTextField from "@/components/FormTextField.vue";
+import FormSelectOption from "@/components/FormSelectOption.vue";
+import FormTextArea from "@/components/FormTextAria.vue";
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const isloading = ref(false);
-
+import { useAuthUserStore } from "@/stores/AuthUserStore";
 const formValues = ref();
 
+const authUserStore = useAuthUserStore();
 const checked = ref(true);
 const form = reactive({
-    site_name: "",
     id: "",
-    site_id: "",
-    asset_name: "",
-    asset_type: "",
-    serial: "",
-    date_acquired: "",
-    man_supplier: "",
-    unit: "",
-    location: "",
-    paccountable: "",
-    locationchangetranfer: "",
-    cucodition: "",
-    maintenancenotes: "",
-    purchasecost: "",
-    depreciationcost: "",
-    Depreciationcostbyyear: "",
-    is_active: "",
+    site_id: null,
+    site_name: "",
+    job_order_number: "",
+    end_user: "",
+    time_requested: "",
+    date_needed: "",
+    noted_by: "",
+    type_of_job: "",
+    problem_description: "",
+    findings_recommendations: "",
+    commitment_date: "",
+    status: "P",
+    created_by: authUserStore.user.id,
+    updated_by: "",
+
+    description:"",
+    part_number:"",
+    quantity:""
 });
 
 const selectedStatus = ref(null);
 
-const listsite = ref();
+const listsite = ref([]);
 
 const getSite = () => {
     axios
@@ -53,6 +56,24 @@ const getSite = () => {
         });
 };
 const searchQuery = ref(null);
+
+const listjobs = ref([
+ { id: 1, name: 'Preventive Maintenance' },
+ { id: 2, name: 'Corrective Maintenance' }, 
+ { id: 2, name: 'Calibration' },
+]);
+
+
+const createData = () => {
+    axios
+        .post("/web/job-request", form)
+        .then((response) => {
+            toastr.success(response.data.message);
+        })
+        .catch((error) => {
+            toastr.error(error.data.message);
+        });
+};
 
 watch([checked], (val) => {
     form.is_active = val ? 1 : 0;
@@ -67,17 +88,11 @@ watch(
 
 onMounted(() => {
     getSite();
-
     document.title = pageTitle;
 });
 </script>
 <template>
-    <Form
-        @submit="handleSubmit"
-        :validation-schema="editing ? editUserSchema : createUserSchema"
-        v-slot="{ errors }"
-        :initial-values="formValues"
-    >
+  
         <div class="col-md-12">
             <form-wizard
                 @on-complete="createData"
@@ -85,132 +100,155 @@ onMounted(() => {
                 step-size="xs"
             >
                 <tab-content title="Job Information" icon="fas fa-book">
-                    <div class="form-group row">
-                        <label for="jobOrderNumber" class="col-sm-2 col-form-label">Job Order Number</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="jobOrderNumber" placeholder="Job Order Number">
-                        </div>
-                    </div>
 
-                    <div class="form-group row">
-                                <label for="branch"  class="col-sm-2 col-form-label">Area / Department</label>
-                                <div class="col-sm-10">
+                    <FormTextField
+                        label="Job Order Number"
+                        placeholder="Job Order Number - AutoGenerate"
+                        name="job_order_number"
+                        type="text"
+                        id="job_order_number"
+                        v-model="form.job_order_number"
+                        :errors="errors.job_order_number"
+                    />
+                    
 
-                                <Field
-                                    as="select"
-                                    name="branch"
-                                    class="form-control"
-                                    :class="{
-                                        'is-invalid': errors.branch,
-                                    }"
-                                    id="branch"
-                                    aria-describedby="branchHelp"
-                                    v-model="form.site_id"
-                                >
-                                    <option value="" disabled>
-                                        Select Site
-                                    </option>
+                    <FormSelectOption
+                        name="branch"
+                        label="Area / Department"
+                        v-model="form.site_id"
+                        :options="listsite"
+                        :errors="errors.branch"
+                    />
 
-                                    <option
-                                        v-for="site in listsite"
-                                        :key="site.id"
-                                        :value="site.id"
-                                    >
-                                        {{ site.site_name }}
-                                    </option>
-                                </Field>
-                                </div>
-                                <span class="invalid-feedback">{{
-                                    errors.branch
-                                }}</span>
-                            </div>
-                            <div class="form-group row">
-            <label for="endUser" class="col-sm-2 col-form-label">End User</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" id="endUser" placeholder="End User">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="timeRequested" class="col-sm-2 col-form-label">Time Requested</label>
-            <div class="col-sm-10">
-                <input type="datetime-local" class="form-control" id="timeRequested" placeholder="Time Requested">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="dateNeeded" class="col-sm-2 col-form-label">Date Needed</label>
-            <div class="col-sm-10">
-                <input type="date" class="form-control" id="dateNeeded" placeholder="Date Needed">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="notedBy" class="col-sm-2 col-form-label">Noted By</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" id="notedBy" placeholder="Noted By">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="typeOfJob" class="col-sm-2 col-form-label">Type of Job</label>
-            <div class="col-sm-10">
-                <select class="form-control" id="typeOfJob">
-                    <option>Preventive Maintenance</option>
-                    <option>Corrective Maintenance</option>
-                    <option>Calibration</option>
-                </select>
-            </div>
-        </div>
+            
+                    <FormTextField
+                        label="End User"
+                        placeholder="End User"
+                        name="enduser"
+                        type="text"
+                        id="enduser"
+                        v-model="form.end_user"
+                        :errors="errors.end_user"
+                    />
 
+                    <FormTextField
+                        label="Time Requested"
+                        placeholder="Time Requested"
+                        name="time_requested"
+                        type="date"
+                        id="time_requested"
+                        v-model="form.time_requested"
+                        :errors="errors.time_requested"
+                    />
 
+                    <FormTextField
+                        label="Date needed"
+                        placeholder="Date needed"
+                        name="date_needed"
+                        type="date"
+                        id="date_needed"
+                        v-model="form.date_needed"
+                        :errors="errors.date_needed"
+                    />
+                    <FormTextField
+                        label="Noted By"
+                        placeholder="Noted By"
+                        name="noted_by"
+                        type="text"
+                        id="noted_by"
+                        v-model="form.noted_by"
+                        :errors="errors.noted_by"
+                    />
+                    <FormSelectOption
+                        name="type_of_job"
+                        label="Type of Job"
+                        v-model="form.type_of_job"
+                        :options="listjobs"
+                        :errors="errors.type_of_job"
+                    />
+                   
                 </tab-content>
-                <tab-content title="Problem Details" icon="fas fa-pen-alt">
-                    <div class="form-group row">
-            <label for="problemDescription" class="col-sm-2 col-form-label">Problem Description</label>
-            <div class="col-sm-10">
-                <textarea class="form-control" id="problemDescription" rows="3" placeholder="Problem Description"></textarea>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="Recommendations" class="col-sm-2 col-form-label">Recommendations</label>
-            <div class="col-sm-10">
-                <textarea class="form-control" id="Recommendations" rows="3" placeholder="Recommendations"></textarea>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="commitmentDate" class="col-sm-2 col-form-label">Commitment Date</label>
-            <div class="col-sm-10">
-                <input type="date" class="form-control" id="commitmentDate" placeholder="Commitment Date">
-            </div>
-        </div>
 
+                <tab-content title="Problem Details" icon="fas fa-pen-alt">
+
+                    <FormTextArea
+                                label="Problem Description"
+                                id="problem_description"
+                                name="problem_description"
+                                rows="3"
+                                placeholder="Problem Description"
+                                v-model="form.problem_description"
+                    />
+                   
+
+                    <FormTextArea
+                                label="Recommendations"
+                                id="Recommendations"
+                                rows="3"
+                                placeholder="Recommendations"
+                                v-model="form.findings_recommendations"
+                    />
+                 
+                    <FormTextField
+                        label="Commitment Date"
+                        placeholder="Commitment Date"
+                        name="commitment_date"
+                        type="date"
+                        id="commitment_date"
+                        v-model="form.commitment_date"
+                        :errors="errors.commitment_date"
+                    />
                 </tab-content>
                 <tab-content title="Replacement Parts" icon="fas fa-tools">
                     <div class="form-group row">
-            <label for="replacementParts" class="col-sm-2 col-form-label">Replacement Parts</label>
-            <div class="col-sm-10">
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th>Part Number</th>
-                        <th>Quantity</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td><input type="text" class="form-control" placeholder="Description"></td>
-                        <td><input type="text" class="form-control" placeholder="Part Number"></td>
-                        <td><input type="number" class="form-control" placeholder="Quantity"></td>
-                    </tr>
-                    <!-- Add more rows as needed -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-
+                        <label
+                            for="replacementParts"
+                            class="col-sm-2 col-form-label"
+                            >Replacement Parts</label
+                        >
+                        <div class="col-sm-10">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Part Number</th>
+                                        <th>Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                placeholder="Description"
+                                                 v-model="form.description"
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                placeholder="Part Number"
+                                                 v-model="form.part_number"
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                class="form-control"
+                                                placeholder="Quantity"
+                                                 v-model="form.quantity"
+                                            />
+                                        </td>
+                                    </tr>
+                                    <!-- Add more rows as needed -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </tab-content>
             </form-wizard>
         </div>
-    </Form>
+   
 </template>
-
-

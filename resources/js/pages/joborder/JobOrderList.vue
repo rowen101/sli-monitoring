@@ -4,7 +4,7 @@ import { ref, onMounted, reactive, watch } from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
-import MenuItemList from "./JobOrderAction.vue";
+import JobItemList from "./JobOrderAction.vue";
 import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore.js";
@@ -21,18 +21,7 @@ const isloading = ref(false);
 const editing = ref(false);
 const formValues = ref();
 
-const checked = ref(true);
-const form = reactive({
-    menu_id: "",
-    menu_title: "",
-    parent_id: "",
-    menu_icon: "",
-    menu_route: "",
-    sort_order: "",
-    is_active: "",
-    ceated_by: "",
-    updated_by: "",
-});
+
 
 const authUserStore = useAuthUserStore();
 const selectedStatus = ref(null);
@@ -71,10 +60,10 @@ const editUserSchema = yup.object({
     menu_route: yup.string().required(),
 });
 
-const updateIsActive = (checked) => {
-        form.is_active = checked ? 1 : 0;
+// const updateIsActive = (checked) => {
+//         form.is_active = checked ? 1 : 0;
 
-    }
+//     }
 const createData = ( { resetForm, setErrors }) => {
     axios
         .post("/web/menulist", {
@@ -103,24 +92,6 @@ const addUser = () => {
     $("#FormModal").modal("show");
 };
 
-const editMenu = (item) => {
-
-     editing.value = true;
-    form.menu_id = item.menu_id;
-    form.menu_title = item.menu_title;
-    form.parent_id = item.parent_id;
-    form.menu_icon = item.menu_icon;
-    form.menu_route = item.menu_route;
-    form.sort_order = item.sort_order;
-    if (form.is_active === 1) {
-        checked.value = true;
-    } else {
-        checked.value = false;
-    }
-    form.is_active = item.is_active;
-    $("#FormModal").modal("show");
-    selectedParentID.value = item.parent_id;
-};
 
 
 
@@ -146,7 +117,9 @@ const handleSubmit = (values, actions) => {
         createData(values, actions);
     }
 };
+const editAction = (item) => {
 
+}
 const searchQuery = ref(null);
 
 const selectedItems = ref([]);
@@ -208,9 +181,7 @@ const selectAllUsers = () => {
 const updateStatus = (status) => {
     selectedStatus.value = status;
 };
-watch([checked], (val) => {
-     form.is_active = val ? 1 : 0;
-});
+
 
 watch(
     searchQuery,
@@ -283,27 +254,57 @@ onMounted(() => {
                                         />
                                     </th>
                                     <th style="width: 10px">#</th>
-                                    <th>Title</th>
-                                    <th>Parent Menu</th>
-                                    <th>Route</th>
-                                    <th>Icon</th>
-                                    <th>Sort</th>
-                                    <th>Active</th>
-                                    <th>Date</th>
+                                    <th>Site</th>
+                                    <th>Order Number</th>
+                                    <th>End User</th>
+                                    <th>Requested Date</th>
+                                    <th>Needed Date</th>
+                                    <th>Commitment Date</th>
+                                    <th>Status</th>
+                                    <th>Createdby</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody v-if="lists.data.length > 0">
-                                <MenuItemList
+                                <tr
+                                v-for="(item, index) in lists"
+                                :key="item.id"
+                                :item="item"
+                                :index="index"
+                                @confirm-deletion="confirmDeletion"
+                                @toggle-selection="toggleSelection"
+                                :select-all="selectAll"
+                            >
+                            <td><input type="checkbox" :checked="selectAll" @change="toggleSelection" /></td>
+                            <td>{{ index + 1 }}</td>
+                            <td>{{ item.site_name }}</td>
+                            <td>{{ item.job_order_number }}</td>
+                            <td>{{ item.end_user }}</td>
+                        <td>{{ item.date_needed }}</td>
+                        <td>{{ item.date_needed }}</td>
+                            <td>{{ item.commitment_date }}</td>
+                            <td style="text-align: center;">{{ item.status }}</td>
+                            <td>{{ item.created_at }}</td>
+                            <td class="text-center">
+                            <button class="btn btn-sm bg-primary" @click.prevent="$emit('editAction', item)">
+                                <i class="fa fa-edit" ></i>
+                            </button>&nbsp;
+                            <button class="btn btn-sm bg-danger" @click.prevent="$emit('confirmDeletion', item.menu_id)">
+                                <i class="fa fa-trash "></i>
+                            </button>
+
+                            </td>
+                        </tr>
+                                <!-- <JobItemList
                                     v-for="(item, index) in lists.data"
                                     :key="item.id"
                                     :item="item"
                                     :index="index"
-                                    @edit-menu="editMenu"
+                                    @edit-menu="editAction"
                                     @confirm-deletion="confirmDeletion"
                                     @toggle-selection="toggleSelection"
                                     :select-all="selectAll"
-                                />
+                                /> -->
                             </tbody>
                             <tbody v-else>
                                 <tr>
@@ -324,178 +325,7 @@ onMounted(() => {
         </div>
     </div>
 
-    <div
-        class="modal fade"
-        id="FormModal"
-        data-backdrop="static"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="staticBackdropLabel"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog modal-sm" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">
-                        <span v-if="editing">Edit Menu</span>
-                        <span v-else>Add Menu</span>
-                    </h5>
-                    <button
-                        type="button"
-                        class="close"
-                        data-dismiss="modal"
-                        aria-label="Close"
-                    >
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <Form
-
-                    @submit="handleSubmit"
-                    v-slot="{ errors }"
-
-                >
-                    <div class="modal-body">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-12">
-                                    <Field
-                                        type="hidden"
-                                        name="created_by"
-                                        id="created_by"
-                                        v-model="authUserStore.user.id"
-                                    />
-
-                                    <div class="form-group">
-                                        <label for="user">Menu Title</label>
-                                        <Field
-                                            name="menu_title"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid': errors.menu_title,
-                                            }"
-                                            id="menu_title"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Menu title"
-                                            v-model="form.menu_title"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.menu_title
-                                        }}</span>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="department"
-                                            >Parent Menu</label
-                                        >
-                                        <select
-                                            class="form-control"
-                                            id="parentMenu"
-                                            v-model="form.parent_id"
-                                        >
-                                            <option value="0">None</option>
-                                            <option
-                                                v-for="parent in menuOptionlist"
-                                                :key="parent.menu_id"
-                                                :value="parent.menu_id"
-                                            >
-                                                {{ parent.menu_title }}
-                                            </option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="warehouse">Icon</label>
-                                        <Field
-                                            name="menu_icon"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid': errors.menu_icon,
-                                            }"
-                                            id="menu_icon"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Menu Icon"
-                                            v-model="form.menu_icon"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.menu_icon
-                                        }}</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="user">Route</label>
-                                        <Field
-                                            name="menu_route"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid': errors.menu_route,
-                                            }"
-                                            id="menu_route"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Route"
-                                            v-model="form.menu_route"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.menu_route
-                                        }}</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="user">Sort</label>
-                                        <Field
-                                            name="sort_order"
-                                            type="text"
-                                            class="form-control"
-                                            :class="{
-                                                'is-invalid': errors.sort_order,
-                                            }"
-                                            id="sort_order"
-                                            aria-describedby="nameHelp"
-                                            placeholder="Enter Sort Order"
-                                            v-model="form.sort_order"
-                                        />
-                                        <span class="invalid-feedback">{{
-                                            errors.sort_order
-                                        }}</span>
-                                    </div>
-                                   <!-- <div class="form-group">
-                                        <label for="is_active">Active</label>
-                                        <input
-                                            name="is_active"
-                                            type="checkbox"
-                                            id="is_active"
-                                            v-model="checked"
-                                            @change="updateIsActive"
-                                        />
-                                    </div> -->
-                                    <div class="form-group">
-                                        <FormCheckRadioGroup
-                                        v-model="form.is_active"
-                                        name="is_active"
-                                        :options="{ is_active: 'Active' }"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-dismiss="modal"
-                        >
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            Save
-                        </button>
-                    </div>
-                </Form>
-            </div>
-        </div>
-    </div>
+    
 
     <div
         class="modal fade"

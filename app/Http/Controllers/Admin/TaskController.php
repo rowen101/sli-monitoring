@@ -167,14 +167,14 @@ class TaskController extends Controller
     public function getSite()
     {
         $userId = auth()->user()->id;
-        $sites = Site::select('tbl_sites.*')
+        $sites = Site::select('tbl_sites.id','tbl_sites.site_name as name')
             ->join('user_sites', 'tbl_sites.id', '=', 'user_sites.site_id')
             ->where('tbl_sites.is_active', 1)
             ->where('user_sites.user_id', '=', $userId)
             ->orderBy('tbl_sites.site_name', 'ASC')
             ->get();
 
-        return response()->json(['message' => 'success', 'sites' => $sites]);
+        return response()->json([ 'sites' => $sites]);
     }
 
     public function getTask($id)
