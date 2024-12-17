@@ -4,7 +4,7 @@ import { ref, onMounted, reactive, watch } from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
-import JobItemList from "./JobOrderAction.vue";
+import JobItemList from "./JobItemList.vue";
 import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore.js";
@@ -133,23 +133,8 @@ const toggleSelection = (user) => {
     console.log(selectedItems.value);
 };
 
-const valIdBeingDeleted = ref(null);
 
-const confirmDeletion = (id) => {
-    valIdBeingDeleted.value = id;
-    $("#deleteClientModal").modal("show");
 
-};
-
-const deleteUser = () => {
-    axios.delete(`/web/menu/${valIdBeingDeleted.value}`).then(() => {
-        $("#deleteClientModal").modal("hide");
-        toastr.success("Menu deleted successfully!");
-        lists.value.data = lists.value.data.filter(
-            (val) => val.menu_id !== valIdBeingDeleted.value
-        );
-    });
-};
 
 const bulkDelete = () => {
     axios
@@ -182,7 +167,29 @@ const updateStatus = (status) => {
     selectedStatus.value = status;
 };
 
+const recordIdBeingDeleted = ref(null);
+const recordordernumdel = ref(null);
+const confirmItemDeletion = (item) => {
+    recordIdBeingDeleted.value = item.id;
+    recordordernumdel.value = item.job_order_number;
+    $("#deleteRecordModal").modal("show");
+};
 
+const deleteData = () => {
+
+    axios
+    .delete(`/web/job-request/${recordIdBeingDeleted.value}`)
+        .then(() => {
+            $("#deleteRecordModal").modal("hide");
+            toastr.success("Record Close successfully!");
+            lists.value.data = lists.value.data.filter(
+                (items) => items.id !== recordIdBeingDeleted.value
+            );
+        })
+        .catch((error) => {
+            toastr.error(error.response.data.errors);
+        });
+};
 watch(
     searchQuery,
     debounce(() => {
@@ -202,14 +209,7 @@ onMounted(() => {
         <div class="container-fluid">
             <div class="d-flex justify-content-between">
                 <div class="d-flex">
-                    <!-- <button
-                        @click="$router.push('/job-order-request-create')"
-                        type="button"
-                        class="mb-2 btn btn-primary"
-                    >
-                        <i class="fa fa-plus-circle mr-1"></i>
-                        Menu
-                    </button> -->
+                   
                     <router-link :class="'mb-2 btn btn-primary'" :to="{ name: 'Job Order Create' }">
                         <i class="fa fa-plus-circle mr-1"></i>Create
                     </router-link>
@@ -262,57 +262,32 @@ onMounted(() => {
                                     <th>Commitment Date</th>
                                     <th>Status</th>
                                     <th>Createdby</th>
+                                    <th>CreatedAt</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody v-if="lists.data.length > 0">
-                                <tr
-                                v-for="(item, index) in lists"
-                                :key="item.id"
-                                :item="item"
-                                :index="index"
-                                @confirm-deletion="confirmDeletion"
-                                @toggle-selection="toggleSelection"
-                                :select-all="selectAll"
-                            >
-                            <td><input type="checkbox" :checked="selectAll" @change="toggleSelection" /></td>
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ item.site_name }}</td>
-                            <td>{{ item.job_order_number }}</td>
-                            <td>{{ item.end_user }}</td>
-                        <td>{{ item.date_needed }}</td>
-                        <td>{{ item.date_needed }}</td>
-                            <td>{{ item.commitment_date }}</td>
-                            <td style="text-align: center;">{{ item.status }}</td>
-                            <td>{{ item.created_at }}</td>
-                            <td class="text-center">
-                            <button class="btn btn-sm bg-primary" @click.prevent="$emit('editAction', item)">
-                                <i class="fa fa-edit" ></i>
-                            </button>&nbsp;
-                            <button class="btn btn-sm bg-danger" @click.prevent="$emit('confirmDeletion', item.menu_id)">
-                                <i class="fa fa-trash "></i>
-                            </button>
-
-                            </td>
-                        </tr>
-                                <!-- <JobItemList
-                                    v-for="(item, index) in lists.data"
-                                    :key="item.id"
-                                    :item="item"
-                                    :index="index"
-                                    @edit-menu="editAction"
-                                    @confirm-deletion="confirmDeletion"
-                                    @toggle-selection="toggleSelection"
-                                    :select-all="selectAll"
-                                /> -->
-                            </tbody>
-                            <tbody v-else>
-                                <tr>
-                                    <td colspan="9" class="text-center">
-                                        No results found...
-                                    </td>
-                                </tr>
-                            </tbody>
+                                    <JobItemList
+                                        v-for="(item, index) in lists.data"
+                                        :key="item.id"
+                                        :item="item"
+                                        :index="index"
+                                        @edit-user="editData"
+                                        @show-item="viewItem"
+                                        @confirm-user-deletion="
+                                            confirmItemDeletion
+                                        "
+                                        @toggle-selection="toggleSelection"
+                                        :select-all="selectAll"
+                                    />
+                                </tbody>
+                                <tbody v-else>
+                                    <tr>
+                                        <td colspan="9" class="text-center">
+                                            No results found...
+                                        </td>
+                                    </tr>
+                                </tbody>
                         </table>
                     </font>
                     </div>
@@ -329,7 +304,7 @@ onMounted(() => {
 
     <div
         class="modal fade"
-        id="deleteClientModal"
+        id="deleteRecordModal"
         data-backdrop="static"
         tabindex="-1"
         role="dialog"
@@ -352,7 +327,7 @@ onMounted(() => {
                     </button>
                 </div>
                 <div class="modal-body">
-                    <h5>Are you sure you want to delete this record ?</h5>
+                    <h5>Are you sure you want to delete this record ? </h5>
                 </div>
                 <div class="modal-footer">
                     <button
@@ -363,11 +338,11 @@ onMounted(() => {
                         Cancel
                     </button>
                     <button
-                        @click.prevent="deleteUser"
+                        @click.prevent="deleteData"
                         type="button"
                         class="btn btn-primary"
                     >
-                        Delete User
+                        Delete Record
                     </button>
                 </div>
             </div>

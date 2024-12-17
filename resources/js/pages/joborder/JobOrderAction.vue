@@ -35,12 +35,33 @@ const form = reactive({
     status: "P",
     created_by: authUserStore.user.id,
     updated_by: "",
-
     description:"",
     part_number:"",
-    quantity:""
+    quantity:"",
+
+    replacement_parts: [
+    {
+        description: '',
+        part_number: '',
+        quantity: 0,
+    },]
+
 });
 
+const addPart = ()=>{
+    form.replacement_parts.push({
+        description: '',
+        part_number: '',
+        quantity: 0,
+    });
+
+}
+
+const removePart =(index)=>{
+    if(form.replacement_parts.length >1){
+    form.replacement_parts.splice(index, 1);
+    }
+}
 const selectedStatus = ref(null);
 
 const listsite = ref([]);
@@ -58,9 +79,9 @@ const getSite = () => {
 const searchQuery = ref(null);
 
 const listjobs = ref([
- { id: 1, name: 'Preventive Maintenance' },
- { id: 2, name: 'Corrective Maintenance' }, 
- { id: 2, name: 'Calibration' },
+ { id: 'Preventive Maintenance', name: 'Preventive Maintenance' },
+ { id: 'Corrective Maintenance', name: 'Corrective Maintenance' }, 
+ { id: 'Calibration', name: 'Calibration' },
 ]);
 
 
@@ -74,6 +95,9 @@ const createData = () => {
             toastr.error(error.data.message);
         });
 };
+//part index
+
+
 
 watch([checked], (val) => {
     form.is_active = val ? 1 : 0;
@@ -108,7 +132,7 @@ onMounted(() => {
                         type="text"
                         id="job_order_number"
                         v-model="form.job_order_number"
-                        :errors="errors.job_order_number"
+                       
                     />
                     
 
@@ -117,7 +141,7 @@ onMounted(() => {
                         label="Area / Department"
                         v-model="form.site_id"
                         :options="listsite"
-                        :errors="errors.branch"
+                    
                     />
 
             
@@ -128,7 +152,7 @@ onMounted(() => {
                         type="text"
                         id="enduser"
                         v-model="form.end_user"
-                        :errors="errors.end_user"
+                     
                     />
 
                     <FormTextField
@@ -138,7 +162,7 @@ onMounted(() => {
                         type="date"
                         id="time_requested"
                         v-model="form.time_requested"
-                        :errors="errors.time_requested"
+                      
                     />
 
                     <FormTextField
@@ -148,7 +172,7 @@ onMounted(() => {
                         type="date"
                         id="date_needed"
                         v-model="form.date_needed"
-                        :errors="errors.date_needed"
+                       
                     />
                     <FormTextField
                         label="Noted By"
@@ -157,14 +181,14 @@ onMounted(() => {
                         type="text"
                         id="noted_by"
                         v-model="form.noted_by"
-                        :errors="errors.noted_by"
+                      
                     />
                     <FormSelectOption
                         name="type_of_job"
                         label="Type of Job"
                         v-model="form.type_of_job"
                         :options="listjobs"
-                        :errors="errors.type_of_job"
+                      
                     />
                    
                 </tab-content>
@@ -196,7 +220,7 @@ onMounted(() => {
                         type="date"
                         id="commitment_date"
                         v-model="form.commitment_date"
-                        :errors="errors.commitment_date"
+                       
                     />
                 </tab-content>
                 <tab-content title="Replacement Parts" icon="fas fa-tools">
@@ -204,8 +228,9 @@ onMounted(() => {
                         <label
                             for="replacementParts"
                             class="col-sm-2 col-form-label"
-                            >Replacement Parts</label
+                            >Replacement Parts   <button type="button" class="btn btn-warning btn-xs" @click="addPart"><i class="fa fa-plus"></i></button>  </label
                         >
+                     
                         <div class="col-sm-10">
                             <table class="table">
                                 <thead>
@@ -213,16 +238,17 @@ onMounted(() => {
                                         <th>Description</th>
                                         <th>Part Number</th>
                                         <th>Quantity</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
+                                    <tr v-for="(part, index) in form.replacement_parts" :key="index">
                                         <td>
                                             <input
                                                 type="text"
                                                 class="form-control"
                                                 placeholder="Description"
-                                                 v-model="form.description"
+                                                 v-model="part.description"
                                             />
                                         </td>
                                         <td>
@@ -230,7 +256,7 @@ onMounted(() => {
                                                 type="text"
                                                 class="form-control"
                                                 placeholder="Part Number"
-                                                 v-model="form.part_number"
+                                                 v-model="part.part_number"
                                             />
                                         </td>
                                         <td>
@@ -238,8 +264,11 @@ onMounted(() => {
                                                 type="number"
                                                 class="form-control"
                                                 placeholder="Quantity"
-                                                 v-model="form.quantity"
+                                                 v-model="part.quantity"
                                             />
+                                        </td>
+                                        <td>
+                                         <button type="button" class="btn btn-primary" @click="removePart(index)"><i class="fa fa-trash"></i></button>
                                         </td>
                                     </tr>
                                     <!-- Add more rows as needed -->

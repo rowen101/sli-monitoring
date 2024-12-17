@@ -21,66 +21,80 @@ import PalletMonitoring from './pages/palletmonitoring/PalletList.vue';
 import UserSite from './pages/usersite/UserSite.vue';
 import joborder from './pages/joborder/JobOrderList.vue';
 import JobOrderAction from './pages/joborder/JobOrderAction.vue';
-
+import JobOrderRequestApproved from '@/pages/joborder/JobOrderRequestApproved.vue';
 export default [
     {
         path: '/login',
         name: 'admin.login',
         component: Login,
     },
+    // {
+    //     path: '/register',
+    //     name: 'admin.register',
+    //     component: Register,
+    // },
     {
         path: '/',
         name: 'Dashboard',
         component: Dashboard,
     },
+
     {
         path: '/appointments',
-        name: 'Appointments List',
+        name: 'Appointments',
         component: ListAppointments,
     },
+
     {
         path: '/appointments/create',
-        name: 'Appointments Create',
+        name: 'Appointments',
         component: AppointmentForm,
     },
+
     {
         path: '/appointments/:id/edit',
-        name: 'Appointments Edit',
+        name: 'Appointments',
         component: AppointmentForm,
     },
+
     {
         path: '/user',
-        name: 'User List',
+        name: 'User',
         component: UserList,
     },
+
     {
         path: '/settings',
-        name: 'Update Settings',
+        name: 'Setting',
         component: UpdateSetting,
     },
+
     {
         path: '/profile',
-        name: 'Update Profile',
+        name: 'Profile',
         component: UpdateProfile,
     },
+
     {
         path: '/client',
-        name: 'Client List',
+        name: 'Client',
         component: ClientList,
     },
+
     {
         path: '/tech-recommendation',
-        name: 'Tech Recommendations',
+        name: 'Tech Recomm',
         component: TechList,
     },
     {
         path: '/weekly-task-schedule/myprio',
-        name: 'My Priority Tasks',
+        name: 'My Prio',
         component: MyPrio,
     },
+
     {
         path: '/weekly-task-schedule/my-closed-prio',
-        name: 'My Closed Priority Tasks',
+        name: 'My Closed Prio',
         component: MyClosedPrio,
     },
     {
@@ -95,8 +109,14 @@ export default [
     },
     {
         path: '/menu',
-        name: 'Menu List',
+        name: 'Menu',
         component: Menu,
+    },
+    // Add the following 404 route at the end
+    {
+        path: '/:catchAll(.*)',
+        name: '404 Error Page',
+        component: page404, // Replace with your actual 404 component
     },
     {
         path: '/notifications',
@@ -105,24 +125,25 @@ export default [
     },
     {
         path: '/tech-approved/:id/view',
-        name: 'Tech Approved View',
-        component: TechRecommApproved,
+        name: 'Tech-Approved',
+        component: TechRecommApproved, 
     },
     {
         path: '/asset-monitoring',
         name: 'Asset Monitoring',
-        component: AssetMonitoring,
+        component: AssetMonitoring, 
     },
-    {
+  {
         path: '/pallet-monitoring',
         name: 'Pallet Monitoring',
-        component: PalletMonitoring,
+        component: PalletMonitoring, 
     },
-    {
+  {
         path: '/usersite',
         name: 'User Site',
-        component: UserSite,
+        component: UserSite, 
     },
+
     {
         path: '/job-order-request-list',
         name: 'Job Order Request',
@@ -130,14 +151,13 @@ export default [
 
     },
     {
-        path: '/job-order-request-list/create', // Relative path
+        path: '/job-order-request-list/create', 
         name: 'Job Order Create',
         component: JobOrderAction,
     },
-    // 404 Route
     {
-        path: '/:catchAll(.*)',
-        name: '404 Error Page',
-        component: page404,
+        path: '/job-order-request-approved/:id/view',
+        name: 'Job-Order-Request-Approved',
+        component: JobOrderRequestApproved, 
     },
-];
+]
