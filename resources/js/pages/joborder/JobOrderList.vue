@@ -182,9 +182,7 @@ const deleteData = () => {
         .then(() => {
             $("#deleteRecordModal").modal("hide");
             toastr.success("Record Close successfully!");
-            lists.value.data = lists.value.data.filter(
-                (items) => items.id !== recordIdBeingDeleted.value
-            );
+            getItems();
         })
         .catch((error) => {
             toastr.error(error.response.data.errors);
@@ -209,7 +207,7 @@ onMounted(() => {
         <div class="container-fluid">
             <div class="d-flex justify-content-between">
                 <div class="d-flex">
-                   
+
                     <router-link :class="'mb-2 btn btn-primary'" :to="{ name: 'Job Order Create' }">
                         <i class="fa fa-plus-circle mr-1"></i>Create
                     </router-link>
@@ -246,13 +244,13 @@ onMounted(() => {
                         <table class="table table-bordered table-sm">
                             <thead>
                                 <tr>
-                                    <th>
+                                    <!-- <th>
                                         <input
                                             type="checkbox"
                                             v-model="selectAll"
                                             @change="selectAllUsers"
                                         />
-                                    </th>
+                                    </th> -->
                                     <th style="width: 10px">#</th>
                                     <th>Site</th>
                                     <th>Order Number</th>
@@ -300,7 +298,7 @@ onMounted(() => {
         </div>
     </div>
 
-    
+
 
     <div
         class="modal fade"
@@ -315,7 +313,7 @@ onMounted(() => {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">
-                        <span>Delete Record</span>
+                        <span>Closed Record</span>
                     </h5>
                     <button
                         type="button"
@@ -327,7 +325,7 @@ onMounted(() => {
                     </button>
                 </div>
                 <div class="modal-body">
-                    <h5>Are you sure you want to delete this record ? </h5>
+                    <h5>Are you sure you want to close this record ? </h5>
                 </div>
                 <div class="modal-footer">
                     <button

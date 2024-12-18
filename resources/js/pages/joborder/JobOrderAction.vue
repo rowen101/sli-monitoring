@@ -1,6 +1,6 @@
 <script setup>
 import axios from "axios";
-import { ref, onMounted, reactive, watch } from "vue";
+import { ref, onMounted, reactive, watch ,inject} from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import { debounce } from "lodash";
 import * as yup from "yup";
@@ -16,7 +16,7 @@ const toastr = useToastr();
 const isloading = ref(false);
 import { useAuthUserStore } from "@/stores/AuthUserStore";
 const formValues = ref();
-
+const swal = inject("$swal");
 const authUserStore = useAuthUserStore();
 const checked = ref(true);
 const form = reactive({
@@ -80,13 +80,20 @@ const searchQuery = ref(null);
 
 const listjobs = ref([
  { id: 'Preventive Maintenance', name: 'Preventive Maintenance' },
- { id: 'Corrective Maintenance', name: 'Corrective Maintenance' }, 
+ { id: 'Corrective Maintenance', name: 'Corrective Maintenance' },
  { id: 'Calibration', name: 'Calibration' },
 ]);
 
 
-const createData = () => {
-    axios
+const createData = async() => {
+    const result = await swal.fire({
+            title: "Are you sure?",
+            
+            icon: "warning",
+            showCancelButton: true,
+        });
+        if (result.isConfirmed) {
+            axios
         .post("/web/job-request", form)
         .then((response) => {
             toastr.success(response.data.message);
@@ -94,6 +101,8 @@ const createData = () => {
         .catch((error) => {
             toastr.error(error.data.message);
         });
+        }
+
 };
 //part index
 
@@ -116,7 +125,7 @@ onMounted(() => {
 });
 </script>
 <template>
-  
+
         <div class="col-md-12">
             <form-wizard
                 @on-complete="createData"
@@ -132,19 +141,19 @@ onMounted(() => {
                         type="text"
                         id="job_order_number"
                         v-model="form.job_order_number"
-                       
+
                     />
-                    
+
 
                     <FormSelectOption
                         name="branch"
                         label="Area / Department"
                         v-model="form.site_id"
                         :options="listsite"
-                    
+
                     />
 
-            
+
                     <FormTextField
                         label="End User"
                         placeholder="End User"
@@ -152,7 +161,7 @@ onMounted(() => {
                         type="text"
                         id="enduser"
                         v-model="form.end_user"
-                     
+
                     />
 
                     <FormTextField
@@ -162,7 +171,7 @@ onMounted(() => {
                         type="date"
                         id="time_requested"
                         v-model="form.time_requested"
-                      
+
                     />
 
                     <FormTextField
@@ -172,7 +181,7 @@ onMounted(() => {
                         type="date"
                         id="date_needed"
                         v-model="form.date_needed"
-                       
+
                     />
                     <FormTextField
                         label="Noted By"
@@ -181,16 +190,16 @@ onMounted(() => {
                         type="text"
                         id="noted_by"
                         v-model="form.noted_by"
-                      
+
                     />
                     <FormSelectOption
                         name="type_of_job"
                         label="Type of Job"
                         v-model="form.type_of_job"
                         :options="listjobs"
-                      
+
                     />
-                   
+
                 </tab-content>
 
                 <tab-content title="Problem Details" icon="fas fa-pen-alt">
@@ -203,7 +212,7 @@ onMounted(() => {
                                 placeholder="Problem Description"
                                 v-model="form.problem_description"
                     />
-                   
+
 
                     <FormTextArea
                                 label="Recommendations"
@@ -212,7 +221,7 @@ onMounted(() => {
                                 placeholder="Recommendations"
                                 v-model="form.findings_recommendations"
                     />
-                 
+
                     <FormTextField
                         label="Commitment Date"
                         placeholder="Commitment Date"
@@ -220,7 +229,7 @@ onMounted(() => {
                         type="date"
                         id="commitment_date"
                         v-model="form.commitment_date"
-                       
+
                     />
                 </tab-content>
                 <tab-content title="Replacement Parts" icon="fas fa-tools">
@@ -230,7 +239,7 @@ onMounted(() => {
                             class="col-sm-2 col-form-label"
                             >Replacement Parts   <button type="button" class="btn btn-warning btn-xs" @click="addPart"><i class="fa fa-plus"></i></button>  </label
                         >
-                     
+
                         <div class="col-sm-10">
                             <table class="table">
                                 <thead>
@@ -279,5 +288,5 @@ onMounted(() => {
                 </tab-content>
             </form-wizard>
         </div>
-   
+
 </template>

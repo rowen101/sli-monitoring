@@ -46,13 +46,13 @@ const statusClassdiscription = (status) => {
 </script>
 <template>
     <tr>
-        <td>
+        <!-- <td>
             <input
                 type="checkbox"
                 :checked="selectAll"
                 @change="toggleSelection"
             />
-        </td>
+        </td> -->
         <td>{{ index + 1 }}</td>
         <td>{{ item.site_name }}</td>
         <td>{{ item.job_order_number }}</td>
@@ -62,7 +62,7 @@ const statusClassdiscription = (status) => {
         <td>{{ item.commitment_date }}</td>
         <td style="text-align: center">
             <router-link
-                v-if="item.status != 'C'"
+
                 :to="`/job-order-request-approved/${item.job_order_number}/view`"
                 target="_blank"
             >
@@ -71,9 +71,7 @@ const statusClassdiscription = (status) => {
                 </span>
             </router-link>
 
-            <span v-else class="badge" :class="`${statusClass(item.status)}`">
-                {{ statusClassdiscription(item.status) }}
-            </span>
+
         </td>
         <td>{{ item.created_user }}</td>
         <td>{{ item.created_at }}</td>
@@ -91,7 +89,7 @@ const statusClassdiscription = (status) => {
             v-if="authUserStore.user.role === 'USER'"
             style="text-align: center"
         >
-            <div v-if="item.status != 'A'">
+            <div v-if="item.status != 'P'">
                 <a
                     v-if="item.created_by == authUserStore.user.id"
                     href="#"

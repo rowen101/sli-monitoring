@@ -32,7 +32,7 @@ class JobMaintenance extends Model
 
     protected $casts = [
         'created_at' => 'datetime',
-      
+
     ];
 
     public function replacement_parts()

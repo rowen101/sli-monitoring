@@ -1,6 +1,6 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.92c222e3.js",
+    "file": "assets/app.0ef9e6dd.js",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
@@ -39,7 +39,7 @@
       "_fflate.fca59393.js"
     ],
     "css": [
-      "assets/app.8fd059da.css"
+      "assets/app.d9be523e.css"
     ]
   },
   "_@babel.483bd58d.js": {
@@ -269,6 +269,11 @@
       "_property-expr.48609aa3.js",
       "_toposort.ef497e49.js"
     ]
+  },
+  "resources/css/materialize.min.css": {
+    "file": "assets/materialize.min.2a4a99c4.css",
+    "src": "resources/css/materialize.min.css",
+    "isEntry": true
   },
   "resources/css/app.css": {
     "file": "assets/app.d265e288.css",
