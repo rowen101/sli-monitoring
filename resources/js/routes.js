@@ -20,7 +20,8 @@ import AssetMonitoring from './pages/assetmonitoring/AssetmList.vue';
 import PalletMonitoring from './pages/palletmonitoring/PalletList.vue';
 import UserSite from './pages/usersite/UserSite.vue';
 import joborder from './pages/joborder/JobOrderList.vue';
-
+import JobOrderAction from './pages/joborder/JobOrderAction.vue';
+import JobOrderRequestApproved from '@/pages/joborder/JobOrderRequestApproved.vue';
 export default [
     {
         path: '/login',
@@ -120,33 +121,43 @@ export default [
     {
         path: '/notifications',
         name: 'Notifications',
-        component: Notifications, // Replace with your actual 404 component
+        component: Notifications,
     },
     {
         path: '/tech-approved/:id/view',
         name: 'Tech-Approved',
-        component: TechRecommApproved, // Replace with your actual 404 component
+        component: TechRecommApproved, 
     },
     {
         path: '/asset-monitoring',
         name: 'Asset Monitoring',
-        component: AssetMonitoring, // Replace with your actual 404 component
+        component: AssetMonitoring, 
     },
   {
         path: '/pallet-monitoring',
         name: 'Pallet Monitoring',
-        component: PalletMonitoring, // Replace with your actual 404 component
+        component: PalletMonitoring, 
     },
   {
         path: '/usersite',
         name: 'User Site',
-        component: UserSite, // Replace with your actual 404 component
+        component: UserSite, 
+    },
+
+    {
+        path: '/job-order-request-list',
+        name: 'Job Order Request',
+        component: joborder,
+
     },
     {
-        path: '/job-request-form',
-        name: 'Job Order Request',
-        component: joborder
-        
-
-    }
+        path: '/job-order-request-list/create', 
+        name: 'Job Order Create',
+        component: JobOrderAction,
+    },
+    {
+        path: '/job-order-request-approved/:id/view',
+        name: 'Job-Order-Request-Approved',
+        component: JobOrderRequestApproved, 
+    },
 ]

@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Models;
-
+use App\Enums\JobOrderRequestStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class JobMaintenance extends Model
 {
     use HasFactory;
+    protected $guarded = [];
     protected $table = 'job_maintenances';
 
     protected $primaryKey = 'id';
@@ -25,11 +26,18 @@ class JobMaintenance extends Model
         'commitment_date',
         'status',
         'created_by',
-        'updated_by'
+        'updated_by',
+        'created_at'
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
-        'status' => 'boolean',
+
     ];
+
+    public function replacement_parts()
+    {
+        return $this->hasMany(JobReplacementPart::class, 'job_order_request_id', 'id');
+    }
+
 }

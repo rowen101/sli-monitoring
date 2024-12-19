@@ -41,11 +41,11 @@ const toggleSelection = () => {
                 </span>
             </router-link>
 
-            <span v-if="item.statusid !=2" class="badge" :class="`badge-${item.status.color}`">
+            <span v-else class="badge" :class="`badge-${item.status.color}`">
                 {{ item.status.name }}
             </span>
 
-            <!-- &nbsp;<span v-if="item.status.name === 'APPROVED'" class="badge" :class="`badge-${item.status.color}`" v-html="getStatusHtml(item.status)"></span> -->
+           
         </td>
 
         <td>{{ item.created_at }}</td>

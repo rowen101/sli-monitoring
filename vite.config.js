@@ -11,6 +11,7 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
+                'resources/css/materialize.min.css',
                 'resources/js/app.js',
             ],
             refresh: true,
