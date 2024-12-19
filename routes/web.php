@@ -115,7 +115,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('/web/menulist',MenuListController::class);
     Route::get('/web/GetParentId',[MenuListController::class,'GetParentId']);
 
-    Route::resource('/api/menu', MenuController::class);
+    Route::resource('/web/menu', MenuController::class);
 
     //menu username
     Route::resource('/api/usermenu', UserMenuController::class);

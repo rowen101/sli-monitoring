@@ -21,15 +21,12 @@ class JobOrderRequiestController extends Controller
         $data = JobMaintenance::query()
             ->join('tbl_sites','tbl_sites.id','=','job_maintenances.site_id')
             ->when(request('query'), function ($query, $searchQuery) {
-                $query->where('tb_sites.site_name', 'like', "%{$searchQuery}%");
+                $query->where('tbl_sites.site_name', 'like', "%{$searchQuery}%");
             })
             ->where('job_maintenances.created_by', auth()->user()->id)
             ->orderBy('job_maintenances.created_at','desc')
             ->paginate(setting('pagination_limit'))
             ->through(function ($item) {
-
-
-
                 // Check if created_at is not null before formatting
                 $createdAtFormatted = $item->created_at ? $item->created_at->format('Y-m-d h:i A') : null;
                 $user = User::find($item->created_by);
@@ -43,12 +40,13 @@ class JobOrderRequiestController extends Controller
                     'commitment_date' => $item->commitment_date,
                     'status' => $item->status,
                     'created_user' => $user ? $user->first_name . ' ' . $user->last_name : null,
-                   'created_at' => $createdAtFormatted,
+                    'created_at' => $createdAtFormatted,
                 ];
             });
 
         return $data;
     }
+
 
 
 

@@ -177,7 +177,7 @@ const confirmDeletion = (id) => {
 
 };
 
-const deleteUser = () => {
+const deleteRecord = () => {
     axios.delete(`/web/menu/${valIdBeingDeleted.value}`).then(() => {
         $("#deleteClientModal").modal("hide");
         toastr.success("Menu deleted successfully!");
@@ -539,11 +539,11 @@ onMounted(() => {
                         Cancel
                     </button>
                     <button
-                        @click.prevent="deleteUser"
+                        @click.prevent="deleteRecord"
                         type="button"
                         class="btn btn-primary"
                     >
-                        Delete User
+                        Delete Record
                     </button>
                 </div>
             </div>

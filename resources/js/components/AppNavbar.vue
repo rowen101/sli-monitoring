@@ -3,9 +3,10 @@ import { useSettingStore } from '../stores/SettingStore';
 import { ref, onMounted, reactive, watch } from "vue";
 import axios from "axios";
 const settingStore = useSettingStore();
+import { useAuthUserStore } from "@/stores/AuthUserStore";
 import moment from 'moment';
 const notifications = ref([]);
-
+const authUserStore = useAuthUserStore();
 const fetchNotifications = () =>{
      axios.get('/api/notifications')
         .then(response => {
@@ -19,6 +20,8 @@ const fetchNotifications = () =>{
 const formatDate =(date) =>{
     return moment(date).format('YYYY-MM-DD HH:mm:ss');
 }
+
+
 
 onMounted(() => {
     fetchNotifications();
@@ -70,11 +73,11 @@ onMounted(() => {
                 </div>
             </li>
 
-            <li class="nav-item dropdown">
-                <!-- <a class="nav-link" data-toggle="dropdown" href="#">
+            <!-- <li class="nav-item dropdown">
+                <a class="nav-link" data-toggle="dropdown" href="#">
                     <i class="far fa-comments"></i>
                     <span class="badge badge-danger navbar-badge">3</span>
-                </a> -->
+                </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <a href="#" class="dropdown-item">
 
@@ -129,7 +132,7 @@ onMounted(() => {
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
                 </div>
-            </li>
+            </li> -->
 
            <li class="nav-item dropdown" @click="fetchNotifications">
     <a class="nav-link" data-toggle="dropdown" href="#">
@@ -158,10 +161,40 @@ onMounted(() => {
                     <i class="fas fa-expand-arrows-alt"></i>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
-                    <i class="fas fa-th-large"></i>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link" data-toggle="dropdown" href="#">
+                    <div class="user-panel  d-flex" style="top: -5px;">
+                        <div class="info">
+                   {{
+                        authUserStore.user.name
+                    }}
+                </div>
+               <div v-if="authUserStore.user.avatar === ''" class="image">
+                    <img
+                        :src="authUserStore.user.avatar"
+                        class="img-circle elevation-1"
+                        alt="User Image"
+                    />
+                </div>
+                <div v-else-if="authUserStore.user.avatar !== ''" class="image">
+                    <img v-if="authUserStore.user.gender === 'Male'" :src="'/img/boy.png'" class="img-circle elevation-1" alt="Profile" draggable="false"/>
+                    <img v-else-if="authUserStore.user.gender === 'Female'" :src="'/img/girl.png'" class="img-circle elevation-1" alt="Profile" draggable="false"/>
+
+                </div>
+
+
+            </div>
+
                 </a>
+                <div class="dropdown-menu dropdown-menu-sg dropdown-menu-right">
+
+
+
+                 <router-link class="dropdown-item" to='/profile'><i class="fas fa-user-circle"></i> My Profile</router-link>
+
+    
+                </div>
             </li>
         </ul>
     </nav>
