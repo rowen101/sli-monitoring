@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Admin\TaskController;
@@ -12,8 +13,8 @@ use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\PalletController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\MenuListController;
 
+use App\Http\Controllers\Admin\MenuListController;
 use App\Http\Controllers\Admin\UserMenuController;
 use App\Http\Controllers\Admin\UserSiteController;
 use App\Http\Controllers\Admin\VirtualASController;
@@ -24,6 +25,8 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\DashboardStatController;
 use App\Http\Controllers\Admin\AppointmentStatusController;
 use App\Http\Controllers\Admin\SliassetmonitoringController;
+use App\Mail\MailNotify;
+use App\Mail\TestMail;
 
 /*
 |--------------------------------------------------------------------------
@@ -80,7 +83,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/upload-profile-image', [ProfileController::class, 'uploadImage']);
     Route::post('/api/change-user-password', [ProfileController::class, 'changePassword']);
 
+    #test mail
+    Route::get('/contact', function(){
+        Mail::to('test@email.com')->send(new TestMail());
+    });
 
+    Route::get('/contactgmail', function(){
+        Mail::to('rgrowengonzales66@gmail.com')->send(new MailNotify());
+    });
     //technical module
     Route::resource('/api/tech-recommendations', TechController::class);
     Route::delete('/api/tech-recommendations', [TechController::class, 'bulkDelete']);

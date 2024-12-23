@@ -9,12 +9,9 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class MailNotify extends Mailable
+class TestMail extends Mailable
 {
     use Queueable, SerializesModels;
-    public $jobRequest;
-    public $subjectLine;
-    public $data=[];
 
     /**
      * Create a new message instance.
@@ -23,11 +20,8 @@ class MailNotify extends Mailable
      */
     public function __construct()
     {
-
-        // $this->jobRequest = (object) $jobRequest; // Convert to an object for Blade template compatibility
-        // $this->subjectLine = $subjectLine;
+        //
     }
-
 
     /**
      * Get the message envelope.
@@ -37,7 +31,7 @@ class MailNotify extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: $this->subjectLine
+            subject: 'Test Mail',
         );
     }
 
@@ -49,8 +43,7 @@ class MailNotify extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.notify', // Make sure this view exists
-            with: ['jobRequest' => $this->jobRequest], // Pass jobRequest to the view
+            view: 'emails.Test',
         );
     }
 

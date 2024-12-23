@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Mail\MailNotify;
+use App\Models\tbl_site;
 use Illuminate\Http\Request;
 use App\Models\JobMaintenance;
 use App\Models\JobReplacementPart;
-use App\Models\tbl_site;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class JobOrderRequiestController extends Controller
 {
@@ -18,12 +20,19 @@ class JobOrderRequiestController extends Controller
      */
     public function index()
     {
+
+        $authUserId = auth()->user()->id;
+
         $data = JobMaintenance::query()
             ->join('tbl_sites','tbl_sites.id','=','job_maintenances.site_id')
+            ->join('users','users.id','=','job_maintenances.created_by')
             ->when(request('query'), function ($query, $searchQuery) {
                 $query->where('tbl_sites.site_name', 'like', "%{$searchQuery}%");
             })
-            ->where('job_maintenances.created_by', auth()->user()->id)
+            ->where(function ($query) use ($authUserId) {
+                $query->where('job_maintenances.created_by', $authUserId)
+                      ->orWhere('users.sitehead_user_id', $authUserId); // Include sitehead_user_id condition
+            })
             ->orderBy('job_maintenances.created_at','desc')
             ->paginate(setting('pagination_limit'))
             ->through(function ($item) {
@@ -39,12 +48,12 @@ class JobOrderRequiestController extends Controller
                     'date_needed' => $item->date_needed,
                     'commitment_date' => $item->commitment_date,
                     'status' => $item->status,
-                    'created_user' => $user ? $user->first_name . ' ' . $user->last_name : null,
+                    'created_user' => $item->first_name . ' ' . $item->last_name,
                     'created_at' => $createdAtFormatted,
                 ];
             });
 
-        return $data;
+        return response()->json($data);
     }
 
 
@@ -120,8 +129,8 @@ class JobOrderRequiestController extends Controller
                     'findings_recommendations' => $validatedJobData['findings_recommendations'] ?? null,
                     'commitment_date' => $validatedJobData['commitment_date'] ?? null,
                     'status' => $validatedJobData['status'],
-                    'created_by' => $validatedJobData['created_by'] ?? auth()->id()
-
+                    'created_by' => $validatedJobData['created_by'] ?? auth()->id(),
+                    'updated_by' => 0
                 ]
             );
 
@@ -141,12 +150,29 @@ class JobOrderRequiestController extends Controller
                 }
             }
 
+            // Prepare data for the email
+        $jobRequest = [
+            'job_order_number' => $jobMaintenance->job_order_number,
+            'site_id' => $jobMaintenance->site_id,
+            'end_user' => $jobMaintenance->end_user,
+            'time_requested' => $jobMaintenance->time_requested,
+            'date_needed' => $jobMaintenance->date_needed,
+            'type_of_job' => $jobMaintenance->type_of_job,
+            'problem_description' => $jobMaintenance->problem_description,
+        ];
+
+        // Generate dynamic subject
+        $subject = "New Job Order Request for " . $validatedJobData['type_of_job'] . " #". $validatedJobData['job_order_number'];
+
+        // Send Email Notification
+        Mail::to('rgrowengonzales66@gmail.com')->send(new MailNotify($jobRequest, $subject));
+
             DB::commit();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Record saved successfully.',
-                'data' => $jobMaintenance->load('replacementParts'), // Eager load replacement parts if needed
+                'data' => $jobMaintenance->load('replacementParts'),
             ], 200);
 
         } catch (\Exception $e) {
@@ -224,7 +250,7 @@ class JobOrderRequiestController extends Controller
     public function edit($id)
     {
       $data = JobMaintenance::find($id);
-        return $data;
+        return response()->json($data);
     }
 
     /**

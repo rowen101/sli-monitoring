@@ -76,7 +76,7 @@ const statusClassdiscription = (status) => {
         <td>{{ item.created_user }}</td>
         <td>{{ item.created_at }}</td>
 
-        <td v-if="authUserStore.user.role === 'ADMIN'">
+        <td v-if="authUserStore.user.role === 'ADMIN' || authUserStore.user.sitehead_user_id === authUserStore.user.id">
             <a href="#" @click.prevent="$emit('editRecord', item)"
                 ><i class="fa fa-edit"></i
             ></a>

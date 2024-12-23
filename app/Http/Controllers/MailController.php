@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Mail;
+use Illuminate\Support\Facades\Mail;
 use Exception;
 use App\Mail\MailNotify;
 use Illuminate\Http\Request;
