@@ -192,7 +192,6 @@
                                 <p>
                                     {{ form.findingsRecommendations }}
 
-
                                 </p>
                             </div>
                         </div>
@@ -210,7 +209,7 @@
                 <div class="col-6 p-2">
                     Approved by: President/CEO<br />
                     <div class=" mt-2">
-
+                        <span class="bottom-line" style="border-bottom: 1px solid black; display: inline-block;">Eden Satinitigan</span>
                     </div>
                 </div>
             </div>
@@ -303,7 +302,7 @@ const getJobOrder = () => {
                 response.data.record.reviewedDate
             ).format("MMMM D, YYYY");
             form.approvedBy = response.data.record.updatedby.ufull_name;
-            form.approvedPosition = response.data.record.updatedby.uposition
+            form.approvedPosition = response.data.record.updatedby.uposition ? response.data.record.updatedby.uposition : '';
             form.approvedDate = moment(
                 response.data.record.approvedDate
             ).format("MMMM D, YYYY");
@@ -311,7 +310,7 @@ const getJobOrder = () => {
             form.status = response.data.record.status;
         })
         .catch((error) => {
-            actions.setErrors(error.response.data.record.error);
+            console.log(error)
         });
 };
 

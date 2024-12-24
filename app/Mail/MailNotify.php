@@ -21,11 +21,11 @@ class MailNotify extends Mailable
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($jobRequest, $subjectLine)
     {
 
-        // $this->jobRequest = (object) $jobRequest; // Convert to an object for Blade template compatibility
-        // $this->subjectLine = $subjectLine;
+        $this->jobRequest = (object) $jobRequest; // Convert to an object for Blade template compatibility
+        $this->subjectLine = $subjectLine;
     }
 
 

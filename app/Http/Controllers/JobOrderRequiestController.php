@@ -164,8 +164,16 @@ class JobOrderRequiestController extends Controller
         // Generate dynamic subject
         $subject = "New Job Order Request for " . $validatedJobData['type_of_job'] . " #". $validatedJobData['job_order_number'];
 
+        $toEmails = ['rgrowengonzales66@gmail.com', 'growen@live.com'];
+        $ccEmails = ['stephandren035@gmail.com.com', 'rowen.gonzales@safexpress.com.ph'];
         // Send Email Notification
-        Mail::to('rgrowengonzales66@gmail.com')->send(new MailNotify($jobRequest, $subject));
+
+        foreach ($toEmails as $email) {
+            Mail::to($email)
+                ->cc($ccEmails)
+                ->send(new MailNotify($jobRequest, $subject));
+        }
+        //Mail::to($emails)->send(new MailNotify($jobRequest, $subject));
 
             DB::commit();
 
