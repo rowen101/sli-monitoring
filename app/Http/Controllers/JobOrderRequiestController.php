@@ -163,17 +163,25 @@ class JobOrderRequiestController extends Controller
 
         // Generate dynamic subject
         $subject = "New Job Order Request for " . $validatedJobData['type_of_job'] . " #". $validatedJobData['job_order_number'];
+        
+        $authUserId = auth()->user()->id;
+         $creatorEmail = User::where('id',  $authUserId)->pluck('email')->first();
+        $departmentHeadId = User::where('id',  auth()->user()->id)->pluck('sitehead_user_id')->first();
+         $siteHeadEmail = User::where('id', $departmentHeadId)->pluck('email')->first();
+        
 
-        $toEmails = ['rgrowengonzales66@gmail.com', 'growen@live.com'];
-        $ccEmails = ['stephandren035@gmail.com.com', 'rowen.gonzales@safexpress.com.ph'];
-        // Send Email Notification
 
-        foreach ($toEmails as $email) {
-            Mail::to($email)
-                ->cc($ccEmails)
-                ->send(new MailNotify($jobRequest, $subject));
-        }
-        //Mail::to($emails)->send(new MailNotify($jobRequest, $subject));
+// Prepare emails
+// $toEmails = implode(',', array_filter([$siteHeadEmail]));
+// $ccEmails = implode(',', array_filter([$creatorEmail]));
+
+$toEmails = 'rgrowengonzales66@gmail.com';
+$ccEmails = 'stephandren035@gmail.com';
+// Send email
+Mail::to($toEmails)
+    ->cc($ccEmails)
+    ->send(new MailNotify($jobRequest, $subject));
+       
 
             DB::commit();
 

@@ -7,6 +7,6 @@
     <li><strong>End User:</strong> {{ $jobRequest->end_user }}</li>
     <li><strong>Date Needed:</strong> {{ $jobRequest->date_needed }}</li>
     <li><strong>Problem Description:</strong> {{ $jobRequest->problem_description }}</li>
-    <li><strong>Created By:</strong> {{ $jobRequest->created_by }}</li>
+
 </ul>
 <p>Thank you.</p>
