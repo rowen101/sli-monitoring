@@ -34,11 +34,11 @@ const statusClass = (status) => {
 const statusClassdiscription = (status) => {
     switch (status) {
         case "P":
-            return "Pinding";
+            return "Pending";
         case "A":
             return "Approved";
         case "C":
-            return "Closed";
+            return "Reject";
         default:
             return "badge-secondary";
     }
@@ -56,9 +56,7 @@ const statusClassdiscription = (status) => {
         <td>{{ index + 1 }}</td>
         <td>{{ item.site_name }}</td>
         <td>{{ item.job_order_number }}</td>
-        <td>{{ item.end_user }}</td>
         <td>{{ item.date_needed }}</td>
-        <td>{{ item.commitment_date }}</td>
         <td>{{ item.commitment_date }}</td>
         <td style="text-align: center">
             <router-link
@@ -77,13 +75,20 @@ const statusClassdiscription = (status) => {
         <td>{{ item.created_at }}</td>
 
         <td v-if="authUserStore.user.role === 'ADMIN' || authUserStore.user.sitehead_user_id === authUserStore.user.id">
-            <a href="#" @click.prevent="$emit('editRecord', item)"
-                ><i class="fa fa-edit"></i
-            ></a>
 
-            <a href="#" @click.prevent="$emit('confirmUserDeletion', item)"
-                ><i class="fa fa-trash text-danger ml-2"></i
-            ></a>
+
+            <div @click.prevent="$emit('approvedata', item)"
+                style="background-color:#17ad49; cursor: pointer; border:none;border-radius:4px;width:120px;height:32px;color:#ffffff;font-size:16px;font-style:normal;font-weight:500;font-family:&quot;Roboto&quot;,&quot;Arial&quot;;line-height:32px;display:inline-block;float:left;margin:3px;text-align:center">
+                <span
+                    style="color:#fff;text-decoration:none" target="_blank"
+                    >Approved</span>
+            </div>
+            <div @click.prevent="$emit('confirmDataDeletion', item)"
+                style="background-color:#da2f38; cursor: pointer; border:none;border-radius:4px;width:120px;height:32px;color:#ffffff;font-size:16px;font-style:normal;font-weight:500;font-family:&quot;Roboto&quot;,&quot;Arial&quot;;line-height:32px;display:inline-block;float:left;margin:3px;text-align:center">
+                <span
+                    style="color:#fff;text-decoration:none" target="_blank"
+                    >Reject</span>
+            </div>
         </td>
         <td
             v-if="authUserStore.user.role === 'USER'"

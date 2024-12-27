@@ -2,24 +2,26 @@
     <div id="exportPDF">
         <br />
         <div class="container">
+          
             <div
-                v-if="form.status !== 'A'"
-                :class="[
-                    'ribbon',
-                    {
-                        warning: form.status === 'P',
-                        closed: form.status === 'C',
-                    },
-                ]"
-            >
-                <span>{{
-                    form.status === "P"
-                        ? "Pending"
-                        : form.status === "C"
-                        ? "Closed"
-                        : form.status
-                }}</span>
-            </div>
+
+    v-if="['P', 'C'].includes(form.jobstatus)"
+    :class="[
+        'ribbon',
+        {
+            warning: form.jobstatus === 'P',
+            closed: form.jobstatus === 'C',
+        },
+    ]"
+>
+    <span>{{
+        form.jobstatus === "P"
+            ? "Pending"
+            : form.jobstatus === "C"
+            ? "Reject"
+            : form.jobstatus === "P"
+    }}</span>
+</div>
             <div class="row align-items-center">
                 <!-- Left Logo Section -->
                 <div class="col-3 p-2 text-center">
@@ -259,7 +261,7 @@ const form = reactive({
     approvedBy: "",
     approvedDate: "",
     remarks: "",
-    status: "",
+    jobstatus: "",
     approvedPosition:""
 });
 
@@ -301,16 +303,17 @@ const getJobOrder = () => {
             form.reviewedDate = moment(
                 response.data.record.reviewedDate
             ).format("MMMM D, YYYY");
-            form.approvedBy = response.data.record.updatedby.ufull_name;
+            form.approvedBy = response.data.record.updatedby.ufull_name ;
             form.approvedPosition = response.data.record.updatedby.uposition ? response.data.record.updatedby.uposition : '';
             form.approvedDate = moment(
                 response.data.record.approvedDate
             ).format("MMMM D, YYYY");
             form.remarks = response.data.record.remarks;
-            form.status = response.data.record.status;
+            form.jobstatus = response.data.record.status;
+            console.log(response.data.record.status)
         })
         .catch((error) => {
-            console.log(error)
+            console.log(error.message)
         });
 };
 

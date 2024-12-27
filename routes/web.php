@@ -83,14 +83,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/upload-profile-image', [ProfileController::class, 'uploadImage']);
     Route::post('/api/change-user-password', [ProfileController::class, 'changePassword']);
 
-    #test mail
-    Route::get('/contact', function(){
-        Mail::to('test@email.com')->send(new TestMail());
-    });
-
-    Route::get('/contactgmail', function(){
-        Mail::to('rgrowengonzales66@gmail.com')->send(new MailNotify());
-    });
     //technical module
     Route::resource('/api/tech-recommendations', TechController::class);
     Route::delete('/api/tech-recommendations', [TechController::class, 'bulkDelete']);
@@ -98,7 +90,7 @@ Route::middleware('auth')->group(function () {
 
     //job request module
     Route::resource('/web/job-request', JobOrderRequiestController::class);
-
+   
     //tasks controller
     Route::resource('/web/dailytask', TaskController::class);
     Route::put('/web/dailytask/onhandler/{id}', [TaskController::class, 'onhandler']);

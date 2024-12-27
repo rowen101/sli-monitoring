@@ -164,13 +164,13 @@ onMounted(() => {
                         >
                             <thead>
                                 <tr>
-                                    <th>
+                                    <!-- <th>
                                         <input
                                             type="checkbox"
                                             v-model="selectAll"
                                             @change="selectAllUsers"
                                         />
-                                    </th>
+                                    </th> -->
                                     <th style="width: 10px">#</th>
                                     <th>Name</th>
                                     <th>Email</th>

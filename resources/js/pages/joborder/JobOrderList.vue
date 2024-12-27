@@ -1,6 +1,6 @@
 <script setup>
 import axios from "axios";
-import { ref, onMounted, reactive, watch } from "vue";
+import { ref, onMounted, reactive, watch, inject } from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
@@ -9,26 +9,23 @@ import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore.js";
 import ContentLoader from "../../components/ContentLoader.vue";
-import FormCheckRadioGroup from '@/Components/FormCheckRadioGroup.vue'
+import FormCheckRadioGroup from "@/Components/FormCheckRadioGroup.vue";
 import { useRoute } from "vue-router";
-
+const swal = inject("$swal");
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
 const menuOptionlist = ref({ data: [] });
 
-const isloading = ref(false);
 const editing = ref(false);
 const formValues = ref();
-
-
-
+const isLoading = ref(false);
 const authUserStore = useAuthUserStore();
 const selectedStatus = ref(null);
 const selectedParentID = ref();
 
 const getItems = (page = 1) => {
-    isloading.value = true;
+    isLoading.value = true;
     axios
         .get(`/web/job-request?page=${page}`, {
             params: {
@@ -36,90 +33,16 @@ const getItems = (page = 1) => {
             },
         })
         .then((response) => {
-            isloading.value = false;
+            isLoading.value = false;
             lists.value = response.data;
             selectedItems.value = [];
             selectAll.value = false;
+        })
+        .finally(() => {
+            isLoading.value = false;
         });
 };
 
-
-const createUserSchema = yup.object({
-    menu_title: yup.string().required(),
-    parent_id: yup.string().required(),
-    sort_order: yup.string().required(),
-    menu_icon: yup.string().required(),
-    menu_route: yup.string().required(),
-});
-
-const editUserSchema = yup.object({
-    menu_title: yup.string().required(),
-    parent_id: yup.string().required(),
-    sort_order: yup.string().required(),
-    menu_icon: yup.string().required(),
-    menu_route: yup.string().required(),
-});
-
-// const updateIsActive = (checked) => {
-//         form.is_active = checked ? 1 : 0;
-
-//     }
-const createData = ( { resetForm, setErrors }) => {
-    axios
-        .post("/web/menulist", {
-            menu_title: form.menu_title,
-            parent_id: form.parent_id,
-            menu_icon: form.menu_icon,
-            menu_route: form.menu_route,
-            sort_order: form.sort_order,
-            is_active: form.is_active,
-        })
-        .then((response) => {
-            lists.value.data.unshift(response.data);
-            $("#FormModal").modal("hide");
-            resetForm();
-            toastr.success("User created successfully!");
-        })
-        .catch((error) => {
-            if (error.response.data.errors) {
-                setErrors(error.response.data.errors);
-            }
-        });
-};
-
-const addUser = () => {
-    editing.value = false;
-    $("#FormModal").modal("show");
-};
-
-
-
-
-const updateData = ( { setErrors }) => {
-    axios
-        .post("/web/menulist", form)
-        .then((response) => {
-            getItems();
-            $("#FormModal").modal("hide");
-            toastr.success("successfully Updated!");
-        })
-        .catch((error) => {
-            setErrors(error.response.data.errors);
-            console.log(error);
-        });
-};
-
-const handleSubmit = (values, actions) => {
-    // console.log(actions);
-    if (editing.value) {
-        updateData(values, actions);
-    } else {
-        createData(values, actions);
-    }
-};
-const editAction = (item) => {
-
-}
 const searchQuery = ref(null);
 
 const selectedItems = ref([]);
@@ -133,61 +56,52 @@ const toggleSelection = (user) => {
     console.log(selectedItems.value);
 };
 
-
-
-
-const bulkDelete = () => {
-    axios
-        .delete("menulist", {
-            data: {
-                ids: selectedItems.value,
-            },
-        })
-        .then((response) => {
-            lists.value.data = lists.value.data.filter(
-                (user) => !selectedItems.value.includes(user.id)
-            );
-            selectedItems.value = [];
-            selectAll.value = false;
-            toastr.success(response.data.message);
-        });
-};
-
 const selectAll = ref(false);
-const selectAllUsers = () => {
-    if (selectAll.value) {
-        selectedItems.value = lists.value.data.map((user) => user.id);
-    } else {
-        selectedItems.value = [];
+const viewItem = ref(false);
+const confirmItemDeletion = async (item) => {
+    const result = await swal.fire({
+        title: "Are you sure you want to Reject this record?",
+        icon: "warning",
+        showCancelButton: true,
+    });
+    if (result.isConfirmed) {
+        isLoading.value = true;
+        axios
+            .put(`/web/job-request/${item.id}`, { status: "C" })
+            .then((response) => {
+                toastr.success('Record successfully Rejected');
+                getItems();
+            })
+            .catch((error) => {
+                toastr.error(error.response.data.errors);
+            })
+            .finally(() => {
+                isLoading.value = false;
+            });
     }
-    console.log(selectedItems.value);
 };
 
-const updateStatus = (status) => {
-    selectedStatus.value = status;
+const editData = async (item) => {
+    const result = await swal.fire({
+        title: "Are you sure you want to Approve this record?",
+        icon: "warning",
+        showCancelButton: true,
+    });
+    if (result.isConfirmed) {
+        isLoading.value = true;
+        axios
+            .put(`/web/job-request/${item.id}`, { status: "A" })
+            .then((response) => {
+                toastr.success('Record successfully Approved');
+                getItems();
+            })
+            .catch((error) => {
+                toastr.error(error.data.message);
+            });
+    }
 };
 
-const recordIdBeingDeleted = ref(null);
-const recordordernumdel = ref(null);
-const confirmItemDeletion = (item) => {
-    recordIdBeingDeleted.value = item.id;
-    recordordernumdel.value = item.job_order_number;
-    $("#deleteRecordModal").modal("show");
-};
-
-const deleteData = () => {
-
-    axios
-    .delete(`/web/job-request/${recordIdBeingDeleted.value}`)
-        .then(() => {
-            $("#deleteRecordModal").modal("hide");
-            toastr.success("Record Close successfully!");
-            getItems();
-        })
-        .catch((error) => {
-            toastr.error(error.response.data.errors);
-        });
-};
+const deleteData = () => {};
 watch(
     searchQuery,
     debounce(() => {
@@ -198,17 +112,24 @@ watch(
 onMounted(() => {
     getItems();
     document.title = pageTitle;
-
 });
 </script>
 
 <template>
+     <div v-if="isLoading" class="spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden"></span>
+            </div>
+        </div>
     <div class="content">
+
         <div class="container-fluid">
             <div class="d-flex justify-content-between">
                 <div class="d-flex">
-
-                    <router-link :class="'mb-2 btn btn-primary'" :to="{ name: 'Job Order Create' }">
+                    <router-link
+                        :class="'mb-2 btn btn-primary'"
+                        :to="{ name: 'Job Order Create' }"
+                    >
                         <i class="fa fa-plus-circle mr-1"></i>Create
                     </router-link>
 
@@ -222,8 +143,7 @@ onMounted(() => {
                             Delete Selected
                         </button>
                         <span class="ml-2"
-                            >Selected
-                            {{ selectedItems.length }} Menu</span
+                            >Selected {{ selectedItems.length }} Menu</span
                         >
                     </div>
                 </div>
@@ -238,41 +158,39 @@ onMounted(() => {
             </div>
             <div class="card">
                 <div class="card-body">
-                    <ContentLoader v-if="isloading"/>
+                    <ContentLoader v-if="isLoading" />
                     <div class="table-responsive">
-                        <font size="2" >
-                        <table class="table table-bordered table-sm">
-                            <thead>
-                                <tr>
-                                    <!-- <th>
+                        <font size="2">
+                            <table class="table table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <!-- <th>
                                         <input
                                             type="checkbox"
                                             v-model="selectAll"
                                             @change="selectAllUsers"
                                         />
                                     </th> -->
-                                    <th style="width: 10px">#</th>
-                                    <th>Site</th>
-                                    <th>Order Number</th>
-                                    <th>End User</th>
-                                    <th>Requested Date</th>
-                                    <th>Needed Date</th>
-                                    <th>Commitment Date</th>
-                                    <th>Status</th>
-                                    <th>Createdby</th>
-                                    <th>CreatedAt</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody v-if="lists.data.length > 0">
+                                        <th style="width: 10px">#</th>
+                                        <th>Site</th>
+                                        <th>Order Number</th>
+                                        <th>Requested Date</th>
+                                        <th>Needed Date</th>
+                                        <th>Status</th>
+                                        <th>Createdby</th>
+                                        <th>CreatedAt</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-if="lists.data.length > 0">
                                     <JobItemList
                                         v-for="(item, index) in lists.data"
                                         :key="item.id"
                                         :item="item"
                                         :index="index"
-                                        @edit-user="editData"
+                                        @approvedata="editData"
                                         @show-item="viewItem"
-                                        @confirm-user-deletion="
+                                        @confirmDataDeletion="
                                             confirmItemDeletion
                                         "
                                         @toggle-selection="toggleSelection"
@@ -286,8 +204,8 @@ onMounted(() => {
                                         </td>
                                     </tr>
                                 </tbody>
-                        </table>
-                    </font>
+                            </table>
+                        </font>
                     </div>
                 </div>
             </div>
@@ -297,8 +215,6 @@ onMounted(() => {
             />
         </div>
     </div>
-
-
 
     <div
         class="modal fade"
@@ -313,7 +229,7 @@ onMounted(() => {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">
-                        <span>Closed Record</span>
+                        <span>Reject Record</span>
                     </h5>
                     <button
                         type="button"
@@ -325,7 +241,7 @@ onMounted(() => {
                     </button>
                 </div>
                 <div class="modal-body">
-                    <h5>Are you sure you want to close this record ? </h5>
+                    <h5>Are you sure you want to Reject this record ?</h5>
                 </div>
                 <div class="modal-footer">
                     <button
@@ -340,11 +256,26 @@ onMounted(() => {
                         type="button"
                         class="btn btn-primary"
                     >
-                        Delete Record
+                        Reject Record
                     </button>
                 </div>
             </div>
         </div>
     </div>
-
 </template>
+<style scoped>
+.spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050; /* Make sure it's above other content */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+</style>

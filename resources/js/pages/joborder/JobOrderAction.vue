@@ -7,11 +7,16 @@ import * as yup from "yup";
 import { useToastr } from "@/toastr.js";
 import ContentLoader from "@/components/ContentLoader.vue";
 import FormCheckRadioGroup from "@/Components/FormCheckRadioGroup.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import FormTextField from "@/components/FormTextField.vue";
 import FormSelectOption from "@/components/FormSelectOption.vue";
 import FormTextArea from "@/components/FormTextAria.vue";
-const pageTitle = `${useRoute().name}`;
+
+const route = useRoute(); // Get current route details
+const router = useRouter();
+
+const isLoading = ref(false);
+const pageTitle = `${route.name}`;
 const toastr = useToastr();
 const isloading = ref(false);
 import { useAuthUserStore } from "@/stores/AuthUserStore";
@@ -88,19 +93,27 @@ const listjobs = ref([
 const createData = async() => {
     const result = await swal.fire({
             title: "Are you sure?",
-            
             icon: "warning",
             showCancelButton: true,
         });
         if (result.isConfirmed) {
+            isLoading.value = true;
             axios
         .post("/web/job-request", form)
         .then((response) => {
-            toastr.success(response.data.message);
+            if (response.status === 200) { // Check if the response status is OK
+                    toastr.success(response.data.message);
+                    router.push("/job-order-request-list");
+                } else {
+                    toastr.error("Something went wrong. Please try again.");
+                }
         })
         .catch((error) => {
             toastr.error(error.data.message);
-        });
+        })
+        .finally(() => {
+            isLoading.value = false;
+          });
         }
 
 };
@@ -127,6 +140,12 @@ onMounted(() => {
 <template>
 
         <div class="col-md-12">
+               <!-- Loading animation -->
+    <div v-if="isLoading" class="spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden"></span>
+      </div>
+    </div>
             <form-wizard
                 @on-complete="createData"
                 color="#094899"
@@ -289,4 +308,15 @@ onMounted(() => {
             </form-wizard>
         </div>
 
+
+
 </template>
+
+<style scoped>
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+</style>

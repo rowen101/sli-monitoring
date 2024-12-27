@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 
 class JobOrderRequiestController extends Controller
 {
-     /**
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -23,17 +23,29 @@ class JobOrderRequiestController extends Controller
 
         $authUserId = auth()->user()->id;
 
-        $data = JobMaintenance::query()
-            ->join('tbl_sites','tbl_sites.id','=','job_maintenances.site_id')
-            ->join('users','users.id','=','job_maintenances.created_by')
+        $data = JobMaintenance::query()->select(
+            'job_maintenances.id',
+            'tbl_sites.site_name',
+            'job_maintenances.job_order_number',
+            'job_maintenances.end_user',
+            'job_maintenances.time_requested',
+            'job_maintenances.date_needed',
+            'job_maintenances.commitment_date',
+            'job_maintenances.status',
+            'job_maintenances.created_by',
+            'job_maintenances.created_at',
+            'users.first_name',
+            'users.last_name')
+            ->join('tbl_sites', 'tbl_sites.id', '=', 'job_maintenances.site_id')
+            ->join('users', 'users.id', '=', 'job_maintenances.created_by')
             ->when(request('query'), function ($query, $searchQuery) {
                 $query->where('tbl_sites.site_name', 'like', "%{$searchQuery}%");
             })
             ->where(function ($query) use ($authUserId) {
                 $query->where('job_maintenances.created_by', $authUserId)
-                      ->orWhere('users.sitehead_user_id', $authUserId); // Include sitehead_user_id condition
+                    ->orWhere('users.sitehead_user_id', $authUserId); // Include sitehead_user_id condition
             })
-            ->orderBy('job_maintenances.created_at','desc')
+            ->orderBy('job_maintenances.created_at', 'desc')
             ->paginate(setting('pagination_limit'))
             ->through(function ($item) {
                 // Check if created_at is not null before formatting
@@ -150,47 +162,55 @@ class JobOrderRequiestController extends Controller
                 }
             }
 
+
+            $authUserId = auth()->user()->id;
+            $creatorEmail = User::where('id',  $authUserId)->pluck('email')->first();
+            $departmentHeadId = User::where('id',  auth()->user()->id)->pluck('sitehead_user_id')->first();
+            $siteHeadEmail = User::where('id', $departmentHeadId)->pluck('email')->first();
+
+
             // Prepare data for the email
-        $jobRequest = [
-            'job_order_number' => $jobMaintenance->job_order_number,
-            'site_id' => $jobMaintenance->site_id,
-            'end_user' => $jobMaintenance->end_user,
-            'time_requested' => $jobMaintenance->time_requested,
-            'date_needed' => $jobMaintenance->date_needed,
-            'type_of_job' => $jobMaintenance->type_of_job,
-            'problem_description' => $jobMaintenance->problem_description,
-        ];
+            $jobRequest = [
+                'job_order_number' => $jobMaintenance->job_order_number,
+                'site_id' => $jobMaintenance->site_id,
+                'end_user' => $jobMaintenance->end_user,
+                'time_requested' => $jobMaintenance->time_requested,
+                'date_needed' => $jobMaintenance->date_needed,
+                'type_of_job' => $jobMaintenance->type_of_job,
+                'problem_description' => $jobMaintenance->problem_description,
+                'status' => $jobMaintenance->status,
+                'created' => User::where('id', $jobMaintenance->created_by)
+                    ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
+                    ->pluck('full_name')
+                    ->first(),
+                'departmenthead' => User::where('id', $departmentHeadId)
+                    ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
+                    ->pluck('full_name')
+                    ->first()
+            ];
 
-        // Generate dynamic subject
-        $subject = "New Job Order Request for " . $validatedJobData['type_of_job'] . " #". $validatedJobData['job_order_number'];
-        
-        $authUserId = auth()->user()->id;
-         $creatorEmail = User::where('id',  $authUserId)->pluck('email')->first();
-        $departmentHeadId = User::where('id',  auth()->user()->id)->pluck('sitehead_user_id')->first();
-         $siteHeadEmail = User::where('id', $departmentHeadId)->pluck('email')->first();
-        
+            // Generate dynamic subject
+            $subject = "New Job Order Request for " . $validatedJobData['type_of_job'] . " #" . $validatedJobData['job_order_number'];
 
+            // Prepare emails
+            $toEmails = implode(',', array_filter([$siteHeadEmail]));
+            $ccEmails = implode(',', array_filter([$creatorEmail]));
 
-// Prepare emails
-// $toEmails = implode(',', array_filter([$siteHeadEmail]));
-// $ccEmails = implode(',', array_filter([$creatorEmail]));
+            // $toEmails = 'rgrowengonzales66@gmail.com';
+            // $ccEmails = 'stephandren035@gmail.com';
+            // Send email
+            Mail::to($toEmails)
+                ->cc($ccEmails)
+                ->send(new MailNotify($jobRequest, $subject));
 
-$toEmails = 'rgrowengonzales66@gmail.com';
-$ccEmails = 'stephandren035@gmail.com';
-// Send email
-Mail::to($toEmails)
-    ->cc($ccEmails)
-    ->send(new MailNotify($jobRequest, $subject));
-       
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Record saved successfully.',
-                'data' => $jobMaintenance->load('replacementParts'),
+                'data' => $jobMaintenance->load('replacement_parts'),
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -227,11 +247,16 @@ Mail::to($toEmails)
                 ->select(DB::raw("CONCAT(first_name, ' ', last_name) AS ufull_name"), 'position AS uposition')
                 ->where('id', $user->updated_by)
                 ->first();
- // Retrieve the job maintenance record by ID and load the replacement parts and join with tbl_site
+
+            $updatedByUser = $updatedByUser ? $updatedByUser : (object)[
+                'ufull_name' => '',
+                'uposition' => ''
+            ];
+            // Retrieve the job maintenance record by ID and load the replacement parts and join with tbl_site
             $data = JobMaintenance::with('replacement_parts')
-            ->join('tbl_sites', 'tbl_sites.id', '=', 'job_maintenances.site_id')
-            ->select('job_maintenances.*', 'tbl_sites.site_name')
-            ->findOrFail($user->id);
+                ->join('tbl_sites', 'tbl_sites.id', '=', 'job_maintenances.site_id')
+                ->select('job_maintenances.*', 'tbl_sites.site_name')
+                ->findOrFail($user->id);
             // Add the user information to the data object
             $data->createdby = $createdByUser;
             $data->updatedby = $updatedByUser;
@@ -244,7 +269,6 @@ Mail::to($toEmails)
 
 
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -265,7 +289,7 @@ Mail::to($toEmails)
      */
     public function edit($id)
     {
-      $data = JobMaintenance::find($id);
+        $data = JobMaintenance::find($id);
         return response()->json($data);
     }
 
@@ -278,8 +302,56 @@ Mail::to($toEmails)
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = JobMaintenance::find($id);
+
+        if ($data) {
+            // Update status and save
+            $data->status = $request->status;
+            $data->save();
+
+            // Prepare email data
+            $authUserId = auth()->user()->id;
+            $creatorEmail = User::where('id', $authUserId)->pluck('email')->first();
+            $departmentHeadId = User::where('id', $authUserId)->pluck('sitehead_user_id')->first();
+            $siteHeadEmail = User::where('id', $departmentHeadId)->pluck('email')->first();
+
+            // Prepare data for the email
+            $jobRequest = [
+                'job_order_number' => $data->job_order_number,
+                'site_id' => $data->site_id,
+                'end_user' => $data->end_user,
+                'time_requested' => $data->time_requested,
+                'date_needed' => $data->date_needed,
+                'type_of_job' => $data->type_of_job,
+                'problem_description' => $data->problem_description,
+                'status' => $data->status,
+                'created' => User::where('id', $data->created_by)
+                    ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
+                    ->pluck('full_name')
+                    ->first(),
+                'departmenthead' => User::where('id', $departmentHeadId)
+                    ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
+                    ->pluck('full_name')
+                    ->first()
+            ];
+
+            // Generate dynamic subject
+            $subject = "Job Order Request " . ($data->status === 'C' ? 'Rejected' : 'Approved') . " for " . $data->type_of_job . " #" . $data->job_order_number;
+
+            // Prepare emails
+            $toEmails = implode(',', array_filter([$creatorEmail]));
+
+
+            // Send email
+            Mail::to($toEmails)
+                ->send(new MailNotify($jobRequest, $subject));
+
+            return response()->json(['success' => 200]);
+        }
+
+        return response()->json(['errors' => 'Record not found'], 404);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -290,17 +362,12 @@ Mail::to($toEmails)
     public function destroy(string $id)
     {
         $data = JobMaintenance::find($id);
-
         if ($data) {
-            $data->status = 'C';
-            $data->save();
-            return response()->json(['success' => 200, 'message' => 'Record Successfully Closed!']);
+            $data->delete();
+            return response()->json(['success' => 200, 'message' => 'Record Successfully Delete!']);
         }
 
         return response()->json(['errors' => 'Record not found'], 404);
     }
-
-
-
 
 }

@@ -278,7 +278,7 @@ onMounted(() => {
                                         <th>Email</th>
                                         <th>Registered Date</th>
                                         <th>Role</th>
-                                        <th>Head</th>
+                                        <th>Department Head</th>
                                          <th>Action</th>
                                     </tr>
                                 </thead>

@@ -49,8 +49,8 @@ class MailNotify extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.notify', // Make sure this view exists
-            with: ['jobRequest' => $this->jobRequest], // Pass jobRequest to the view
+            view: 'emails.joborder_notify',
+            with: ['jobRequest' => $this->jobRequest], 
         );
     }
 
