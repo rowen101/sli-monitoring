@@ -24,7 +24,7 @@ class Menu extends Model
 
     public function userMenus()
     {
-        return $this->hasMany(UserMenu::class, 'menu_id', 'id');
+        return $this->hasMany(UserMenus::class, 'menu_id', 'id');
     }
 
     protected $casts = [

@@ -10,39 +10,26 @@ use App\Http\Controllers\Controller;
 
 class UserSiteController extends Controller
 {
-    public function index(Request $request)
+    public function getUserSites($userId)
     {
-        $user_id = $request->input('user_id');
 
-        // $sites = tbl_site::select('tbl_sites.*')
-        //     ->where('tbl_sites.is_active', 1)
-        //     ->orderBy('tbl_sites.site_name', 'ASC')
-        //     ->get();
+        $sites = tbl_site::select([
+            'tbl_sites.id',
+            'tbl_sites.site_name',
+            DB::raw('IF(user_sites.site_id IS NOT NULL, 1, 0) as hasAccess')
+        ])
+            ->leftJoin('user_sites', function ($join) use ($userId) {
+                $join->on('tbl_sites.id', '=', 'user_sites.site_id')
+                    ->where('user_sites.user_id', '=', $userId);
+            })
+            ->where('tbl_sites.is_active', 1)
+            ->orderBy('tbl_sites.site_name', 'ASC')
+            ->get();
 
-        // $sites->each(function ($sitesItem) use ($user_id) {
-
-        //     $sitesItem->hasAccess = UserSites::where('user_id', $user_id)
-        //         ->where('site_id', $sitesItem->id) // Assuming there's a site_id column
-        //         ->exists();
-        // });
-
-        // return response()->json($sites);
-
-        $sites = tbl_site::select('tbl_sites.*')
-        ->leftJoin('user_sites', function($join) use ($user_id) {
-            $join->on('user_sites.site_id', '=', 'tbl_sites.id')
-                 ->where('user_sites.user_id', '=', $user_id);
-        })
-        ->where('tbl_sites.is_active', 1)
-        ->orderBy('tbl_sites.site_name', 'ASC')
-        ->get();
-
-    $sites->each(function ($sitesItem) {
-        $sitesItem->hasAccess = $sitesItem->user_id !== null;
-    });
-
-    return response()->json($sites);
+        return response()->json($sites);
     }
+
+
 
 
     public function getsitewthuserid()

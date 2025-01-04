@@ -17,7 +17,17 @@ const toastr = useToastr();
 const users = ref({ data: [] });
 const editing = ref(false);
 const formValues = ref();
-const form = ref(null);
+const form = reactive({
+    id: "",
+    name: "",
+    email:"",
+    sitehead_user_id:"",
+    first_name:"",
+    last_name:"",
+    gender:"",
+    position:"",
+
+});
 const listuseroption = ref([]);
 const selectedSiteHead = ref(null);
 
@@ -107,19 +117,17 @@ const addUser = () => {
     $("#userFormModal").modal("show");
 };
 
-const editUser = (user) => {
+const editUser = (item) => {
     editing.value = true;
-    form.value.resetForm();
+    form.id = item.id;
+    form.name = item.name;
+    form.email = item.email;
+    form.first_name = item.first_name;
+    form.last_name = item.last_name;
+    form.gender = item.gender;
+    form.position = item.position;
     $("#userFormModal").modal("show");
-    formValues.value = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        sitehead_user_id: user.sitehead_user_id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        gender: user.gender,
-    };
+
 };
 
 const updateUser = (values, { setErrors }) => {
@@ -468,6 +476,7 @@ onMounted(() => {
                                 id="name"
                                 aria-describedby="nameHelp"
                                 placeholder="Enter Username"
+                                 v-model="form.name"
                             />
                             <span class="invalid-feedback">{{
                                 errors.name
@@ -485,6 +494,7 @@ onMounted(() => {
                                         id="email"
                                         aria-describedby="nameHelp"
                                         placeholder="Enter Email"
+                                        v-model="form.email"
                                     />
                                     <span class="invalid-feedback">{{
                                         errors.email
@@ -531,6 +541,7 @@ onMounted(() => {
                                         id="first_name"
                                         aria-describedby="nameHelp"
                                         placeholder="Enter first name"
+                                        v-model="form.first_name"
                                     />
                                     <span class="invalid-feedback">{{
                                         errors.first_name
@@ -550,6 +561,7 @@ onMounted(() => {
                                         id="last_name"
                                         aria-describedby="nameHelp"
                                         placeholder="Enter last name"
+                                        v-model="form.last_name"
                                     />
                                     <span class="invalid-feedback">{{
                                         errors.last_name
@@ -566,7 +578,7 @@ onMounted(() => {
                                 class="form-control"
                                 :class="{ 'is-invalid': errors.position }"
                                 id="position"
-
+                            v-model="form.position"
                                 placeholder="Enter position"
                             />
                             <span class="invalid-feedback">{{

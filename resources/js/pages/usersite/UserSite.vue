@@ -16,7 +16,6 @@ const form = reactive({
     user_id: "",
 });
 
-
 const selectedStatus = ref(null);
 const selectedParentID = ref();
 const listsite = ref();
@@ -33,30 +32,19 @@ const getUser = () => {
         });
 };
 
-const getSite = (userId) => {
-    // Renamed parameter for clarity
+const loadUserSites = (userId) => {
+    axios
+        .get(`/web/usersite/${userId}`)
+        .then((response) => {
+            listsite.value = response.data;
+            selectedsite.value = listsite.value
+                .filter((site) => site.hasAccess === 1)
+                .map((site) => site.id);
 
-    if (userId !== null) {
-        axios
-            .get(`/web/usersite/${userId}`) // Updated endpoint with userId as a route parameter
-            .then((response) => {
-                listsite.value = response.data;
-            })
-            .catch((error) => {
-                console.error("Error fetching site data for user:", error);
-                // Handle error gracefully, e.g., show a message to the user
-            });
-    } else {
-        axios
-            .get("/web/getsitewithoutuser")
-            .then((response) => {
-                listsite.value = response.data;
-            })
-            .catch((error) => {
-                console.error("Error fetching site data without user:", error);
-                // Handle error gracefully, e.g., show a message to the user
-            });
-    }
+        })
+        .catch((error) => {
+            console.error("Error fetching site data for user:", error);
+        });
 };
 
 const handleSubmit = () => {
@@ -80,11 +68,11 @@ const handleSubmit = () => {
 };
 
 const changeSite = (val) => {
-    getSite(val);
+    loadUserSites(val);
 };
 onMounted(() => {
     getUser();
-    getSite();
+    loadUserSites();
     document.title = pageTitle;
 });
 </script>
@@ -120,9 +108,12 @@ onMounted(() => {
                             </div>
                         </div>
 
-                        <div class="card-body">
+                        <div class="card-body" v-if="form.user_id">
+                            <ul
+                                class="list-group"
+                                style="max-height: 300px; overflow-y: auto"
+                            >
 
-                            <ul class="list-group" style="max-height: 300px; overflow-y: auto">
                                 <li
                                     v-for="site in listsite"
                                     :key="site.id"
@@ -135,7 +126,7 @@ onMounted(() => {
                                             v-model="selectedsite"
                                             :value="site.id"
                                             :id="'site_id_' + site.id"
-                                            :checked="site.hasAccess"
+
                                         />
                                         <label
                                             :for="'site_id_' + site.id"
@@ -148,11 +139,14 @@ onMounted(() => {
                             </ul>
 
                             <div class="card-footer">
-                                <button type="button" @click="handleSubmit()" class="btn btn-primary">
+                                <button
+                                    type="button"
+                                    @click="handleSubmit()"
+                                    class="btn btn-primary"
+                                >
                                     Submit
                                 </button>
                             </div>
-
                         </div>
                     </div>
                 </div>

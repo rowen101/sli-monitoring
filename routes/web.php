@@ -90,7 +90,7 @@ Route::middleware('auth')->group(function () {
 
     //job request module
     Route::resource('/web/job-request', JobOrderRequiestController::class);
-   
+
     //tasks controller
     Route::resource('/web/dailytask', TaskController::class);
     Route::put('/web/dailytask/onhandler/{id}', [TaskController::class, 'onhandler']);
@@ -120,10 +120,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('/web/menu', MenuController::class);
 
     //menu username
-    Route::resource('/api/usermenu', UserMenuController::class);
-
-    Route::get('/api/showusermenu/{id}',[UserMenuController::class,'showusermenu']);
-    Route::get('/api/usermenu/retrieve/{id}', [UserMenuController::class, 'retrieveUserMenu']);
+    Route::get('/web/usermenu/{id}', [UserMenuController::class,'getUserMenus']);
+    Route::post('/web/usermenu', [UserMenuController::class,'store']);
+    Route::get('/web/showusermenu/{id}',[UserMenuController::class,'showusermenu']);
+    Route::get('/web/usermenu/retrieve/{id}', [UserMenuController::class, 'retrieveUserMenu']);
 
 
     Route::get('/api/chart',[DashboardStatController::class, 'getChartData']);
@@ -133,7 +133,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/web/asset-monitoring', SliassetmonitoringController::class);
     Route::delete('/web/bulkDeleteAsset', [SliassetmonitoringController::class, 'bulkDelete']);
-    Route::get('/web/usersite/{id}',[UserSiteController::class,'index']);
+    Route::get('/web/usersite/{id}',[UserSiteController::class,'getUserSites']);
 
     Route::get('/web/getsitewithoutuser',[UserSiteController::class,'getsitewthuserid']);
 

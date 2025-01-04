@@ -427,7 +427,7 @@ onMounted(() => {
                                                         :key="site.id"
                                                         :value="site.id"
                                                     >
-                                                        {{ site.site_name }}
+                                                        {{ site.name }}
                                                     </option>
                                                 </Field>
                                                 <span
@@ -1091,7 +1091,7 @@ onMounted(() => {
       </tr>
       <tr>
         <td>Purchase Cost</td>
-      
+
         <td>{{'₱' + form.purchasecost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
       </tr>
       <tr>

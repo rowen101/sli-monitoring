@@ -17,6 +17,7 @@ const formValues = ref();
 const form = ref(null);
 const modalname = ref(null);
 
+const menulist = ref();
 const selectedMenus = ref([]);
 const getUsers = (page = 1) => {
     axios
@@ -32,38 +33,22 @@ const getUsers = (page = 1) => {
         });
 };
 
-const createUser = (values, { resetForm, setErrors }) => {
+const loadUserMenus = (user) => {
     axios
-        .post("/api/users", values)
-        .then((response) => {
-            users.value.data.unshift(response.data);
-            $("#userFormModal").modal("hide");
-            resetForm();
-            toastr.success("User created successfully!");
-        })
-        .catch((error) => {
-            if (error.response.data.errors) {
-                setErrors(error.response.data.errors);
-            }
-        });
-};
-
-const addUser = () => {
-    editing.value = false;
-    $("#userFormModal").modal("show");
-};
-
-const editUser = (user) => {
-    axios
-       .get("/api/usermenu", {
-            params: {
-                user_id: user.id, // replace with the actual user ID
-            },
-        })
-
+       .get(`/web/usermenu/${user.id}`)
         .then((response) => {
             menulist.value = response.data;
-            console.log(response.data);
+            selectedMenus.value = [];
+            menulist.value.forEach((menu) => {
+                if (menu.hasAccess === 1) {
+                    selectedMenus.value.push(menu.menu_id);
+                }
+                menu.submenus.forEach((submenu) => {
+                    if (submenu.hasAccess === 1) {
+                        selectedMenus.value.push(submenu.menu_id);
+                    }
+                });
+            });
         })
         .catch((error) => {
             console.log(error);
@@ -82,6 +67,8 @@ const editUser = (user) => {
         formValues.value.first_name + " " + formValues.value.last_name;
 };
 
+
+
 const handleSubmit = () => {
     // Prepare the data to be sent to your API
     const postData = {
@@ -93,7 +80,7 @@ const handleSubmit = () => {
     // Make the API call using your preferred method (Axios, fetch, etc.)
     // Example using Axios:
     axios
-        .post("/api/usermenu", postData)
+        .post("/web/usermenu", postData)
         .then((response) => {
             toastr.success("User Menu Save successfully!");
         })
@@ -121,7 +108,8 @@ const confirmUserDeletion = (id) => {
     $("#deleteUserModal").modal("show");
 };
 
-const menulist = ref({ data: [] });
+
+
 
 watch(
     searchQuery,
@@ -176,7 +164,7 @@ onMounted(() => {
                                     <th>Email</th>
                                     <th>Registered Date</th>
 
-                                    <th>Options</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody v-if="users.data.length > 0">
@@ -185,7 +173,7 @@ onMounted(() => {
                                     :key="user.id"
                                     :user="user"
                                     :index="index"
-                                    @edit-user="editUser"
+                                    @edit-user="loadUserMenus"
                                     @confirm-user-deletion="confirmUserDeletion"
                                     @toggle-selection="toggleSelection"
                                     :select-all="selectAll"
@@ -255,7 +243,6 @@ onMounted(() => {
                                             v-model="selectedMenus"
                                             :value="item.menu_id"
                                             :id="'menu_id_' + item.menu_id"
-                                            :checked="item.hasAccess"
                                         />
                                         <label
                                             :for="'menu_id_' + item.menu_id"

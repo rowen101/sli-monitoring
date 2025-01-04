@@ -499,7 +499,7 @@ const endTaskhandle =  (task) => {
 const onRemarks = () => {
     if(form.remarks === null || form.remarks == "") {
         toastr.error("Remarks is required");
-        
+
     }
     else{
         const ifendstart =
@@ -1115,7 +1115,7 @@ onMounted(() => {
                                                 :key="site.id"
                                                 :value="site.id"
                                             >
-                                                {{ site.site_name }}
+                                                {{ site.name }}
                                             </option>
                                         </select>
                                     </div>

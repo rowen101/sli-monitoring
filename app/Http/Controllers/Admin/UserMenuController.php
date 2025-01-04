@@ -16,32 +16,43 @@ class UserMenuController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
-        $user_id = $request->input('user_id');
+    public function getUserMenus($userId)
+{
+ 
+    // Fetch top-level menus and their submenus
+    $menu = Menu::select(
+        'menus.*',
+        DB::raw('IF(usermenus.menu_id IS NOT NULL, 1, 0) as hasAccess')
+    )
+    ->leftJoin('usermenus', function($join) use ($userId) {
+        $join->on('menus.menu_id', '=', 'usermenus.menu_id')
+             ->where('usermenus.user_id', '=', $userId);
+    })
+    ->where('menus.is_active', 1)
+    ->where('menus.parent_id', 0)
+    ->orderBy('menus.sort_order', 'ASC')
+    ->get();
 
-        $menu = Menu::select('menus.*')
-            ->where('menus.is_active', 1)
-            ->where('menus.parent_id', 0)
-            ->orderBy('menus.sort_order', 'ASC')
-            ->get();
+    // For each top-level menu item, fetch and attach its submenus based on user access
+    $menu->each(function ($menuItem) use ($userId) {
+        $menuItem->submenus = Menu::select(
+            'menus.*',
+            DB::raw('IF(usermenus.menu_id IS NOT NULL, 1, 0) as hasAccess')
+        )
+        ->leftJoin('usermenus', function($join) use ($userId) {
+            $join->on('menus.menu_id', '=', 'usermenus.menu_id')
+                 ->where('usermenus.user_id', '=', $userId);
+        })
+        ->where('menus.is_active', 1)
+        ->where('menus.parent_id', $menuItem->menu_id)
+        ->orderBy('menus.sort_order', 'ASC')
+        ->get();
+    });
 
-        // For each top-level menu item, fetch and attach its submenus based on user access
-        $menu->each(function ($menuItem) use ($user_id) {
-            $menuItem->submenus = Menu::select('menus.*')
-                ->where('menus.is_active', 1)
-                ->where('menus.parent_id', $menuItem->menu_id)
-                ->orderBy('menus.sort_order', 'ASC')
-                ->get();
+    return response()->json($menu);
+}
 
-            // Check if the user has access to this menu item
-            $menuItem->hasAccess = UserMenus::where('user_id', $user_id)
-                ->where('menu_id', $menuItem->menu_id)
-                ->exists();
-        });
 
-        return response()->json($menu);
-    }
 
     public function showusermenu(Request $request)
     {

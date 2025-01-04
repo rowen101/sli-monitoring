@@ -576,10 +576,10 @@ onMounted(() => {
                                             <!-- Populate options from listsite -->
                                             <option
                                                 v-for="site in listsite"
-                                                :key="site.site_name"
-                                                :value="site.site_name"
+                                                :key="site.name"
+                                                :value="site.name"
                                             >
-                                                {{ site.site_name }}
+                                                {{ site.name }}
                                             </option>
                                         </Field>
                                         <span class="invalid-feedback">{{

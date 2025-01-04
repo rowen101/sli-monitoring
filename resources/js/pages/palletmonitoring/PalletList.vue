@@ -438,7 +438,7 @@ onMounted(() => {
                                 :key="site.id"
                                 :value="site.id"
                             >
-                                {{ site.site_name }}
+                                {{ site.name }}
                             </option>
                         </select>
                     </div>
@@ -801,7 +801,7 @@ onMounted(() => {
                                                     }"
                                                     id="caseperpallet"
                                                     aria-describedby="nameHelp"
-                                                    
+
                                                     v-model="form.caseperpallet"
                                                 />
                                                 <span

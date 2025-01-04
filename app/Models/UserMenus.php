@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserMenus extends Model
 {
+    protected $guarded = [];
     protected $table = "usermenus";
 
     protected $fillable = [
