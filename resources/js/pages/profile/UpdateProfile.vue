@@ -66,7 +66,8 @@ const handleFileChange = (event) => {
     });
 };
 onMounted(()=>{
-    document.title = pageTitle;
+    document.title = `SLI-DTS - ${pageTitle}`;
+
 
 })
 </script>

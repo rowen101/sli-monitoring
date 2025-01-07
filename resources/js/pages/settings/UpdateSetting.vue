@@ -83,23 +83,7 @@ const handleSubmit = () => {
         });
 };
 
-// const createData = (values, { resetForm, setErrors }) => {
-//    axios
-//         .post('/api/site', formSite)
-//         .then((response) => {
-//           // Assuming getItems is a function to fetch data
-//           getItems();
-//           toastr.success(response.data.message);
-//           isLoadingSite.value = false;
-//         })
-//         .catch((error) => {
-//           if (error.response && error.response.status === 422) {
-//             errors.value = error.response.data.errors;
-//           }
-//         });
-// };
 
-// click task item to complete or cancel
 const handleIsActiveSite = (item) => {
 
     formSite.value.is_active = item.is_active === 1 ? 0 : 1;
@@ -167,7 +151,8 @@ const updateSettings = () => {
 onMounted(() => {
     getItems();
     getSettings();
-    document.title = pageTitle;
+    document.title = `SLI-DTS - ${pageTitle}`;
+
 
 });
 </script>

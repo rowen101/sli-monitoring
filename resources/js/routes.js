@@ -22,6 +22,10 @@ import UserSite from './pages/usersite/UserSite.vue';
 import joborder from './pages/joborder/JobOrderList.vue';
 import JobOrderAction from './pages/joborder/JobOrderAction.vue';
 import JobOrderRequestApproved from '@/pages/joborder/JobOrderRequestApproved.vue';
+
+import MrfList from './pages/Mrf/MrfList.vue';
+import MrfAction from './pages/Mrf/MrfAction.vue';
+import MrfRequestApproved from '@/pages/Mrf/MrfRequestApproved.vue';
 export default [
     {
         path: '/login',
@@ -143,7 +147,7 @@ export default [
         name: 'User Site',
         component: UserSite, 
     },
-
+        // job order request
     {
         path: '/job-order-request-list',
         name: 'Job Order Request',
@@ -160,4 +164,22 @@ export default [
         name: 'Job-Order-Request-Approved',
         component: JobOrderRequestApproved, 
     },
+    // Mrf
+         
+          {
+            path: '/Marial-Requisition',
+            name: 'Material Requisition Form List',
+            component: MrfList,
+    
+        },
+        {
+            path: '/Marial-Requisition/create', 
+            name: 'Create Material Requisition Form',
+            component: MrfAction,
+        },
+        {
+            path: '/Marial-Requisition-approved/:id/view',
+            name: 'Marial-Requisition-Approved',
+            component: MrfRequestApproved, 
+        },
 ]

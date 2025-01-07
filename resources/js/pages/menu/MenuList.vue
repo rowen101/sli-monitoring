@@ -231,7 +231,8 @@ watch(
 onMounted(() => {
     getItems();
     parentMenus();
-    document.title = pageTitle;
+    document.title = `SLI-DTS - ${pageTitle}`;
+
 
 });
 </script>

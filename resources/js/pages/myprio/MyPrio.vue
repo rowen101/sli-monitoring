@@ -569,7 +569,8 @@ onMounted(() => {
         defaultHour: 10,
     });
     getItems();
-    document.title = pageTitle;
+    document.title = `SLI-DTS - ${pageTitle}`;
+
 });
 </script>
 

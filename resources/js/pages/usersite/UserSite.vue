@@ -73,7 +73,8 @@ const changeSite = (val) => {
 onMounted(() => {
     getUser();
     loadUserSites();
-    document.title = pageTitle;
+    document.title = `SLI-DTS - ${pageTitle}`;
+
 });
 </script>
 

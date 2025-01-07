@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\MrfForm;
 use App\Mail\MailNotify;
-use App\Models\tbl_site;
+use App\Mail\MrfNotify;
+use App\Models\MrfItems;
 use Illuminate\Http\Request;
-use App\Models\JobMaintenance;
-use App\Models\JobReplacementPart;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
-class JobOrderRequiestController extends Controller
+class MrfController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,32 +20,30 @@ class JobOrderRequiestController extends Controller
      */
     public function index()
     {
-
         $authUserId = auth()->user()->id;
 
-        $data = JobMaintenance::query()->select(
-            'job_maintenances.id',
+        $data = MrfForm::query()->select(
+            'mrf_form.id',
             'tbl_sites.site_name',
-            'job_maintenances.job_order_number',
-            'job_maintenances.end_user',
-            'job_maintenances.time_requested',
-            'job_maintenances.date_needed',
-            'job_maintenances.commitment_date',
-            'job_maintenances.status',
-            'job_maintenances.created_by',
-            'job_maintenances.created_at',
+            'mrf_form.mrf_order_number',
+            'mrf_form.requisitioner',
+            'mrf_form.date_requested',
+            'mrf_form.date_needed',
+            'mrf_form.status',
+            'mrf_form.created_by',
+            'mrf_form.created_at',
             'users.first_name',
             'users.last_name')
-            ->join('tbl_sites', 'tbl_sites.id', '=', 'job_maintenances.site_id')
-            ->join('users', 'users.id', '=', 'job_maintenances.created_by')
+            ->join('tbl_sites', 'tbl_sites.id', '=', 'mrf_form.site_id')
+            ->join('users', 'users.id', '=', 'mrf_form.created_by')
             ->when(request('query'), function ($query, $searchQuery) {
                 $query->where('tbl_sites.site_name', 'like', "%{$searchQuery}%");
             })
             ->where(function ($query) use ($authUserId) {
-                $query->where('job_maintenances.created_by', $authUserId)
+                $query->where('mrf_form.created_by', $authUserId)
                     ->orWhere('users.sitehead_user_id', $authUserId); // Include sitehead_user_id condition
             })
-            ->orderBy('job_maintenances.created_at', 'desc')
+            ->orderBy('mrf_form.created_at', 'desc')
             ->paginate(setting('pagination_limit'))
             ->through(function ($item) {
                 // Check if created_at is not null before formatting
@@ -54,11 +52,10 @@ class JobOrderRequiestController extends Controller
                 return [
                     'id' => $item->id,
                     'site_name' => $item->site_name,
-                    'job_order_number' => $item->job_order_number,
-                    'end_user' => $item->end_user,
-                    'time_requested' => $item->time_requested,
+                    'mrf_order_number' => $item->mrf_order_number,
+                    'requisitioner' => $item->requisitioner,
+                    'date_requested' => $item->date_requested,
                     'date_needed' => $item->date_needed,
-                    'commitment_date' => $item->commitment_date,
                     'status' => $item->status,
                     'created_user' => $item->first_name . ' ' . $item->last_name,
                     'created_at' => $createdAtFormatted,
@@ -67,10 +64,6 @@ class JobOrderRequiestController extends Controller
 
         return response()->json($data);
     }
-
-
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -91,17 +84,13 @@ class JobOrderRequiestController extends Controller
     public function store(Request $request)
     {
         // Validate the incoming request data for job_maintenances
-        $validatedJobData = $request->validate([
-            'job_order_number' => 'nullable|string|max:255',
+        $validatedData = $request->validate([
+            'mrf_order_number' => 'nullable|string|max:255',
             'site_id' => 'required|integer',
-            'end_user' => 'nullable|string|max:255',
-            'time_requested' => 'nullable|date',
+            'requisitioner' => 'nullable|string|max:255',
+            'date_requested' => 'nullable|date',
             'date_needed' => 'nullable|date',
-            'noted_by' => 'nullable|string|max:255',
-            'type_of_job' => 'nullable|string|in:Preventive Maintenance,Corrective Maintenance,Calibration',
-            'problem_description' => 'nullable|string',
-            'findings_recommendations' => 'nullable|string',
-            'commitment_date' => 'nullable|date',
+            'purpose' => 'nullable|string',
             'status' => 'required|string|in:P,A,C',
             'created_by' => 'nullable|integer',
             'updated_by' => 'nullable|integer',
@@ -109,17 +98,17 @@ class JobOrderRequiestController extends Controller
 
         // Validate the replacement parts data
         $validatedPartsData = $request->validate([
-            'replacement_parts' => 'nullable|array',
-            'replacement_parts.*.description' => 'nullable|string|max:255',
-            'replacement_parts.*.part_number' => 'nullable|string|max:255',
-            'replacement_parts.*.quantity' => 'nullable|integer|min:1',
+            'mrf_items' => 'nullable|array',
+            'mrf_items.*.description' => 'nullable|string|max:255',
+            'mrf_items.*.uom' => 'nullable|string|max:20',
+            'mrf_items.*.quantity' => 'nullable|integer|min:1',
         ]);
 
         // Generate job_order_number if not provided
-        if (empty($validatedJobData['job_order_number'])) {
-            $lastJob = JobMaintenance::orderBy('id', 'desc')->first();
+        if (empty($validatedData['mrf_order_number'])) {
+            $lastJob = MrfForm::orderBy('id', 'desc')->first();
             $lastNumber = $lastJob ? intval(substr($lastJob->job_order_number, 3)) : 0;
-            $validatedJobData['job_order_number'] = 'SLI-JO-' . str_pad($lastNumber + 1, 8, '0', STR_PAD_LEFT);
+            $validatedData['mrf_order_number'] = 'SLI-MRF-' . str_pad($lastNumber + 1, 8, '0', STR_PAD_LEFT);
         }
 
         // Use transaction to ensure both tables are updated atomically
@@ -127,37 +116,35 @@ class JobOrderRequiestController extends Controller
             DB::beginTransaction();
 
             // Insert or update the job_maintenances table
-            $jobMaintenance = JobMaintenance::updateOrCreate(
+            $MrfForm = MrfForm::updateOrCreate(
                 ['id' => $request->id], // Update if ID exists, otherwise create
                 [
-                    'job_order_number' => $validatedJobData['job_order_number'],
-                    'site_id' => $validatedJobData['site_id'],
-                    'end_user' => $validatedJobData['end_user'] ?? null,
-                    'time_requested' => $validatedJobData['time_requested'] ?? null,
-                    'date_needed' => $validatedJobData['date_needed'] ?? null,
-                    'noted_by' => $validatedJobData['noted_by'] ?? null,
-                    'type_of_job' => $validatedJobData['type_of_job'] ?? null,
-                    'problem_description' => $validatedJobData['problem_description'] ?? null,
-                    'findings_recommendations' => $validatedJobData['findings_recommendations'] ?? null,
-                    'commitment_date' => $validatedJobData['commitment_date'] ?? null,
-                    'status' => $validatedJobData['status'],
-                    'created_by' => $validatedJobData['created_by'] ?? auth()->id(),
+                    'mrf_order_number' => $validatedData['mrf_order_number'],
+                    'site_id' => $validatedData['site_id'],
+                    'requisitioner' => $validatedData['requisitioner'] ?? null,
+                    'date_requested' => $validatedData['date_requested'] ?? null,
+                    'date_needed' => $validatedData['date_needed'] ?? null,
+                    'purpose' => $validatedData['purpose'] ?? null,
+                    'status' => $validatedData['status'],
+                    'created_by' => $validatedData['created_by'] ?? auth()->id(),
                     'updated_by' => 0
                 ]
             );
 
-            // If replacement parts are provided, sync them to the job_replacement_parts table
-            if (!empty($validatedPartsData['replacement_parts'])) {
-                // Delete existing replacement parts for this job (optional: adjust if partial updates are needed)
-                JobReplacementPart::where('job_order_request_id', $jobMaintenance->id)->delete();
+            // If mrf item are provided, sync them to the mrfitem table
+            if (!empty($validatedPartsData['mrf_items'])) {
+                // Delete existing mrf item for this job (optional: adjust if partial updates are needed)
+                MrfItems::where('mrf_form_id', $MrfForm->id)->delete();
 
-                // Insert new replacement parts
-                foreach ($validatedPartsData['replacement_parts'] as $part) {
-                    JobReplacementPart::create([
-                        'job_order_request_id' => $jobMaintenance->id,
+                // Insert new mrf item
+                foreach ($validatedPartsData['mrf_items'] as $part) {
+                    MrfItems::create([
+                        'mrf_form_id' => $MrfForm->id,
+                        'particulars' => $part['particulars'] ?? null,
                         'description' => $part['description'] ?? null,
-                        'part_number' => $part['part_number'] ?? null,
                         'quantity' => $part['quantity'] ?? null,
+                        'uom' => $part['uom'] ?? null,
+                        'unit_price' => $part['unit_price'] ?? null,
                     ]);
                 }
             }
@@ -170,16 +157,15 @@ class JobOrderRequiestController extends Controller
 
 
             // Prepare data for the email
-            $jobRequest = [
-                'job_order_number' => $jobMaintenance->job_order_number,
-                'site_id' => $jobMaintenance->site_id,
-                'end_user' => $jobMaintenance->end_user,
-                'time_requested' => $jobMaintenance->time_requested,
-                'date_needed' => $jobMaintenance->date_needed,
-                'type_of_job' => $jobMaintenance->type_of_job,
-                'problem_description' => $jobMaintenance->problem_description,
-                'status' => $jobMaintenance->status,
-                'created' => User::where('id', $jobMaintenance->created_by)
+            $emailRequest = [
+                'mrf_order_number' => $MrfForm->mrf_order_number,
+                'site_id' => $MrfForm->site_id,
+                'requisitioner' => $MrfForm->requisitioner,
+                'date_requested' => $MrfForm->date_requested,
+                'date_needed' => $MrfForm->date_needed,
+                'purpose' => $MrfForm->purpose,
+                'status' => $MrfForm->status,
+                'created' => User::where('id', $MrfForm->created_by)
                     ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
                     ->pluck('full_name')
                     ->first(),
@@ -190,18 +176,16 @@ class JobOrderRequiestController extends Controller
             ];
 
             // Generate dynamic subject
-            $subject = "New Job Order Request for " . $validatedJobData['type_of_job'] . " #" . $validatedJobData['job_order_number'];
+            $subject = "New Mrf Request No " . $validatedData['mrf_order_number'];
 
             // Prepare emails
             $toEmails = implode(',', array_filter([$siteHeadEmail]));
             $ccEmails = implode(',', array_filter([$creatorEmail]));
 
-            // $toEmails = 'rgrowengonzales66@gmail.com';
-            // $ccEmails = 'stephandren035@gmail.com';
             // Send email
             Mail::to($toEmails)
                 ->cc($ccEmails)
-                ->send(new MailNotify($jobRequest, $subject));
+                ->send(new MrfNotify($emailRequest, $subject));
 
 
             DB::commit();
@@ -209,7 +193,7 @@ class JobOrderRequiestController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Record saved successfully.',
-                'data' => $jobMaintenance->load('replacement_parts'),
+                'data' => $MrfForm->load('mrf_items'),
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -222,8 +206,6 @@ class JobOrderRequiestController extends Controller
         }
     }
 
-
-
     /**
      * Display the specified resource.
      *
@@ -234,7 +216,7 @@ class JobOrderRequiestController extends Controller
     {
         try {
             // Retrieve the job maintenance record by job order number
-            $user = JobMaintenance::where('job_order_number', $id)->firstOrFail();
+            $user = MrfForm::where('job_order_number', $id)->firstOrFail();
 
             // Retrieve the user who created the record
             $createdByUser = DB::table('users')
@@ -253,7 +235,7 @@ class JobOrderRequiestController extends Controller
                 'uposition' => ''
             ];
             // Retrieve the job maintenance record by ID and load the replacement parts and join with tbl_site
-            $data = JobMaintenance::with('replacement_parts')
+            $data = MrfForm::with('replacement_parts')
                 ->join('tbl_sites', 'tbl_sites.id', '=', 'job_maintenances.site_id')
                 ->select('job_maintenances.*', 'tbl_sites.site_name')
                 ->findOrFail($user->id);
@@ -278,9 +260,6 @@ class JobOrderRequiestController extends Controller
         }
     }
 
-
-
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -289,8 +268,7 @@ class JobOrderRequiestController extends Controller
      */
     public function edit($id)
     {
-        $data = JobMaintenance::find($id);
-        return response()->json($data);
+        return response()->json(['success' => 200]);
     }
 
     /**
@@ -302,7 +280,7 @@ class JobOrderRequiestController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = JobMaintenance::find($id);
+        $data = MrfForm::find($id);
 
         if ($data) {
             // Update status and save
@@ -336,7 +314,7 @@ class JobOrderRequiestController extends Controller
             ];
 
             // Generate dynamic subject
-            $subject = "Job Order Request " . ($data->status === 'C' ? 'Rejected' : 'Approved') . " for " . $data->type_of_job . " #" . $data->job_order_number;
+            $subject = "Mrf Form Request " . ($data->status === 'C' ? 'Rejected' : 'Approved') . " for " . $data->type_of_job . " #" . $data->job_order_number;
 
             // Prepare emails
             $toEmails = implode(',', array_filter([$creatorEmail]));
@@ -352,22 +330,20 @@ class JobOrderRequiestController extends Controller
         return response()->json(['errors' => 'Record not found'], 404);
     }
 
-
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $data = JobMaintenance::find($id);
+        $data = MrfForm::find($id);
         if ($data) {
             $data->delete();
-            return response()->json(['success' => 200, 'message' => 'Record Successfully Delete!']);
+            return response()->json(['success' => 200, 'message' => 'Record Successfully Reject!']);
         }
 
         return response()->json(['errors' => 'Record not found'], 404);
     }
-
 }

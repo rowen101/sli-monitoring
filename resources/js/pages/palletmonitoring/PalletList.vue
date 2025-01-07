@@ -393,7 +393,8 @@ watch(
 onMounted(() => {
     getSite();
 
-    document.title = pageTitle;
+    document.title = `SLI-DTS - ${pageTitle}`;
+
 });
 </script>
 

@@ -30,7 +30,13 @@ const toggleSelection = () => {
          <td>{{ item.menu_route }}</td>
        <td style="text-align: center;" v-html="`<i class='fa ${item.menu_icon}'></i>`"></td>
         <td>{{ item.sort_order }}</td>
-        <td style="text-align: center;"><i :class="{'fas fa-check-circle': item.is_active === 1, 'far fa-circle': item.is_active !== 1}"></i></td>
+        <td style="text-align: center;">
+            <i :class="item.is_active === true ? 'fas fa-check' : 'far fa-circle'"></i>
+        </td>
+
+
+
+
         <td>{{ item.created_at }}</td>
           <td class="text-center">
         <button class="btn btn-sm bg-primary" @click.prevent="$emit('editMenu', item)">

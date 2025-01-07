@@ -4,7 +4,7 @@ import { ref, onMounted, reactive, watch, inject } from "vue";
 import { Form, Field, useResetForm } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
-import JobItemList from "./JobItemList.vue";
+import MrfItemList from "./MrfItemList.vue";
 import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore.js";
@@ -27,7 +27,7 @@ const selectedParentID = ref();
 const getItems = (page = 1) => {
     isLoading.value = true;
     axios
-        .get(`/web/job-request?page=${page}`, {
+        .get(`/web/Mrf-request?page=${page}`, {
             params: {
                 query: searchQuery.value,
             },
@@ -67,7 +67,7 @@ const confirmItemDeletion = async (item) => {
     if (result.isConfirmed) {
         isLoading.value = true;
         axios
-            .put(`/web/job-request/${item.id}`, { status: "C" })
+            .put(`/web/Mrf-request/${item.id}`, { status: "C" })
             .then((response) => {
                 toastr.success('Record successfully Rejected');
                 getItems();
@@ -90,7 +90,7 @@ const editData = async (item) => {
     if (result.isConfirmed) {
         isLoading.value = true;
         axios
-            .put(`/web/job-request/${item.id}`, { status: "A" })
+            .put(`/web/Mrf-request/${item.id}`, { status: "A" })
             .then((response) => {
                 toastr.success('Record successfully Approved');
                 getItems();
@@ -129,24 +129,12 @@ onMounted(() => {
                 <div class="d-flex">
                     <router-link
                         :class="'mb-2 btn btn-primary'"
-                        :to="{ name: 'Job Order Create' }"
+                        :to="{ path: '/Marial-Requisition/create' }"
                     >
-                        <i class="fa fa-plus-circle mr-1"></i>Create
+                        <i class="fa fa-plus-circle mr-1"></i>
                     </router-link>
 
-                    <div v-if="selectedItems.length > 0">
-                        <button
-                            @click="bulkDelete"
-                            type="button"
-                            class="ml-2 mb-2 btn btn-danger"
-                        >
-                            <i class="fa fa-trash mr-1"></i>
-                            Delete Selected
-                        </button>
-                        <span class="ml-2"
-                            >Selected {{ selectedItems.length }} Menu</span
-                        >
-                    </div>
+                    
                 </div>
                 <div>
                     <input
@@ -161,7 +149,7 @@ onMounted(() => {
                 <div class="card-body">
                     <ContentLoader v-if="isLoading" />
                     <div class="table-responsive">
-                      
+                        
                             <table class="table table-bordered table-sm">
                                 <thead>
                                     <tr>
@@ -174,7 +162,7 @@ onMounted(() => {
                                     </th> -->
                                         <th style="width: 10px">#</th>
                                         <th>Site</th>
-                                        <th>Order Number</th>
+                                        <th>Mrf Number</th>
                                         <th>Requested Date</th>
                                         <th>Needed Date</th>
                                         <th>Status</th>
@@ -184,7 +172,7 @@ onMounted(() => {
                                     </tr>
                                 </thead>
                                 <tbody v-if="lists.data.length > 0">
-                                    <JobItemList
+                                    <MrfItemList
                                         v-for="(item, index) in lists.data"
                                         :key="item.id"
                                         :item="item"
@@ -206,7 +194,7 @@ onMounted(() => {
                                     </tr>
                                 </tbody>
                             </table>
-                     
+                      
                     </div>
                 </div>
             </div>
