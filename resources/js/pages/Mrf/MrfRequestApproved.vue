@@ -5,21 +5,21 @@
           
             <div
 
-    v-if="['P', 'C'].includes(form.jobstatus)"
+    v-if="['P', 'C'].includes(form.Status)"
     :class="[
         'ribbon',
         {
-            warning: form.jobstatus === 'P',
-            closed: form.jobstatus === 'C',
+            warning: form.Status === 'P',
+            closed: form.Status === 'C',
         },
     ]"
 >
     <span>{{
-        form.jobstatus === "P"
+        form.Status === "P"
             ? "Pending"
-            : form.jobstatus === "C"
+            : form.Status === "C"
             ? "Reject"
-            : form.jobstatus === "P"
+            : form.Status === "P"
     }}</span>
 </div>
             <div class="row align-items-center">
@@ -65,8 +65,8 @@
                     <tbody>
                         <tr>
                             <td>{{ form.areaDepartment }}</td>
-                            <td>{{ form.endUser }}</td>
-                            <td>{{ form.dateTimeRequested }}</td>
+                            <td>{{ form.requisitioner }}</td>
+                            <td>{{ form.date_requested }}</td>
                             <td>{{ form.dateNeeded }}</td>
                         </tr>
                     </tbody>
@@ -158,7 +158,7 @@
                         </thead>
                         <tbody>
                             <tr
-                                v-for="(part, index) in form.replacementParts"
+                                v-for="(part, index) in form.material_list"
                                 :key="index"
                             >
                                 <td>{{ index + 1 }}</td>
@@ -240,19 +240,13 @@ const exportPDF = () => {
 
 const form = reactive({
     id: "",
-    jobOrderNumber: "",
+    mrfOrderNumber: "",
     areaDepartment: "",
-    endUser: "",
-    dateTimeRequested: "",
+    requisitioner: "",
+    daterequested: "",
     dateNeeded: "",
-    notedBy: "",
-    typeofjob: false,
-    correctiveMaintenance: false,
-    calibration: false,
-    problemDescription: "",
-    findingsRecommendations: "",
-    commitmentDate: "",
-    replacementParts: [],
+    Purpose: "",
+    materiallist: [],
     checkedBy: "",
     checkedDate: "",
     checkedTime: "",
@@ -261,37 +255,27 @@ const form = reactive({
     approvedBy: "",
     approvedDate: "",
     remarks: "",
-    jobstatus: "",
+    Status: "",
     approvedPosition:""
 });
 
 const getJobOrder = () => {
     axios
-        .get(`/web/job-request/${useRoute().params.id}`)
+        .get(`/web/Mrf-request/${useRoute().params.id}`)
         .then((response) => {
             form.id = response.data.record.id;
-            form.jobOrderNumber = response.data.record.job_order_number;
+            form.jobOrderNumber = response.data.record.mrf_order_number;
             form.areaDepartment = response.data.record.site_name;
-            form.endUser = response.data.record.end_user;
-            form.dateTimeRequested = moment(
-                response.data.record.time_requested
+            form.requisitioner = response.data.record.requisitioner;
+            form.daterequested = moment(
+                response.data.record.date_requested
             ).format("MMMM D, YYYY");
             form.dateNeeded = moment(response.data.record.date_needed).format(
                 "MMMM D, YYYY"
             );
 
-            form.notedBy = response.data.record.noted_by;
-            form.typeofjob =
-                response.data.record.type_of_job;
-
-            form.calibration = response.data.record.calibration;
-            form.problemDescription = response.data.record.problem_description;
-            form.findingsRecommendations =
-                response.data.record.findings_recommendations;
-            form.commitmentDate = moment(response.data.record.commitment_date).format(
-                "MMMM D, YYYY"
-            );;
-            form.replacementParts = response.data.record.replacement_parts;
+            form.Purpose = response.data.record.Purpose;
+            form.materiallist = response.data.record.material_list;
             form.checkedBy = response.data.record.createdby.cfull_name;
             form.checkedDate = moment(response.data.record.checkedDate).format(
                 "MMMM D, YYYY"
@@ -309,7 +293,7 @@ const getJobOrder = () => {
                 response.data.record.approvedDate
             ).format("MMMM D, YYYY");
             form.remarks = response.data.record.remarks;
-            form.jobstatus = response.data.record.status;
+            form.Status = response.data.record.status;
             console.log(response.data.record.status)
         })
         .catch((error) => {

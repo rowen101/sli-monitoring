@@ -12,13 +12,11 @@ class MrfItems extends Model
     protected $fillable =[
         'id',
         'mrf_form_id',
-        'item_no',
         'particulars',
         'description',
         'quantity',
         'uom',
         'unit_price',
-        'total_amount',
         'created_by',
         'updated_by',
       

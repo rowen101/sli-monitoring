@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class MrfForm extends Model
 {
     use HasFactory;
+    protected $guarded = [];
     protected $table = 'mrf_form';
-
+    
     protected $primaryKey = 'id';
     protected $fillable =[
         'id',
@@ -34,7 +35,7 @@ class MrfForm extends Model
 
     ];
 
-    public function mrf_items()
+    public function mrf_items_parts()
     {
         return $this->hasMany(MrfItems::class, 'mrf_form_id', 'id');
     }

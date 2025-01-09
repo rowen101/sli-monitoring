@@ -16,7 +16,8 @@ const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
 const menuOptionlist = ref({ data: [] });
-
+import moment from "moment";
+import { get } from "jquery";
 const editing = ref(false);
 const formValues = ref();
 const isLoading = ref(false);
@@ -81,26 +82,41 @@ const confirmItemDeletion = async (item) => {
     }
 };
 
-const editData = async (item) => {
-    const result = await swal.fire({
-        title: "Are you sure you want to Approve this record?",
-        icon: "warning",
-        showCancelButton: true,
-    });
-    if (result.isConfirmed) {
-        isLoading.value = true;
-        axios
-            .put(`/web/Mrf-request/${item.id}`, { status: "A" })
-            .then((response) => {
-                toastr.success('Record successfully Approved');
-                getItems();
-            })
-            .catch((error) => {
-                toastr.error(error.data.message);
-            });
-    }
-};
 
+const editData = async (item, status) => {
+    const confirmationMessage =
+    status === "A"
+      ? "Are you sure you want to Approve this record?"
+      : "Are you sure you want to Reject this record?";
+
+  const result = await swal.fire({
+    title: confirmationMessage,
+    icon: "warning",
+    showCancelButton: true,
+  });
+
+  if (result.isConfirmed) {
+    isLoading.value = true;
+    try {
+      await axios.put(`/web/Mrf-request/${item.id}`, { status });
+      const action = status === "A" ? "Approved" : "Rejected";
+      toastr.success(`Record successfully ${action}`);
+      getItems();
+    } catch (error) {
+      toastr.error(error.response?.data?.message || "An error occurred");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+};
+const handleSelectChange = (event, item) => {
+    const selectedStatus = event.target.value; // Get the selected value
+    if (selectedStatus) {
+        editData(item, selectedStatus); // Pass the selected status to editData
+    }
+   
+   
+}
 const deleteData = () => {};
 watch(
     searchQuery,
@@ -125,10 +141,10 @@ onMounted(() => {
     <div class="content">
 
         <div class="container-fluid">
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between mb-2">
                 <div class="d-flex">
                     <router-link
-                        :class="'mb-2 btn btn-primary'"
+                        :class="' mb-2 btn btn-primary btn-sm'"
                         :to="{ path: '/Marial-Requisition/create' }"
                     >
                         <i class="fa fa-plus-circle mr-1"></i>
@@ -140,7 +156,7 @@ onMounted(() => {
                     <input
                         type="text"
                         v-model="searchQuery"
-                        class="form-control"
+                        class="form-control mb-2"
                         placeholder="Search..."
                     />
                 </div>
@@ -177,7 +193,7 @@ onMounted(() => {
                                         :key="item.id"
                                         :item="item"
                                         :index="index"
-                                        @approvedata="editData"
+                                        @handleSelectChange="handleSelectChange($event, item)"
                                         @show-item="viewItem"
                                         @confirmDataDeletion="
                                             confirmItemDeletion

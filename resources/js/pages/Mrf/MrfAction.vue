@@ -11,7 +11,7 @@ import { useRoute, useRouter } from "vue-router";
 import FormTextField from "@/components/FormTextField.vue";
 import FormSelectOption from "@/components/FormSelectOption.vue";
 import FormTextArea from "@/components/FormTextAria.vue";
-
+import moment from "moment";
 const route = useRoute(); // Get current route details
 const router = useRouter();
 
@@ -34,7 +34,7 @@ const form = reactive({
     date_needed: "",
     purpose: "",
     status: "P",
-    Item_request: [
+    mrf_items_parts: [
     {
 
         particulars: '',
@@ -48,20 +48,19 @@ const form = reactive({
 });
 
 const addPart = ()=>{
-    form.Item_request.push({
+    form.mrf_items_parts.push({
         particulars: '',
         description: '',
         quantity: 0,
         uom: '',
         unit_price: 0,
-        total_amount: 0,
     });
 
 }
 
 const removePart =(index)=>{
-    if(form.Item_request.length >1){
-    form.Item_request.splice(index, 1);
+    if(form.mrf_items_parts.length >1){
+    form.mrf_items_parts.splice(index, 1);
     }
 }
 const selectedStatus = ref(null);
@@ -205,21 +204,22 @@ onMounted(() => {
                         v-model="form.purpose"
 
                     />
-                   
+
 
                 </tab-content>
 
                 <tab-content title="List of Material" icon="fas fa-tools">
-                    <div class="form-group row">
-                        <label
+                    <label
                             for="replacementParts"
                             class="col-sm-2 col-form-label"
-                            >List of Material   <button type="button" class="btn btn-warning btn-xs" @click="addPart"><i class="fa fa-plus"></i></button>  </label
+                            > <button type="button" class="btn btn-warning btn-xs" @click="addPart"><i class="fa fa-plus"></i></button>  </label
                         >
+                    <div class="form-group row">
 
-                        <div class="col-sm-10">
-                            <table class="table">
-                                <thead>
+
+                        <div class="col-sm-12">
+                            <table class="table tabl-sm table-hover table-striped">
+                                <thead class="bg-primary">
                                     <tr>
                                         <th>Particular</th>
                                         <th>Description</th>
@@ -230,7 +230,7 @@ onMounted(() => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(part, index) in form.Item_request" :key="index">
+                                    <tr v-for="(part, index) in form.mrf_items_parts" :key="index">
                                         <td>
                                             <input
                                                 type="text"
@@ -275,6 +275,57 @@ onMounted(() => {
                             </table>
                         </div>
                     </div>
+                </tab-content>
+                <tab-content title="Verify" icon="fas fa-check">
+                    <h4>Requisition Information</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            
+                            <strong>Area / Department:</strong> {{
+        listsite.find(site => site.id === form.site_id)?.name || 'Not Selected'
+      }}<br/>
+                            <strong>Requisitioner:</strong> {{ form.requisitioner }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Date Requested:</strong> {{  moment(
+                                                           form.date_requested
+                                                        ).format("MMMM D, YYYY") }}<br/>
+                            <strong>Date Needed:</strong> {{moment(
+                                                           form.date_needed
+                                                        ).format("MMMM D, YYYY")   }}<br/>
+                         
+                        </div>
+                    </div>
+                   
+        <h4>List of Materials</h4>
+        <table class="table table-sm table-hover table-striped">
+          <thead class="bg-primary">
+            <tr>
+              <th>Particular</th>
+              <th>Description</th>
+              <th>Quantity</th>
+              <th>UOM</th>
+              <th>Price</th>
+              <th>Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(part, index) in form.mrf_items_parts" :key="index">
+              <td>{{ part.particulars }}</td>
+              <td>{{ part.description }}</td>
+              <td>{{ part.quantity }}</td>
+              <td>{{ part.uom }}</td>
+              <td>{{ part.unit_price }}</td>
+              <td>{{ part.quantity * part.unit_price }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Purpose:</strong> {{ form.purpose }}
+            </div>
+        </div>
                 </tab-content>
             </form-wizard>
         </div>

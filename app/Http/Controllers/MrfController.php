@@ -98,16 +98,20 @@ class MrfController extends Controller
 
         // Validate the replacement parts data
         $validatedPartsData = $request->validate([
-            'mrf_items' => 'nullable|array',
-            'mrf_items.*.description' => 'nullable|string|max:255',
-            'mrf_items.*.uom' => 'nullable|string|max:20',
-            'mrf_items.*.quantity' => 'nullable|integer|min:1',
+            'mrf_items_parts' => 'nullable|array',
+            'mrf_items_parts.*.particulars' => 'nullable|string|max:20',
+            'mrf_items_parts.*.description' => 'nullable|string|max:255',
+            'mrf_items_parts.*.uom' => 'nullable|string|max:20',
+            'mrf_items_parts.*.quantity' => 'nullable|integer|min:1',
+            'mrf_items_parts.*.unit_price' => 'nullable|integer|min:1',
         ]);
 
-        // Generate job_order_number if not provided
+        // Generate mrf_order_number if not provided
         if (empty($validatedData['mrf_order_number'])) {
             $lastJob = MrfForm::orderBy('id', 'desc')->first();
-            $lastNumber = $lastJob ? intval(substr($lastJob->job_order_number, 3)) : 0;
+            $lastNumber = $lastJob && preg_match('/\d+$/', $lastJob->mrf_order_number) 
+                          ? intval(substr($lastJob->mrf_order_number, 8)) 
+                          : 0;
             $validatedData['mrf_order_number'] = 'SLI-MRF-' . str_pad($lastNumber + 1, 8, '0', STR_PAD_LEFT);
         }
 
@@ -132,12 +136,12 @@ class MrfController extends Controller
             );
 
             // If mrf item are provided, sync them to the mrfitem table
-            if (!empty($validatedPartsData['mrf_items'])) {
-                // Delete existing mrf item for this job (optional: adjust if partial updates are needed)
+            if (!empty($validatedPartsData['mrf_items_parts'])) {
+                // Delete existing replacement parts for this job (optional: adjust if partial updates are needed)
                 MrfItems::where('mrf_form_id', $MrfForm->id)->delete();
 
-                // Insert new mrf item
-                foreach ($validatedPartsData['mrf_items'] as $part) {
+                // Insert new replacement parts
+                foreach ($validatedPartsData['mrf_items_parts'] as $part) {
                     MrfItems::create([
                         'mrf_form_id' => $MrfForm->id,
                         'particulars' => $part['particulars'] ?? null,
@@ -148,8 +152,7 @@ class MrfController extends Controller
                     ]);
                 }
             }
-
-
+         
             $authUserId = auth()->user()->id;
             $creatorEmail = User::where('id',  $authUserId)->pluck('email')->first();
             $departmentHeadId = User::where('id',  auth()->user()->id)->pluck('sitehead_user_id')->first();
@@ -193,7 +196,7 @@ class MrfController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Record saved successfully.',
-                'data' => $MrfForm->load('mrf_items'),
+                'data' => $MrfForm->load('mrf_items_parts'),
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -295,13 +298,12 @@ class MrfController extends Controller
 
             // Prepare data for the email
             $jobRequest = [
-                'job_order_number' => $data->job_order_number,
+                'mrf_order_number' => $data->mrf_order_number,
                 'site_id' => $data->site_id,
-                'end_user' => $data->end_user,
-                'time_requested' => $data->time_requested,
+                'requisitioner' => $data->requisitioner,
+                'date_requested' => $data->date_requested,
                 'date_needed' => $data->date_needed,
-                'type_of_job' => $data->type_of_job,
-                'problem_description' => $data->problem_description,
+                'purpose' => $data->purpose,
                 'status' => $data->status,
                 'created' => User::where('id', $data->created_by)
                     ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
@@ -314,7 +316,7 @@ class MrfController extends Controller
             ];
 
             // Generate dynamic subject
-            $subject = "Mrf Form Request " . ($data->status === 'C' ? 'Rejected' : 'Approved') . " for " . $data->type_of_job . " #" . $data->job_order_number;
+            $subject = "MRF Request " . ($data->status === 'C' ? 'Rejected' : 'Approved') . " for " . $data->type_of_job . " #" . $data->job_order_number;
 
             // Prepare emails
             $toEmails = implode(',', array_filter([$creatorEmail]));
@@ -322,7 +324,7 @@ class MrfController extends Controller
 
             // Send email
             Mail::to($toEmails)
-                ->send(new MailNotify($jobRequest, $subject));
+                ->send(new MrfNotify($jobRequest, $subject));
 
             return response()->json(['success' => 200]);
         }
