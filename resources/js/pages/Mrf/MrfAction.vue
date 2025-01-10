@@ -29,7 +29,6 @@ const form = reactive({
     site_id: null,
     site_name: "",
     mrf_order_number: "",
-    requisitioner: "",
     date_requested: "",
     date_needed: "",
     purpose: "",
@@ -165,15 +164,6 @@ onMounted(() => {
                     />
 
 
-                    <FormTextField
-                        label="Requisitioner"
-                        placeholder="Requisitioner"
-                        name="requisitioner"
-                        type="text"
-                        id="requisitioner"
-                        v-model="form.requisitioner"
-
-                    />
 
                     <FormTextField
                         label="Date Requested"
@@ -280,11 +270,11 @@ onMounted(() => {
                     <h4>Requisition Information</h4>
                     <div class="row">
                         <div class="col-md-6">
-                            
+
                             <strong>Area / Department:</strong> {{
         listsite.find(site => site.id === form.site_id)?.name || 'Not Selected'
       }}<br/>
-                            <strong>Requisitioner:</strong> {{ form.requisitioner }}
+  
                         </div>
                         <div class="col-md-6">
                             <strong>Date Requested:</strong> {{  moment(
@@ -293,10 +283,10 @@ onMounted(() => {
                             <strong>Date Needed:</strong> {{moment(
                                                            form.date_needed
                                                         ).format("MMMM D, YYYY")   }}<br/>
-                         
+
                         </div>
                     </div>
-                   
+
         <h4>List of Materials</h4>
         <table class="table table-sm table-hover table-striped">
           <thead class="bg-primary">

@@ -130,22 +130,22 @@ export default [
     {
         path: '/tech-approved/:id/view',
         name: 'Tech-Approved',
-        component: TechRecommApproved, 
+        component: TechRecommApproved,
     },
     {
         path: '/asset-monitoring',
         name: 'Asset Monitoring',
-        component: AssetMonitoring, 
+        component: AssetMonitoring,
     },
   {
         path: '/pallet-monitoring',
         name: 'Pallet Monitoring',
-        component: PalletMonitoring, 
+        component: PalletMonitoring,
     },
   {
         path: '/usersite',
         name: 'User Site',
-        component: UserSite, 
+        component: UserSite,
     },
         // job order request
     {
@@ -155,31 +155,31 @@ export default [
 
     },
     {
-        path: '/job-order-request-list/create', 
+        path: '/job-order-request-list/create',
         name: 'Job Order Create',
         component: JobOrderAction,
     },
     {
         path: '/job-order-request-approved/:id/view',
         name: 'Job-Order-Request-Approved',
-        component: JobOrderRequestApproved, 
+        component: JobOrderRequestApproved,
     },
     // Mrf
-         
+
           {
             path: '/Marial-Requisition',
             name: 'Material Requisition Form List',
             component: MrfList,
-    
+
         },
         {
-            path: '/Marial-Requisition/create', 
+            path: '/Marial-Requisition/create',
             name: 'Create Material Requisition Form',
             component: MrfAction,
         },
         {
             path: '/Marial-Requisition-approved/:id/view',
-            name: 'Marial-Requisition-Approved',
-            component: MrfRequestApproved, 
+            name: 'marial-Requisition-Approved',
+            component: MrfRequestApproved,
         },
 ]

@@ -2,222 +2,129 @@
     <div id="exportPDF">
         <br />
         <div class="container">
-          
             <div
-
-    v-if="['P', 'C'].includes(form.Status)"
-    :class="[
-        'ribbon',
-        {
-            warning: form.Status === 'P',
-            closed: form.Status === 'C',
-        },
-    ]"
->
-    <span>{{
-        form.Status === "P"
-            ? "Pending"
-            : form.Status === "C"
-            ? "Reject"
-            : form.Status === "P"
-    }}</span>
-</div>
+                v-if="['P', 'C'].includes(form.Status)"
+                :class="[
+                    'ribbon',
+                    {
+                        warning: form.Status === 'P',
+                        closed: form.Status === 'C',
+                    },
+                ]"
+            >
+                <span>{{
+                    form.Status === "P"
+                        ? "Pending"
+                        : form.Status === "C"
+                        ? "Reject"
+                        : form.Status === "P"
+                }}</span>
+            </div>
             <div class="row align-items-center">
-                <!-- Left Logo Section -->
-                <div class="col-3 p-2 text-center">
-                    <div class="header">
-                        <img
-                            class="logo img-fluid"
-                            :src="'/img/logo.png'"
-                            alt="Left Logo"
-                        />
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm">
+                            <img
+                                class="logo img-fluid"
+                                :src="'/img/logo.png'"
+                                alt="Left Logo"
+                            />
+                        </div>
+                        <div class="col-sm">
+                            <span class="m-0 font-weight-bold"
+                                >MATERIALS REQUISITION FORM</span
+                            >
+                        </div>
+                        <div class="col-sm font-weight-bold font-italic">
+                            <span>{{ form.mrfOrderNumber }}</span>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Center Title Section -->
-                <div class="col-9 p-2 text-center">
-                    <h3 class="m-0 font-weight-bold">JOB ORDER REQUEST FORM</h3>
-                </div>
-            </div>
-
-            <div class="row border border-secondary p-2">
-                <div class="col-6 float-end">
-                    <p class="mb-1">
-                        <strong>Job Order Number :</strong
-                        >{{ form.jobOrderNumber }}
-                    </p>
-                </div>
-            </div>
-
-            <!-- Details Section -->
-
-            <div class="row">
-                <table class="table table-bordered table-sm">
-                    <thead>
+                    <table class="table table-bordered table-sm ">
                         <tr>
-                        <th>Area/Department</th>
-                        <th>End User</th>
-                        <th>Date/Time Requested</th>
-                        <th>Date Needed</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr>
-                            <td>{{ form.areaDepartment }}</td>
-                            <td>{{ form.requisitioner }}</td>
-                            <td>{{ form.date_requested }}</td>
-                            <td>{{ form.dateNeeded }}</td>
+                            <td>SITE: {{ form.areaDepartment }}</td>
+                            <td>DATE REQUEST: {{ form.daterequested }}</td>
                         </tr>
-                    </tbody>
-                </table>
-
-
-            </div>
-            <div class="row border">
-                <div class="col-6 p-2">Noted by:<b>{{ form.notedBy }}</b> </div>
-
-            </div>
-
-
-            <!-- Type of Job Done -->
-            <div class="row">
-                <div class="col-12 p-2">
-    <span class="section-title">Type of Job Done</span><br />
-    <span>{{ form.typeofjob === 'Preventive Maintenance' ? '(&check;)' : '( &nbsp; )' }} Preventive Maintenance</span>&nbsp;
-    <span>{{ form.typeofjob === 'Corrective Maintenance' ? '(&check;)' : '( &nbsp; )' }} Corrective Maintenance</span>&nbsp;
-    <span>{{ form.typeofjob === 'Calibration' ? '(&check;)' : '( &nbsp; )' }} Calibration</span>
-    </div>
-
-            </div>
-
-            <!-- Problem Description -->
-            <div class="row ">
-                <div class="col-12 p-2">
-                    <span class="section-title">Problem Description/s:</span>
-
-                        <div class="row justify-content-right">
-                            <div class="col-12 hidden-md-down border border-secondary">
-                                <p>
-                                    {{ form.problemDescription }}
-
-
-                                </p>
-                            </div>
-                        </div>
-
-                </div>
-            </div>
-            <div class="row ">
-                <div class="col-12 text-center p-2">
-                    <span class="section-title">To Be Filled By Maintenance</span>
-                </div>
-            </div>
-            <!-- Findings -->
-            <div class="row">
-                <div class="col-12 p-2">
-                    <span class="section-title"
-                        >Findings and Recommendations:</span
+                        <tr>
+                            <td>REQUISITIONER: {{ form.checkedBy }}</td>
+                            <td>DATE NEEDED: {{ form.dateNeeded }}</td>
+                        </tr>
+                    </table>
+                    <table
+                        class="table table-bordered text-center table-sm table-striped"
                     >
-                    <div class="row justify-content-right">
-                            <div class="col-12 hidden-md-down border border-secondary">
-                                <p>
-                                    {{ form.findingsRecommendations }}
-
-
-                                </p>
-                            </div>
-                        </div>
-
-                </div>
-            </div>
-
-            <!-- Commitment Date -->
-            <div class="row border mt-2">
-                <div class="col-6 p-2">Commitment Date:&nbsp;<b>{{ form.commitmentDate }}</b></div>
-                <div class="col-6 text-right p-2">
-                    <small
-                        >Note: Pls notify requestor for the schedule
-                        given</small
-                    >
-                </div>
-            </div>
-
-            <!-- Replacement Parts Needed Table -->
-            <div class="row">
-
-                    <span class="section-title">Replacement Parts Needed</span>
-                    <table class="table table-bordered table-sm">
-                        <thead>
+                        <thead class="bg-primary">
                             <tr>
-                                <th>No.</th>
-                                <th>Description</th>
-                                <th>Part No. (If applicable)</th>
-                                <th>Quantity</th>
+                                <th>ITEM NO.</th>
+                                <th>PARTICULARS</th>
+                                <th>DESCRIPTION</th>
+                                <th>QUANTITY</th>
+                                <th>UNIT</th>
+                                <th>UNIT PRICE</th>
+                                <th>PRINCIPAL AMOUNT</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr
-                                v-for="(part, index) in form.material_list"
+                                v-for="(part, index) in form.materiallist"
                                 :key="index"
                             >
                                 <td>{{ index + 1 }}</td>
+                                <td>{{ part.particulars }}</td>
                                 <td>{{ part.description }}</td>
-                                <td>{{ part.part_number }}</td>
                                 <td>{{ part.quantity }}</td>
+                                <td>{{ part.uom }}</td>
+                                <td class="text-right">₱{{ part.unit_price }}</td>
+                                <td class="text-right">₱{{ formatPrice(part.quantity * part.unit_price) }}</td>
+
                             </tr>
                         </tbody>
                     </table>
+                    <p class="font-weight-bold">PURPOSE: {{ form.Purpose }}</p>
 
-            </div>
+                    <table class="table table-bordered table-sm border-0">
+                        <tr>
+                            <td colspan="2">PREPARED BY: {{ form.checkedBy }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                Note: Procurement cut-off time of receiving
+                                requests: MWF @8AM-2PM
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                *7 Days lead for consumables (Repeat Order)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                *10 Days lead time for (New Request) beyond TOR
+                                for Local Vendor
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                *30 Days lead time for (New Request) beyond TOR
+                                for Foreign Vendor
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="signature">
+                               <span class="border-bottom border-dark">Prepared By: {{ form.checkedBy }}</span> <br />
 
-            <!-- Footer Section -->
-            <div class="row border border-secondary mt-2">
-                <div class="col-6 p-2">
-                    Checked by : <b>{{ form.checkedBy }}</b>
-                </div>
-                <div class="col-3 p-2">Date:</div>
-                <div class="col-3 p-2">Time:</div>
-            </div>
+                                {{ form.checkedPosition }}
+                            </td>
+                            <td class="signature">
+                                Noted By:  {{ form.approvedBy }}<br />
 
-            <div class="row">
-                <div class="col-12 text-center p-2">
-                    <span class="section-title">REVIEW AND APPROVAL</span>
-                </div>
-            </div>
-            <!-- Remarks Section -->
-            <div class="row">
-                <div class="col-12 p-2">
-                    Remarks / Comments:
-                    <div class="row justify-content-right">
-                            <div class="col-12 hidden-md-down border border-secondary">
-                                <p>
-                                    {{ form.findingsRecommendations }}
-
-                                </p>
-                            </div>
-                        </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-6 p-2">
-                    Reviewed by: Department Manager<br />
-                    <div class=" mt-2">
-                        <span class="bottom-line" style="border-bottom: 1px solid black; display: inline-block;">{{ form.approvedBy }}</span>
-                    <br />
-                    <span >{{form.approvedPosition}}</span>
-                    </div>
-                </div>
-                <div class="col-6 p-2">
-                    Approved by: President/CEO<br />
-                    <div class=" mt-2">
-                        <span class="bottom-line" style="border-bottom: 1px solid black; display: inline-block;">Eden Satinitigan</span>
-                    </div>
+                                {{ form.approvedPosition }}
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="fab-container" v-if="form.status === 'A'">
         <div class="button iconbutton bg-success" @click="exportPDF()">
             <i class="fas fa-download"></i>
@@ -237,6 +144,10 @@ const exportPDF = () => {
     const element = document.getElementById("exportPDF"); // Specify the element to convert to PDF
     html2pdf().from(element).save(`${pageTitle}.pdf`);
 };
+const formatPrice = (value) => {
+      return value ? value.toFixed(2) : '0.00'; // Format to 2 decimal places
+    };
+
 
 const form = reactive({
     id: "",
@@ -248,6 +159,7 @@ const form = reactive({
     Purpose: "",
     materiallist: [],
     checkedBy: "",
+    checkedPosition: "",
     checkedDate: "",
     checkedTime: "",
     reviewedBy: "",
@@ -256,7 +168,8 @@ const form = reactive({
     approvedDate: "",
     remarks: "",
     Status: "",
-    approvedPosition:""
+    approveby:"",
+    approvedPosition: "",
 });
 
 const getJobOrder = () => {
@@ -264,7 +177,7 @@ const getJobOrder = () => {
         .get(`/web/Mrf-request/${useRoute().params.id}`)
         .then((response) => {
             form.id = response.data.record.id;
-            form.jobOrderNumber = response.data.record.mrf_order_number;
+            form.mrfOrderNumber = response.data.record.mrf_order_number;
             form.areaDepartment = response.data.record.site_name;
             form.requisitioner = response.data.record.requisitioner;
             form.daterequested = moment(
@@ -274,9 +187,12 @@ const getJobOrder = () => {
                 "MMMM D, YYYY"
             );
 
-            form.Purpose = response.data.record.Purpose;
-            form.materiallist = response.data.record.material_list;
+            form.Purpose = response.data.record.purpose;
+            form.materiallist = response.data.record.mrf_items_parts;
             form.checkedBy = response.data.record.createdby.cfull_name;
+            form.checkedPosition = response.data.record.createdby.cposition
+                ? response.data.record.createdby.cposition
+                : "";
             form.checkedDate = moment(response.data.record.checkedDate).format(
                 "MMMM D, YYYY"
             );
@@ -287,17 +203,19 @@ const getJobOrder = () => {
             form.reviewedDate = moment(
                 response.data.record.reviewedDate
             ).format("MMMM D, YYYY");
-            form.approvedBy = response.data.record.updatedby.ufull_name ;
-            form.approvedPosition = response.data.record.updatedby.uposition ? response.data.record.updatedby.uposition : '';
+            form.approvedBy = response.data.record.updatedby.ufull_name;
+            form.approvedPosition = response.data.record.updatedby.uposition
+                ? response.data.record.updatedby.uposition
+                : "";
             form.approvedDate = moment(
                 response.data.record.approvedDate
             ).format("MMMM D, YYYY");
             form.remarks = response.data.record.remarks;
             form.Status = response.data.record.status;
-            console.log(response.data.record.status)
+            console.log(response.data.record.status);
         })
         .catch((error) => {
-            console.log(error.message)
+            console.log(error.message);
         });
 };
 
@@ -316,7 +234,7 @@ body {
 }
 .container {
     position: relative;
-    width: 720px;
+    width: 60%;
     margin: 0 auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -458,4 +376,5 @@ body {
     top: 100px;
     left: 1000px;
 }
+.red-box { background-color: red; padding: 10px; border: 1px solid #000; color: white; width: 100px; }
 </style>

@@ -65,7 +65,7 @@ const statusDescription = (status) => {
     <td>{{ moment(item.date_needed).format("MMMM D, YYYY") }}</td>
     <td style="text-align: center">
       <router-link
-        :to="`/job-order-request-approved/${item.job_order_number}/view`"
+        :to="`/marial-Requisition-Approved/${item.mrf_order_number}/view`"
         target="_blank"
       >
         <span class="badge" :class="`${statusClass(item.status)}`">
@@ -82,7 +82,7 @@ const statusDescription = (status) => {
         authUserStore.user.sitehead_user_id === authUserStore.user.id
       "
     >
-      <select 
+      <select
         class="form-control"
         @change="(event) => $emit('handleSelectChange', event, item)"
       >

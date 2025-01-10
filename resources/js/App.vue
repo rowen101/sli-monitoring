@@ -2,9 +2,10 @@
 
 <template>
     <div>
-        <MainLayout v-if="!is404 && !isTechRecomApprovePage && !isJobOrderRequestApproved" />
+        <MainLayout v-if="!is404 && !isTechRecomApprovePage && !isJobOrderRequestApproved && !isMrfApproved" />
         <TechRecommApproved v-else-if="isTechRecomApprovePage" />
         <JobOrderRequestApproved v-else-if="isJobOrderRequestApproved" />
+        <MrfApproved v-else-if="isMrfApproved" />
         <ErrorLayout v-else />
     </div>
 </template>
@@ -19,6 +20,7 @@ import MainLayout from "./CustomMainLayout.vue"; // Import the CustomMainLayout 
 import ErrorLayout from "./404.vue"; // Import the ErrorLayout component
 import TechRecommApproved from "./pages/techrecomm/TechRecommApproved.vue";
 import JobOrderRequestApproved from "./pages/joborder/JobOrderRequestApproved.vue";
+import MrfApproved from "./pages/Mrf/MrfRequestApproved.vue";
 // Check if the current route is the TechRecomApprove page
 const isTechRecomApprovePage = computed(() => {
     return route.name === "Tech-Approved"; // Adjust the route name as per your route configuration
@@ -27,6 +29,11 @@ const isTechRecomApprovePage = computed(() => {
 const isJobOrderRequestApproved = computed(() =>{
     return route.name === "Job-Order-Request-Approved";
 });
+
+const isMrfApproved = computed(() =>{
+    return route.name === "marial-Requisition-Approved";
+});
+
 
 const is404 = computed(() => {
     return route.name === "404 Error Page";

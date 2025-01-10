@@ -49,7 +49,7 @@
                     <div style="height:200px;width:100%;margin-top:60px;border-bottom:1px solid #c3cdc9">
                         <img width="175" height="70" src="https://ticket.appsafexpress.com/logo.php"
                             class="CToWUd" data-bit="iit">
-                        <h2 style="font-weight:500;color:#2d4f43">Mrf Request</h2>
+                        <h2 style="font-weight:500;color:#2d4f43">Material Request Form</h2>
 
                     </div>
                     <div style="padding:48px;margin:auto;text-align:left">
@@ -72,27 +72,18 @@
                         <table
                             style="margin-top:10px;margin-bottom:30px;width:100%;border-radius:4px;border:1px solid #c3cdc9;border-collapse:separate;border-spacing:0px">
                             <tbody>
-                               
+
                                 <tr>
                                     <td style="border-bottom:1px solid #c3cdc9;padding:10px">
                                         <div
                                             style="text-transform:uppercase;font-size:12px;color:#2d4f43;font-weight:bold">
-                                            Mrf Number</div>
+                                            MRF Number</div>
                                         <div>
                                             {{ $emailRequest->mrf_order_number }}
                                         </div>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td style="border-bottom:1px solid #c3cdc9;padding:10px">
-                                        <div
-                                            style="text-transform:uppercase;font-size:12px;color:#2d4f43;font-weight:bold">
-                                            Requisitioner</div>
-                                        <div>
-                                            {{ $emailRequest->requisitioner }}
-                                        </div>
-                                    </td>
-                                </tr>
+                             
                                 <tr>
                                     <td style="border-bottom:1px solid #c3cdc9;padding:10px">
                                         <div

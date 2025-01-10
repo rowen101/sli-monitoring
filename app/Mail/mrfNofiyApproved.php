@@ -9,22 +9,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class MRFNotify extends Mailable
+class mrfNofiyApproved extends Mailable
 {
     use Queueable, SerializesModels;
-    public $emailRequest;
-    public $subjectLine;
-    public $data=[];
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($emailRequest, $subjectLine)
+    public function __construct()
     {
-        $this->emailRequest = (object) $emailRequest; // Convert to an object for Blade template compatibility
-        $this->subjectLine = $subjectLine;
+        //
     }
 
     /**
@@ -35,7 +31,7 @@ class MRFNotify extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: $this->subjectLine
+            subject: 'Mrf Nofiy Approved',
         );
     }
 
@@ -47,8 +43,7 @@ class MRFNotify extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.mrf_notify',
-            with: ['emailRequest' => $this->emailRequest],
+            view: 'view.name',
         );
     }
 

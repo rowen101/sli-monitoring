@@ -10,13 +10,12 @@ class MrfForm extends Model
     use HasFactory;
     protected $guarded = [];
     protected $table = 'mrf_form';
-    
+
     protected $primaryKey = 'id';
     protected $fillable =[
         'id',
         'mrf_order_number',
         'site_id',
-        'requisitioner',
         'date_requested',
         'date_needed',
         'purpose',
