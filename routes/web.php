@@ -153,6 +153,11 @@ Route::middleware('auth')->group(function () {
 
     //Mrf module
     Route::resource('/web/Mrf-request', MrfController::class);
+
+
 });
 
 Route::get('{view}', ApplicationController::class)->where('view', '(.*)')->middleware('auth');
+Route::get('/mrf-view', function () {
+        return view('emails.mrf_approved');
+     });

@@ -1,6 +1,6 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.9d3b5454.js",
+    "file": "assets/app.7f732fff.js",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
@@ -39,7 +39,7 @@
       "_fflate.fca59393.js"
     ],
     "css": [
-      "assets/app.09939687.css"
+      "assets/app.3da4a24e.css"
     ]
   },
   "_@babel.483bd58d.js": {

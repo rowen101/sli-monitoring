@@ -110,22 +110,27 @@
                         </tr>
                         <tr>
                             <td class="signature">
-                               <span class="border-bottom border-dark">Prepared By: {{ form.checkedBy }}</span> <br />
+                               Prepared By:<br><span style="text-decoration: underline;"> {{ form.checkedBy }}</span> <br />
 
                                 {{ form.checkedPosition }}
                             </td>
                             <td class="signature">
-                                Noted By:  {{ form.approvedBy }}<br />
-
+                                Noted By:  <br /><span style="text-decoration: underline;">{{ form.approvedBy }}</span>
+                                <br>
                                 {{ form.approvedPosition }}
                             </td>
                         </tr>
                     </table>
+                    <br>
+                    <span v-if="form.Status === 'A'"
+                        >Approved date:({{ form.approvedDate }})</span
+               
+            >
                 </div>
             </div>
         </div>
     </div>
-    <div class="fab-container" v-if="form.status === 'A'">
+    <div class="fab-container" v-if="form.Status === 'A'">
         <div class="button iconbutton bg-success" @click="exportPDF()">
             <i class="fas fa-download"></i>
         </div>
@@ -229,12 +234,11 @@ onMounted(() => {
 <style scoped>
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
+ 
 }
 .container {
     position: relative;
-    width: 60%;
+    width: 800px;
     margin: 0 auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -376,5 +380,5 @@ body {
     top: 100px;
     left: 1000px;
 }
-.red-box { background-color: red; padding: 10px; border: 1px solid #000; color: white; width: 100px; }
+
 </style>

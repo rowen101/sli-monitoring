@@ -13,6 +13,7 @@ use Illuminate\Mail\Attachment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use PDF;
+
 class MrfController extends Controller
 {
     /**
@@ -34,7 +35,8 @@ class MrfController extends Controller
             'mrf_form.created_by',
             'mrf_form.created_at',
             'users.first_name',
-            'users.last_name')
+            'users.last_name'
+        )
             ->join('tbl_sites', 'tbl_sites.id', '=', 'mrf_form.site_id')
             ->join('users', 'users.id', '=', 'mrf_form.created_by')
             ->when(request('query'), function ($query, $searchQuery) {
@@ -110,8 +112,8 @@ class MrfController extends Controller
         if (empty($validatedData['mrf_order_number'])) {
             $lastJob = MrfForm::orderBy('id', 'desc')->first();
             $lastNumber = $lastJob && preg_match('/\d+$/', $lastJob->mrf_order_number)
-                          ? intval(substr($lastJob->mrf_order_number, 8))
-                          : 0;
+                ? intval(substr($lastJob->mrf_order_number, 8))
+                : 0;
             $validatedData['mrf_order_number'] = 'SLI-MRF-' . str_pad($lastNumber + 1, 8, '0', STR_PAD_LEFT);
         }
 
@@ -281,60 +283,69 @@ class MrfController extends Controller
      */
 
     public function update(Request $request, $id)
-{
-    $data = MrfForm::find($id);
+    {
+        $data = MrfForm::find($id);
 
-    if (!$data) {
-        return response()->json(['errors' => 'Record not found'], 404);
+        if (!$data) {
+            return response()->json(['errors' => 'Record not found'], 404);
+        }
+
+        // Update status and save
+        $data->updated_by = auth()->user()->id;
+        $data->status = $request->status;
+        $data->save();
+
+        // Prepare email data
+        $sitename = DB::table('tbl_sites')->where('id', $data->site_id)->value('site_name');
+        $authUserId = auth()->user()->id;
+        $creatorEmail = User::where('id', $authUserId)->value('email');
+        $departmentHeadId = User::where('id', $authUserId)->value('sitehead_user_id');
+        $dapartmentPostion = User::where('id', $authUserId)->value('position');
+        $siteHeadEmail = User::where('id', $departmentHeadId)->value('email');
+
+        // Prepare the job request data
+        $jobRequest = [
+            'mrf_order_number' => $data->mrf_order_number,
+            'site_name' => $sitename,
+            'date_requested' => $data->date_requested,
+            'date_needed' => $data->date_needed,
+            'purpose' => $data->purpose,
+            'status' => $data->status,
+            'createdby' => User::where('id', $data->created_by)
+                ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
+                ->value('full_name'),
+            'createdbyPosition' => User::where('id', $data->created_by)
+                ->selectRaw('CONCAT(position) as createdbyPosition')
+                ->value('createdbyPosition'),
+            'departmenthead' => User::where('id', $data->updated_by)
+                ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
+                ->value('full_name'),
+            'departmentheadPosition' =>  User::where('id', $data->updated_by)
+                ->selectRaw('CONCAT(position) as departmentheadPosition')
+                ->value('departmentheadPosition'),
+            'materials' => $data->mrf_items_parts,
+           'ApprovedDate' => $data->updated_at->format('M d, Y H:i A')
+        ];
+
+        // Generate dynamic subject
+        $subject = "MRF Request " . ($data->status === 'C' ? 'Rejected' : 'Approved') . " # " . $data->mrf_order_number;
+
+        // Generate PDF and prepare email
+
+        $pdf = PDF::loadView('emails.mrf_approved', ['jobRequest' => $jobRequest])
+            ->setPaper('a4', 'portrait') // Ensure the paper size is correct
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true
+            ]);
+        Mail::send('emails.mrf_approved', ['jobRequest' => $jobRequest], function ($message) use ($creatorEmail, $siteHeadEmail, $subject, $pdf) {
+            $message->to([$creatorEmail])
+                ->subject($subject)
+                ->attachData($pdf->output(), "download.pdf");
+        });
+
+        return response()->json(['success' => true], 200);
     }
-
-    // Update status and save
-    $data->updated_by =auth()->user()->id;
-    $data->status = $request->status;
-    $data->save();
-
-    // Prepare email data
-    $sitename = DB::table('tbl_sites')->where('id', $data->site_id)->value('site_name');
-    $authUserId = auth()->user()->id;
-    $creatorEmail = User::where('id', $authUserId)->value('email');
-    $departmentHeadId = User::where('id', $authUserId)->value('sitehead_user_id');
-    $dapartmentPostion = User::where('id', $authUserId)->value('position');
-    $siteHeadEmail = User::where('id', $departmentHeadId)->value('email');
-
-    // Prepare the job request data
-    $jobRequest = [
-        'mrf_order_number' => $data->mrf_order_number,
-        'site_name' => $sitename,
-        'date_requested' => $data->date_requested,
-        'date_needed' => $data->date_needed,
-        'purpose' => $data->purpose,
-        'status' => $data->status,
-        'createdby' => User::where('id', $data->created_by)
-            ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
-            ->value('full_name'),
-        'createdbyPosition' => User::where('id', $data->position)
-            ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
-            ->value('full_name'),
-        'departmenthead' => User::where('id', $departmentHeadId)
-            ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
-            ->value('full_name'),
-        'departmentheadPosition' => $dapartmentPostion,
-        'materials' => $data->materials // Assuming materials is a relationship or data field
-    ];
-
-    // Generate dynamic subject
-    $subject = "MRF Request " . ($data->status === 'C' ? 'Rejected' : 'Approved') . " # " . $data->mrf_order_number;
-
-    // Generate PDF and prepare email
-    $pdf = PDF::loadView('emails.mrf_approved', ['jobRequest' => $jobRequest]);
-    Mail::send('emails.mrf_approved', ['jobRequest' => $jobRequest], function ($message) use ($creatorEmail, $siteHeadEmail, $subject, $pdf) {
-        $message->to([$creatorEmail])
-            ->subject($subject)
-            ->attachData($pdf->output(), "mrf_details.pdf");
-    });
-
-    return response()->json(['success' => true], 200);
-}
 
 
 
