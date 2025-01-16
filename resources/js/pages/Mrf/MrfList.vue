@@ -98,12 +98,12 @@ const editData = async (item, status) => {
   if (result.isConfirmed) {
     isLoading.value = true;
     try {
-      await axios.put(`/web/Mrf-request/${item.id}`, { status });
+      await axios.put(`/web/Mrf-request/${item.id}`);
       const action = status === "A" ? "Approved" : "Rejected";
       toastr.success(`Record successfully ${action}`);
       getItems();
-    } catch (error) {
-      toastr.error(error.response?.data?.message || "An error occurred");
+    } catch (errors) {
+      toastr.error(errors.response.data.errors);
     } finally {
       isLoading.value = false;
     }
@@ -114,8 +114,8 @@ const handleSelectChange = (event, item) => {
     if (selectedStatus) {
         editData(item, selectedStatus); // Pass the selected status to editData
     }
-   
-   
+
+
 }
 const deleteData = () => {};
 watch(
@@ -150,7 +150,7 @@ onMounted(() => {
                         <i class="fa fa-plus-circle mr-1"></i>
                     </router-link>
 
-                    
+
                 </div>
                 <div>
                     <input
@@ -165,7 +165,7 @@ onMounted(() => {
                 <div class="card-body">
                     <ContentLoader v-if="isLoading" />
                     <div class="table-responsive">
-                        
+
                             <table class="table table-bordered table-sm">
                                 <thead>
                                     <tr>
@@ -210,7 +210,7 @@ onMounted(() => {
                                     </tr>
                                 </tbody>
                             </table>
-                      
+
                     </div>
                 </div>
             </div>

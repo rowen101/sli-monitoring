@@ -24,8 +24,10 @@ return new class extends Migration
              $table->binary('prepared_by_signature')->nullable();
              $table->integer('noted_by')->nullable();
              $table->binary('noted_by_signature')->nullable();
-            $table->integer('created_by')->nullable(0);
-            $table->integer('updated_by')->nullable(0);
+            $table->integer('finance_id')->nullable();
+              $table->binary('finance_signature')->nullable();
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->timestamps();
         });
 

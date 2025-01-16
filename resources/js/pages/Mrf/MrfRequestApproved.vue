@@ -83,48 +83,53 @@
 
                     <table class="table table-bordered table-sm border-0">
                         <tr>
-                            <td colspan="2">PREPARED BY: {{ form.checkedBy }}</td>
+                            <td colspan="3">PREPARED BY: {{ form.checkedBy }}</td>
                         </tr>
                         <tr>
-                            <td colspan="2">
+                            <td colspan="3">
                                 Note: Procurement cut-off time of receiving
                                 requests: MWF @8AM-2PM
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2">
+                            <td colspan="3">
                                 *7 Days lead for consumables (Repeat Order)
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2">
+                            <td colspan="3">
                                 *10 Days lead time for (New Request) beyond TOR
                                 for Local Vendor
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2">
+                            <td colspan="3">
                                 *30 Days lead time for (New Request) beyond TOR
                                 for Foreign Vendor
                             </td>
                         </tr>
                         <tr>
                             <td class="signature">
-                               Prepared By:<br><span style="text-decoration: underline;"> {{ form.checkedBy }}</span> <br />
+                               Prepared by:<br><span style="text-decoration: underline;"> {{ form.checkedBy }}</span> <br />
 
                                 {{ form.checkedPosition }}
                             </td>
                             <td class="signature">
-                                Noted By:  <br /><span style="text-decoration: underline;">{{ form.approvedBy }}</span>
+                                Noted by:  <br /><span style="text-decoration: underline;">{{ form.approvedBy }}</span>
                                 <br>
                                 {{ form.approvedPosition }}
+                            </td>
+                            <td class="signature">
+                                Checked by:  <br /><span style="text-decoration: underline;">{{ form.financeby }}</span>
+                                <br>
+                                {{ form.financePosition }}
                             </td>
                         </tr>
                     </table>
                     <br>
                     <span v-if="form.Status === 'A'"
                         >Approved date:({{ form.approvedDate }})</span
-               
+
             >
                 </div>
             </div>
@@ -171,6 +176,8 @@ const form = reactive({
     reviewedDate: "",
     approvedBy: "",
     approvedDate: "",
+    financeby: "",
+    financePosition: "",
     remarks: "",
     Status: "",
     approveby:"",
@@ -208,16 +215,17 @@ const getJobOrder = () => {
             form.reviewedDate = moment(
                 response.data.record.reviewedDate
             ).format("MMMM D, YYYY");
-            form.approvedBy = response.data.record.updatedby.ufull_name;
-            form.approvedPosition = response.data.record.updatedby.uposition
-                ? response.data.record.updatedby.uposition
+            form.approvedBy = response.data.record.noted_by.ufull_name;
+            form.approvedPosition = response.data.record.noted_by.uposition
+                ? response.data.record.noted_by.uposition
                 : "";
             form.approvedDate = moment(
                 response.data.record.approvedDate
             ).format("MMMM D, YYYY");
             form.remarks = response.data.record.remarks;
             form.Status = response.data.record.status;
-            console.log(response.data.record.status);
+            form.financeby = response.data.record.finance_by.user_finance;
+            form.financePosition = response.data.record.finance_by.finance_position;
         })
         .catch((error) => {
             console.log(error.message);
@@ -234,7 +242,7 @@ onMounted(() => {
 <style scoped>
 body {
     font-family: Arial, sans-serif;
- 
+
 }
 .container {
     position: relative;

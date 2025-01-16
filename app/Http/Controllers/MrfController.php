@@ -23,7 +23,10 @@ class MrfController extends Controller
      */
     public function index()
     {
-        $authUserId = auth()->user()->id;
+
+        $authUser = auth()->user();
+        $authUserId = $authUser->id;
+        $authUserRole = $authUser->role;
 
         $data = MrfForm::query()->select(
             'mrf_form.id',
@@ -42,9 +45,20 @@ class MrfController extends Controller
             ->when(request('query'), function ($query, $searchQuery) {
                 $query->where('tbl_sites.site_name', 'like', "%{$searchQuery}%");
             })
-            ->where(function ($query) use ($authUserId) {
-                $query->where('mrf_form.created_by', $authUserId)
-                    ->orWhere('users.sitehead_user_id', $authUserId); // Include sitehead_user_id condition
+            // ->where(function ($query) use ($authUserId) {
+
+            //     $query->where('mrf_form.created_by', $authUserId)
+            //         ->orWhere('users.sitehead_user_id', $authUserId);
+            // })
+            ->where(function ($query) use ($authUserId, $authUserRole) {
+                if ($authUserRole === 'USER') { // Restrict to forms created by the user
+                    $query->where('mrf_form.created_by', $authUserId)
+                    ->orWhere('users.sitehead_user_id', $authUserId);
+                }
+                elseif($authUserRole === 1){
+
+                }
+                // If role is 1, show all records (no restriction needed)
             })
             ->orderBy('mrf_form.created_at', 'desc')
             ->paginate(setting('pagination_limit'))
@@ -227,15 +241,25 @@ class MrfController extends Controller
                 ->where('id', $user->created_by)
                 ->first();
 
-            // Retrieve the user who updated the record
+            // Retrieve the user who noted_by the record
             $updatedByUser = DB::table('users')
                 ->select(DB::raw("CONCAT(first_name, ' ', last_name) AS ufull_name"), 'position AS uposition')
-                ->where('id', $user->updated_by)
+                ->where('id', $user->noted_by)
                 ->first();
+             // Retrieve the user_finance the record
+            $financeUser = DB::table('users')
+            ->select(DB::raw("CONCAT(first_name, ' ', last_name) AS user_finance"), 'position AS finance_position')
+            ->where('id', $user->finance_id)
+            ->first();
 
             $updatedByUser = $updatedByUser ? $updatedByUser : (object)[
                 'ufull_name' => '',
                 'uposition' => ''
+            ];
+
+            $financeUser = $financeUser ? $financeUser : (object)[
+                'user_finance' => '',
+                'finance_position' => ''
             ];
             // Retrieve the job maintenance record by ID and load the replacement parts and join with tbl_site
             $data = MrfForm::with('mrf_items_parts')
@@ -244,7 +268,8 @@ class MrfController extends Controller
                 ->findOrFail($user->id);
             // Add the user information to the data object
             $data->createdby = $createdByUser;
-            $data->updatedby = $updatedByUser;
+            $data->noted_by = $updatedByUser;
+            $data->finance_by = $financeUser;
 
 
 
@@ -282,17 +307,76 @@ class MrfController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function update(Request $request, $id)
-    {
-        $data = MrfForm::find($id);
+     public function update(Request $request, $id)
+     {
+         $data = MrfForm::find($id);
 
-        if (!$data) {
-            return response()->json(['errors' => 'Record not found'], 404);
+         if (!$data) {
+             return response()->json(['errors' => 'Record not found'], 404);
+         }
+
+
+         // Check if noted_by is empty, if both are empty, update noted_by first
+         // Check if noted_by and finance_id are empty and ensure they don't conflict
+    if (empty($data->noted_by) && empty($data->finance_id)) {
+        // Assign the current user to noted_by if both fields are empty
+        $data->noted_by = auth()->user()->id;
+        $data->status = 'P';
+
+
+        $authUserId = auth()->user()->id;
+        $creatorEmail = User::where('id',  $authUserId)->pluck('email')->first();
+        $departmentHeadId = User::where('id',  auth()->user()->id)->pluck('sitehead_user_id')->first();
+        $siteHeadEmail = User::where('id', $departmentHeadId)->pluck('email')->first();
+
+
+        // Prepare data for the email
+        $emailRequest = [
+            'mrf_order_number' => $data->mrf_order_number,
+            'site_id' => $data->site_id,
+            'date_requested' => $data->date_requested,
+            'date_needed' => $data->date_needed,
+            'purpose' => $data->purpose,
+            'status' => $data->status,
+            'created' => User::where('id', $data->created_by)
+                ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
+                ->pluck('full_name')
+                ->first(),
+            'departmenthead' => User::where('id', $departmentHeadId)
+                ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
+                ->pluck('full_name')
+                ->first()
+        ];
+
+        // Generate dynamic subject
+        $subject = "New MRF Request No " . $data['mrf_order_number'];
+
+        // Prepare emails
+        $toEmails = implode(',', array_filter([$siteHeadEmail]));
+        $ccEmails = implode(',', array_filter([$creatorEmail]));
+
+        // Send email
+        Mail::to($toEmails)
+            ->cc($ccEmails)
+            ->send(new MrfNotify($emailRequest, $subject));
+
+
+        DB::commit();
+
+
+    } elseif (empty($data->noted_by)) {
+        if (auth()->user()->id == $data->finance_id) {
+            return response()->json(['errors' => 'You already Approved this MRF'], 400);
         }
+        $data->noted_by = auth()->user()->id;
+        $data->status = 'P';
+    } elseif (empty($data->finance_id)) {
+        if (auth()->user()->id == $data->noted_by) {
+            return response()->json(['errors' => 'You already Approved this'], 400);
+        }
+        $data->finance_id = auth()->user()->id;
+        $data->status = 'A';
 
-        // Update status and save
-        $data->updated_by = auth()->user()->id;
-        $data->status = $request->status;
         $data->save();
 
         // Prepare email data
@@ -320,18 +404,17 @@ class MrfController extends Controller
             'departmenthead' => User::where('id', $data->updated_by)
                 ->selectRaw('CONCAT(first_name, " ", last_name) as full_name')
                 ->value('full_name'),
-            'departmentheadPosition' =>  User::where('id', $data->updated_by)
+            'departmentheadPosition' => User::where('id', $data->updated_by)
                 ->selectRaw('CONCAT(position) as departmentheadPosition')
                 ->value('departmentheadPosition'),
             'materials' => $data->mrf_items_parts,
-           'ApprovedDate' => $data->updated_at->format('M d, Y H:i A')
+            'ApprovedDate' => $data->updated_at->format('M d, Y H:i A')
         ];
 
         // Generate dynamic subject
         $subject = "MRF Request " . ($data->status === 'C' ? 'Rejected' : 'Approved') . " # " . $data->mrf_order_number;
 
         // Generate PDF and prepare email
-
         $pdf = PDF::loadView('emails.mrf_approved', ['jobRequest' => $jobRequest])
             ->setPaper('a4', 'portrait') // Ensure the paper size is correct
             ->setOptions([
@@ -343,9 +426,10 @@ class MrfController extends Controller
                 ->subject($subject)
                 ->attachData($pdf->output(), "download.pdf");
         });
-
-        return response()->json(['success' => true], 200);
     }
+         return response()->json(['success' => true], 200);
+     }
+
 
 
 

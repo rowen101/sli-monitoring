@@ -24,6 +24,8 @@ class MrfForm extends Model
         'prepared_by_signature',
         'noted_by',
         'noted_by_signature',
+        'finance_id',
+        'finance_signature',
         'created_by',
         'updated_by',
         'created_at'
