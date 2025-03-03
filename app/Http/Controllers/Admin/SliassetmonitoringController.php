@@ -206,4 +206,13 @@ class SliassetmonitoringController extends Controller
 
         return response()->json(['message' => 'Records deleted successfully!']);
     }
+
+    public function bulkPrint($ids)
+    {
+      $data = sliassetmonitoring::whereIn('id', explode(',', $ids))
+      ->get(['id', 'asset_name','serial','date_acquired','purchasecost','paccountable','location']); // Include the fields you need
+
+        return response()->json($data);
+
+    }
 }

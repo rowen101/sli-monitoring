@@ -134,6 +134,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('/web/asset-monitoring', SliassetmonitoringController::class);
     Route::delete('/web/bulkDeleteAsset', [SliassetmonitoringController::class, 'bulkDelete']);
     Route::get('/web/usersite/{id}', [UserSiteController::class, 'getUserSites']);
+    Route::get('/web/asset/bulkprint/{id}', [SliassetmonitoringController::class, 'bulkPrint']);
+
+
 
     Route::get('/web/getsitewithoutuser', [UserSiteController::class, 'getsitewthuserid']);
 

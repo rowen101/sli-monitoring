@@ -1,3 +1,4 @@
+
 import Dashboard from './components/Dashboard.vue';
 import ListAppointments from './pages/appointments/ListAppointments.vue';
 import AppointmentForm from './pages/appointments/AppointmentForm.vue';
@@ -26,6 +27,7 @@ import JobOrderRequestApproved from '@/pages/joborder/JobOrderRequestApproved.vu
 import MrfList from './pages/Mrf/MrfList.vue';
 import MrfAction from './pages/Mrf/MrfAction.vue';
 import MrfRequestApproved from '@/pages/Mrf/MrfRequestApproved.vue';
+import PrintAsset from './pages/assetmonitoring/PrintAsset.vue';
 export default [
     {
         path: '/login',
@@ -137,6 +139,11 @@ export default [
         name: 'Asset Monitoring',
         component: AssetMonitoring,
     },
+    {
+        path: '/asset-monitoring/bulkPrint/print',
+        name: 'print-asset',
+        component: PrintAsset,
+    },
   {
         path: '/pallet-monitoring',
         name: 'Pallet Monitoring',
@@ -183,3 +190,4 @@ export default [
             component: MrfRequestApproved,
         },
 ]
+

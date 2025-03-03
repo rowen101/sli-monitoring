@@ -9,8 +9,10 @@ import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
 import ContentLoader from "../../components/ContentLoader.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router"; 
 
+const route = useRoute(); // Get the current route
+const router = useRouter(); 
 const authUserStore = useAuthUserStore();
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
@@ -207,21 +209,14 @@ const deleteData = () => {
         });
 };
 
-const bulkDelete = () => {
-    axios
-        .delete("/web/bulkDeleteAsset", {
-            data: {
-                ids: selectedItems.value,
-            },
-        })
-        .then((response) => {
-            lists.value.data = lists.value.data.filter(
-                (data) => !selectedItems.value.includes(data.id)
-            );
-            selectedItems.value = [];
-            selectAll.value = false;
-            toastr.success(response.data.message);
-        });
+const bulkPrint = () => {
+    const selectedIds = selectedItems.value.join(','); 
+    // Save to sessionStorage
+    sessionStorage.setItem('selectedItems', selectedIds);
+    // Redirect to the new page
+    const url = '/asset-monitoring/bulkPrint/print';
+    window.open(url, '_blank');
+
 };
 
 const selectAll = ref(false);
@@ -271,12 +266,12 @@ onMounted(() => {
                     </button>
                     <div v-if="selectedItems.length > 0">
                         <button
-                            @click="bulkDelete"
+                            @click="bulkPrint"
                             type="button"
-                            class="ml-2 mb-2 btn btn-danger"
+                            class="ml-2 mb-2 btn btn-success"
                         >
                             <i class="fa fa-trash mr-1"></i>
-                            Delete Selected
+                            Print Selected
                         </button>
                         <span class="ml-2"
                             >Selected {{ selectedItems.length }} Record</span
