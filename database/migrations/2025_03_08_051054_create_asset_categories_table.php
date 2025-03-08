@@ -13,14 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('appointments', function (Blueprint $table) {
+        Schema::create('asset_categories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained();
-            $table->string('title');
-            $table->text('description');
-            $table->timestamp('start_time');
-            $table->timestamp('end_time');
-            $table->tinyInteger('status');
+            $table->string('name');
+            $table->string('categorycode');
+            $table->text('description')->nullable();
+            $table->boolean('status')->default(true)->nullable();
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->timestamps();
         });
     }
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('appointments');
+        Schema::dropIfExists('asset_categories');
     }
 };

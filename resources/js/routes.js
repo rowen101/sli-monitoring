@@ -18,6 +18,8 @@ import page404 from "./404.vue";
 import TechRecommApproved from './pages/techrecomm/TechRecommApproved.vue';
 import Notifications from './pages/notification/index.vue';
 import AssetMonitoring from './pages/assetmonitoring/AssetmList.vue';
+import AssetCategory from './pages/assetmonitoring/asset-category.vue';
+import AssetItemMaster from './pages/assetmonitoring/asset-item-master.vue';
 import PalletMonitoring from './pages/palletmonitoring/PalletList.vue';
 import UserSite from './pages/usersite/UserSite.vue';
 import joborder from './pages/joborder/JobOrderList.vue';
@@ -28,6 +30,8 @@ import MrfList from './pages/Mrf/MrfList.vue';
 import MrfAction from './pages/Mrf/MrfAction.vue';
 import MrfRequestApproved from '@/pages/Mrf/MrfRequestApproved.vue';
 import PrintAsset from './pages/assetmonitoring/PrintAsset.vue';
+
+
 export default [
     {
         path: '/login',
@@ -133,6 +137,16 @@ export default [
         path: '/tech-approved/:id/view',
         name: 'Tech-Approved',
         component: TechRecommApproved,
+    },
+    {
+        path: '/asset-category',
+        name: 'Asset Category',
+        component: AssetCategory,
+    },
+    {
+        path: '/asset-item-master',
+        name: 'Asset Item Master',
+        component: AssetItemMaster,
     },
     {
         path: '/asset-monitoring',

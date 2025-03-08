@@ -53,7 +53,7 @@ class TechController extends Controller
     });
 
 
-         return $data;
+    return response()->json($data);
     }
 
     /**
@@ -96,7 +96,7 @@ class TechController extends Controller
             STR_PAD_LEFT
         );
 
-        return TechRecomm::create([
+        $techRecomm = TechRecomm::create([
             'recommnum' => $recommnum,
             'company' => 'Safexpress Logistics Corp.',
             'branch' => request('branch'),
@@ -115,6 +115,7 @@ class TechController extends Controller
             'updated_by' => 0,
 
         ]);
+
     }
 
     public function getAction(Request $request)
