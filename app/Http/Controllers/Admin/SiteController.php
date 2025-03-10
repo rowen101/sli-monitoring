@@ -15,8 +15,8 @@ class SiteController extends Controller
      */
     public function index()
     {
-        $data =tbl_site::all();
-        return $data;
+        $data = tbl_site::all();
+        return response()->json($data);
     }
 
 

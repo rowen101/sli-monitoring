@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AssetCategory;
 use App\Models\AssetItem;
 use Illuminate\Http\Request;
-
+use App\Models\User;
 class AssetItemController extends Controller
 {
     /**
@@ -18,19 +18,29 @@ class AssetItemController extends Controller
     {
         $data = AssetItem::query()
             ->when(request('query'), function ($query, $searchQuery) {
-                $query->where('name', 'like', "%{$searchQuery}%") and $query->where('description', 'like', "%{$searchQuery}%") and $query->where('category', 'like', "%{$searchQuery}%");
+                $query->where('name', 'like', "%{$searchQuery}%") and $query->where('description', 'like', "%{$searchQuery}%");
 
             })
             ->latest()
             ->paginate(setting('pagination_limit'))
             ->through(function ($item) {
-                $itemcategory = AssetCategory::find($item->id);
+
+                $usercreate = User::find($item->created_by);
+                $usercreated_by = $usercreate ? $usercreate->name : null;
+                $userupdate = User::find($item->updated_by);
+                $userupdated_by = $userupdate ? $userupdate->name : null;
+                $itemcategory = AssetCategory::find($item->category_id);
                 return [
                     'id' => $item->id,
-                    'name' => $item->recommnum,
-                    'description' => $item->user,
+                    'name' => $item->name,
+                    'itemcode' => $item->itemcode,
+                    'description' => $item->description,
                     'category' => $itemcategory ? $itemcategory->name : null,
+                    'created_by' => $usercreated_by,
+                    'updated_by' => $userupdated_by,
+                    'status' => $item->status,
                     'created_at' => $item->created_at->format('Y-m-d h:i A'),
+                    'updated_at' => $item->created_at->format('Y-m-d h:i A'),
 
                 ];
             });
@@ -57,36 +67,39 @@ class AssetItemController extends Controller
      */
     public function store(Request $request)
     {
+        $userId = auth()->user()->id;
+
         request()->validate([
             'name' => 'required',
             'description' => 'required',
+            'itemcode' => 'required',
         ]);
-
-
-        $latestRecord = AssetItem::latest('id')->first();
-
-
-        $lastRecommNum = optional($latestRecord)->recommnum;
-
-
-        $recommnum = 'ITM' . str_pad(
-            (intval(substr($lastRecommNum, 4)) + 1),
-            strlen($lastRecommNum) - 4,
-            '0',
-            STR_PAD_LEFT
-        );
-
-        $assetItem = AssetItem::create([
+        $data = [
             'name' => $request->name,
             'itemcode' => $request->itemcode,
             'description' => $request->description,
             'category_id' => $request->category_id,
             'status' => $request->status,
-            'created_by' => auth()->user()->id,
+            'created_by' => $userId,
+            'updated_by' => null
+        ];
 
-        ]);
+         // Check if 'id' is provided in the request
+         if ($request->id) {
+            // If 'id' is provided, include 'updated_by' in the data array
+            $data['updated_by'] = $userId;
+        } else {
+            // If 'id' is not provided (indicating creation), set 'updated_by' to null
+            $data['updated_by'] = null;
+        }
 
-        return response()->json($assetItem, 201);
+        // Use updateOrCreate with the prepared data
+        AssetItem::updateOrCreate(
+            ['id' => $request->id],
+            $data
+        );
+
+        return response()->json(['message' => 'Data successfully saved']);
     }
 
     /**
@@ -131,6 +144,23 @@ class AssetItemController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $data = AssetItem::find($id);
+        $data->delete();
+        return response()->json(['message' => 'Data successfully deleted']);
+    }
+
+    public function findCategorybyitem($id)
+    {
+        $categorybyid = AssetCategory::where('name',$id)->first();
+        if (!$categorybyid) {
+            return response()->json(['message' => 'Category not found.'], 404);
+        }
+
+        $data = AssetItem::select('id', 'name')
+        ->where('status', 1)
+        ->where('category_id', $categorybyid->id) 
+        ->get();
+
+        return response()->json($data);
     }
 }

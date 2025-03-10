@@ -41,16 +41,15 @@ onMounted(() => {
 <template>
      <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <a href="#" class="brand-link">
-            <img
-                :src="'/img/safe1.png'"
+
+            <span class="brand-text "> <img
+                :src="'/img/ESS-WMS.png'"
                 alt=" Logo"
-                class="brand-image"
+               height="50"
+               width="200"
                 style="opacity: 0.8"
                  draggable="false"
-            />
-            <span class="brand-text font-weight-light">{{
-                settingStore.setting.app_name
-            }}</span>
+            /></span>
         </a>
 
         <div class="sidebar" >

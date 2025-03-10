@@ -109,9 +109,20 @@ class SliassetmonitoringController extends Controller
     {
         $userId = auth()->user()->id;
 
+        $latestRecord = sliassetmonitoring::latest('id')->first();
+
+
+        $lastRecord = optional($latestRecord)->recommnum;
+        $recommnum = 'SLI-AST-' . str_pad(
+            (intval(substr($lastRecord, 4)) + 1),
+            strlen($lastRecord) - 4,
+            '0',
+            STR_PAD_LEFT
+        );
+
         $data = [
             'site_id' => $request->site_id,
-            'asset_name' => $request->asset_name,
+            'asset_name' => $recommnum,
             'asset_type' => $request->asset_type,
             'serial' => $request->serial,
             'date_acquired' => $request->date_acquired,

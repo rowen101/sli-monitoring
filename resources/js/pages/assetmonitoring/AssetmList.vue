@@ -9,20 +9,23 @@ import { debounce } from "lodash";
 import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import { useAuthUserStore } from "../../stores/AuthUserStore";
 import ContentLoader from "../../components/ContentLoader.vue";
-import { useRoute, useRouter } from "vue-router"; 
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute(); // Get the current route
-const router = useRouter(); 
+const router = useRouter();
 const authUserStore = useAuthUserStore();
 const pageTitle = `${useRoute().name}`;
 const toastr = useToastr();
 const lists = ref({ data: [] });
+const listoptionitem = ref({ data: [] });
+
+
 const menuOptionlist = ref({ data: [] });
 
 const isloading = ref(false);
 const editing = ref(false);
 const formValues = ref();
-
+const listoption = ref();
 const checked = ref(true);
 const form = reactive({
     site_name:"",
@@ -179,6 +182,7 @@ const getSite = () => {
             console.log(error);
         });
 };
+
 const searchQuery = ref(null);
 
 const selectedItems = ref([]);
@@ -210,7 +214,7 @@ const deleteData = () => {
 };
 
 const bulkPrint = () => {
-    const selectedIds = selectedItems.value.join(','); 
+    const selectedIds = selectedItems.value.join(',');
     // Save to sessionStorage
     sessionStorage.setItem('selectedItems', selectedIds);
     // Redirect to the new page
@@ -228,6 +232,41 @@ const selectAllUsers = () => {
     }
     console.log(selectedItems.value);
 };
+const getCategory = () => {
+    axios
+        .get(`/web/asset-getcategory`)
+        .then((response) => {
+            listoption.value = response.data;
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+};
+
+const GetItembyCategoryId = (id) => {
+    axios
+        .get(`/web/asset-getitem/${id}`)
+        .then((response) => {
+            listoptionitem.value = response.data;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+};
+
+const onActionCat = () => {
+    const selectedCategoryId = form.asset_type;
+
+// Call the function to fetch items by category ID
+if (selectedCategoryId) {
+    GetItembyCategoryId(selectedCategoryId);
+} else {
+    console.error("No category ID selected.");
+}
+
+
+};
+
 
 const updateStatus = (status) => {
     selectedStatus.value = status;
@@ -246,8 +285,8 @@ watch(
 onMounted(() => {
     getItems();
     getSite();
-    document.title = `SLI-DTS - ${pageTitle}`;
-
+    getCategory();
+    document.title = `ESSWMS - ${pageTitle}`;
 });
 </script>
 
@@ -268,9 +307,9 @@ onMounted(() => {
                         <button
                             @click="bulkPrint"
                             type="button"
-                            class="ml-2 mb-2 btn btn-success"
+                            class="ml-2 mb-2 btn btn-primary"
                         >
-                            <i class="fa fa-trash mr-1"></i>
+                            <i class="fa fa-print mr-1"></i>
                             Print Selected
                         </button>
                         <span class="ml-2"
@@ -430,52 +469,37 @@ onMounted(() => {
                                                     >{{ errors.branch }}</span
                                                 >
                                             </div>
+
                                             <div class="form-group">
-                                                <label for="department"
-                                                    >Asset Name</label
-                                                >
+                                                <label for="asset_type">Category</label>
                                                 <Field
-                                                    name="asset_name"
-                                                    type="text"
-                                                    class="form-control"
-                                                    :class="{
-                                                        'is-invalid':
-                                                            errors.asset_name,
-                                                    }"
-                                                    id="asset_name"
-                                                    aria-describedby="nameHelp"
-                                                    placeholder="Enter asset_name"
-                                                    v-model="form.asset_name"
-                                                />
-                                                <span
-                                                    class="invalid-feedback"
-                                                    >{{
-                                                        errors.asset_name
-                                                    }}</span
-                                                >
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="asset_type"
-                                                    >Asset Type</label
-                                                >
-                                                <Field
+                                                    as="select"
                                                     name="asset_type"
-                                                    type="text"
                                                     class="form-control"
                                                     :class="{
                                                         'is-invalid':
                                                             errors.asset_type,
                                                     }"
                                                     id="asset_type"
-                                                    aria-describedby="nameHelp"
-                                                    placeholder="Enter Asset Type"
+                                                    aria-describedby="branchHelp"
                                                     v-model="form.asset_type"
-                                                />
+                                                    @change="onActionCat()"
+                                                >
+                                                    <option value="" disabled>
+                                                        Select Category
+                                                    </option>
+
+                                                    <option
+                                                        v-for="listoptins in listoption"
+                                                        :key="listoptins.id"
+                                                        :value="listoptins.name"
+                                                    >
+                                                        {{ listoptins.name }}
+                                                    </option>
+                                                </Field>
                                                 <span
                                                     class="invalid-feedback"
-                                                    >{{
-                                                        errors.asset_type
-                                                    }}</span
+                                                    >{{ errors.category_id }}</span
                                                 >
                                             </div>
                                             <div class="form-group">
@@ -528,28 +552,34 @@ onMounted(() => {
                                             </div>
 
                                             <div class="form-group">
-                                                <label for="man_supplier"
-                                                    >Brand</label
-                                                >
-
+                                                <label for="man_supplier">Brand</label>
                                                 <Field
+                                                    as="select"
                                                     name="man_supplier"
-                                                    type="text"
                                                     class="form-control"
                                                     :class="{
                                                         'is-invalid':
                                                             errors.man_supplier,
                                                     }"
                                                     id="man_supplier"
-                                                    aria-describedby="nameHelp"
-                                                    placeholder="Enter Brand Name"
+                                                    aria-describedby="branchHelp"
                                                     v-model="form.man_supplier"
-                                                />
+                                                >
+                                                    <option value="" disabled>
+                                                        Select Brand
+                                                    </option>
+
+                                                    <option
+                                                        v-for="lists in listoptionitem"
+                                                        :key="lists.id"
+                                                        :value="lists.name"
+                                                    >
+                                                        {{ lists.name }}
+                                                    </option>
+                                                </Field>
                                                 <span
                                                     class="invalid-feedback"
-                                                    >{{
-                                                        errors.man_supplier
-                                                    }}</span
+                                                    >{{ errors.man_supplier }}</span
                                                 >
                                             </div>
                                             <div class="form-group">

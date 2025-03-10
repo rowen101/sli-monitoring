@@ -193,7 +193,7 @@ onMounted(() => {
 
                  <router-link class="dropdown-item" to='/profile'><i class="fas fa-user-circle"></i> My Profile</router-link>
 
-    
+
                 </div>
             </li>
         </ul>

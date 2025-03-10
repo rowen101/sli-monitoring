@@ -8,10 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class AssetCategory extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'categorycode','description','status','created_by','updated_by'];
+    protected $fillable = ['id','name', 'categorycode','description','status','created_by','updated_by'];
 
     public function items()
     {
         return $this->hasMany(AssetItem::class);
     }
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'status' => 'boolean',
+    ];
 }

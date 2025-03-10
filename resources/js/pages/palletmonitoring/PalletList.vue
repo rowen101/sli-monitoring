@@ -393,7 +393,7 @@ watch(
 onMounted(() => {
     getSite();
 
-    document.title = `SLI-DTS - ${pageTitle}`;
+    document.title = `ESSWMS - ${pageTitle}`;
 
 });
 </script>
@@ -545,17 +545,6 @@ onMounted(() => {
                                     </thead>
 
                                     <tbody v-if="lists.length > 0">
-                                        <!-- <PalletItemList
-                                        v-for="(item, index) in lists"
-                                        :key="item.id"
-                                        :item="item"
-                                        :index="index"
-                                        @view-data="viewData"
-                                        @edit-data="editData"
-                                        @confirm-deletion="confirmDeletion"
-                                        @toggle-selection="toggleSelection"
-                                        :select-all="selectAll"
-                                    /> -->
                                         <tr
                                             v-for="(item, index) in lists"
                                             :key="item.id"

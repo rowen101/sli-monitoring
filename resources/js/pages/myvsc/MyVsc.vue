@@ -200,7 +200,8 @@ const handleThemeClick = (item) => {
 
 onMounted(() => {
     getItems();
-    document.title = `SLI-DTS - ${pageTitle}`;
+    document.title = `ESSWMS - ${pageTitle}`;
+
 
 });
 </script>

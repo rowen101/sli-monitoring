@@ -136,8 +136,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/web/usersite/{id}', [UserSiteController::class, 'getUserSites']);
     Route::get('/web/asset/bulkprint/{id}', [SliassetmonitoringController::class, 'bulkPrint']);
 
+    Route::get('/web/asset-getcategory', [App\Http\Controllers\Admin\AssetCategoryController::class, 'getCategory']);
+    Route::get('/web/asset-getitem/{id}', [App\Http\Controllers\Admin\AssetItemController::class, 'findCategorybyitem']);
     Route::resource('/web/asset-category', App\Http\Controllers\Admin\AssetCategoryController::class);
-
+    Route::resource('/web/asset-itemmaster', App\Http\Controllers\Admin\AssetItemController::class);
     Route::get('/web/getsitewithoutuser', [UserSiteController::class, 'getsitewthuserid']);
 
     Route::post('/web/onSaveupdate', [UserSiteController::class, 'onSaveupdate']);
