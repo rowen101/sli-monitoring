@@ -55,11 +55,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/users', [UserController::class, 'index']);
     Route::post('/api/users', [UserController::class, 'store']);
     Route::patch('/api/users/{user}/change-role', [UserController::class, 'changeRole']);
-    Route::put('/api/users/{user}', [UserController::class, 'update']);
-    Route::delete('/api/users/{user}', [UserController::class, 'destory']);
-    Route::delete('/api/users', [UserController::class, 'bulkDelete']);
-    Route::get('/api/users/userlist', [UserController::class, 'listuser']);
-    Route::patch('/api/users/{user}/change-sitehead', [UserController::class, 'changesitehead']);
+    Route::put('/api/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'update']);
+    Route::delete('/api/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'destory']);
+    Route::delete('/api/users', [App\Http\Controllers\Admin\UserController::class, 'bulkDelete']);
+    Route::get('/api/users/userlist', [App\Http\Controllers\Admin\UserController::class, 'listuser']);
+    Route::patch('/api/users/{user}/change-sitehead', [App\Http\Controllers\Admin\UserController::class, 'changesitehead']);
     //client
     Route::get('/api/view-clients', [ClientController::class, 'viewclient']);
     Route::get('/api/clients', [ClientController::class, 'index']);

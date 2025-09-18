@@ -16,17 +16,16 @@ const authUserStore = useAuthUserStore();
 const toastr = useToastr();
 const users = ref({ data: [] });
 const editing = ref(false);
-const formValues = ref();
-const form = reactive({
+const showPasswordField = ref(false);
+const formValues = reactive({
     id: "",
     name: "",
-    email:"",
-    sitehead_user_id:"",
-    first_name:"",
-    last_name:"",
-    gender:"",
-    position:"",
-
+    email: "",
+    sitehead_user_id: "",
+    first_name: "",
+    last_name: "",
+    gender: "",
+    position: "",
 });
 const listuseroption = ref([]);
 const selectedSiteHead = ref(null);
@@ -117,22 +116,26 @@ const addUser = () => {
     $("#userFormModal").modal("show");
 };
 
+// Update the editUser function:
 const editUser = (item) => {
     editing.value = true;
-    form.id = item.id;
-    form.name = item.name;
-    form.email = item.email;
-    form.first_name = item.first_name;
-    form.last_name = item.last_name;
-    form.gender = item.gender;
-    form.position = item.position;
+    // Populate formValues instead of form
+    formValues.id = item.id;
+    formValues.name = item.name;
+    formValues.email = item.email;
+    formValues.first_name = item.first_name;
+    formValues.last_name = item.last_name;
+    formValues.gender = item.gender;
+    formValues.position = item.position;
+    // Reset password field when editing
+    formValues.password = "";
+    showPasswordField.value = false;
     $("#userFormModal").modal("show");
-
 };
 
 const updateUser = (values, { setErrors }) => {
-    axios
-        .put("/api/users/" + formValues.value.id, values)
+    // Use formValues.id instead of formValues.value.id
+    axios.put("/api/users/" + formValues.id, values)
         .then((response) => {
             const index = users.value.data.findIndex(
                 (user) => user.id === response.data.id
@@ -140,22 +143,38 @@ const updateUser = (values, { setErrors }) => {
             users.value.data[index] = response.data;
             $("#userFormModal").modal("hide");
             toastr.success("User updated successfully!");
+
+            // Reset the password field and toggle
+            showPasswordField.value = false;
+            formValues.password = '';
         })
         .catch((error) => {
-            setErrors(error.response.data.errors);
+            if (error.response && error.response.data.errors) {
+                setErrors(error.response.data.errors);
+            }
             console.log(error);
         });
 };
 
 const handleSubmit = (values, actions) => {
-    // console.log(actions);
     if (editing.value) {
+        // If password is empty, remove it from the values to avoid validation errors
+        if (!values.password) {
+            delete values.password;
+        }
         updateUser(values, actions);
     } else {
         createUser(values, actions);
     }
 };
 
+// Add a function to toggle password field visibility
+const togglePasswordField = () => {
+    showPasswordField.value = !showPasswordField.value;
+    if (!showPasswordField.value) {
+        formValues.password = '';
+    }
+};
 const searchQuery = ref(null);
 
 const selectedUsers = ref([]);
@@ -224,6 +243,13 @@ onMounted(() => {
     getOptionUsers();
     document.title = `SLI-DTS - ${pageTitle}`;
 
+    // Reset form when modal closes
+    $('#userFormModal').on('hidden.bs.modal', function () {
+        showPasswordField.value = false;
+        formValues.password = '';
+        editing.value = false;
+    });
+
 
 });
 </script>
@@ -274,13 +300,7 @@ onMounted(() => {
                             >
                                 <thead>
                                     <tr>
-                                        <!-- <th>
-                                            <input
-                                                type="checkbox"
-                                                v-model="selectAll"
-                                                @change="selectAllUsers"
-                                            />
-                                        </th> -->
+
                                         <th></th>
                                         <th style="width: 10px">#</th>
                                         <th>Name</th>
@@ -477,7 +497,7 @@ onMounted(() => {
                                 id="name"
                                 aria-describedby="nameHelp"
                                 placeholder="Enter Username"
-                                 v-model="form.name"
+                                 v-model="formValues.name"
                             />
                             <span class="invalid-feedback">{{
                                 errors.name
@@ -495,7 +515,7 @@ onMounted(() => {
                                         id="email"
                                         aria-describedby="nameHelp"
                                         placeholder="Enter Email"
-                                        v-model="form.email"
+                                        v-model="formValues.email"
                                     />
                                     <span class="invalid-feedback">{{
                                         errors.email
@@ -511,6 +531,7 @@ onMounted(() => {
                                         as="select"
                                         class="form-control"
                                         :class="{ 'is-invalid': errors.gender }"
+                                        v-model="formValues.gender"
                                     >
                                         <option value="" disabled>
                                             Select a gender
@@ -519,6 +540,7 @@ onMounted(() => {
                                             v-for="item in genderoption"
                                             :key="item.name"
                                             :value="item.name"
+                                            :selected="formValues.gender === item.name"
                                         >
                                             {{ item.name }}
                                         </option>
@@ -542,7 +564,7 @@ onMounted(() => {
                                         id="first_name"
                                         aria-describedby="nameHelp"
                                         placeholder="Enter first name"
-                                        v-model="form.first_name"
+                                        v-model="formValues.first_name"
                                     />
                                     <span class="invalid-feedback">{{
                                         errors.first_name
@@ -562,7 +584,7 @@ onMounted(() => {
                                         id="last_name"
                                         aria-describedby="nameHelp"
                                         placeholder="Enter last name"
-                                        v-model="form.last_name"
+                                        v-model="formValues.last_name"
                                     />
                                     <span class="invalid-feedback">{{
                                         errors.last_name
@@ -579,7 +601,7 @@ onMounted(() => {
                                 class="form-control"
                                 :class="{ 'is-invalid': errors.position }"
                                 id="position"
-                            v-model="form.position"
+                            v-model="formValues.position"
                                 placeholder="Enter position"
                             />
                             <span class="invalid-feedback">{{
@@ -587,21 +609,34 @@ onMounted(() => {
                             }}</span>
                         </div>
 
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <Field
-                                name="password"
-                                type="password"
-                                class="form-control"
-                                :class="{ 'is-invalid': errors.password }"
-                                id="password"
-                                aria-describedby="passwordHelp"
-                                placeholder="Enter password"
-                            />
-                            <span class="invalid-feedback">{{
-                                errors.password
-                            }}</span>
-                        </div>
+                        <!-- Password field with toggle -->
+                            <div class="form-group" v-if="editing">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label for="password">Password</label>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        @click="togglePasswordField"
+                                    >
+                                        {{ showPasswordField ? 'Cancel' : 'Change Password' }}
+                                    </button>
+                                </div>
+                                <Field
+                                    v-if="showPasswordField"
+                                    name="password"
+                                    type="password"
+                                    class="form-control"
+                                    :class="{ 'is-invalid': errors.password }"
+                                    id="password"
+                                    placeholder="Enter new password"
+                                    v-model="formValues.password"
+                                />
+                                <span class="invalid-feedback">{{ errors.password }}</span>
+                                <small v-if="!showPasswordField" class="form-text text-muted">
+                                    Leave blank to keep current password
+                                </small>
+                            </div>
+
 
                     </div>
                     <div class="modal-footer">
@@ -613,7 +648,7 @@ onMounted(() => {
                             Cancel
                         </button>
                         <button type="submit" class="btn btn-primary">
-                            Save
+                             {{ editing ? 'Update' : 'Save' }}
                         </button>
                     </div>
                 </Form>

@@ -61,6 +61,7 @@ class UserController extends Controller
 
     public function update(User $user)
     {
+
         request()->validate([
             'name' => 'required',
             'email' => 'required|unique:users,email,'.$user->id,
@@ -80,7 +81,7 @@ class UserController extends Controller
             'first_name' => request('first_name'),
             'last_name' => request('last_name'),
             'position' => request('position'),
-            'gender' => request('gender')
+            'gender' => request('gender'),
 
         ]);
 

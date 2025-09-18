@@ -2,7 +2,7 @@
     <div id="exportPDF">
         <br />
         <div class="container">
-          
+
             <div
 
     v-if="['P', 'C'].includes(form.jobstatus)"
