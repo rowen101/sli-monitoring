@@ -284,13 +284,18 @@ onMounted(() => {
                                                     ).format("MMMM D, YYYY")
                                                 }}</div>
 
-
-                                            <div class="m-2" v-if="task.tasktype !==6" style="color:#F3F5F8; text-align:left;">
-                                                {{ task.site_name }}
+                                            
+                                         <div class="m-2" v-if="task.tasktype == 5" style="color:#F3F5F8; text-align:left;">
+                                                WORK FROM HOME
                                             </div>
-                                            <div class="m-2 text-center" v-if="task.tasktype ===6" style="color:#F3F5F8; text-align:left;">
+                                            <div class="m-2 text-center" v-else-if="task.tasktype == 6" style="color:#F3F5F8; text-align:left;">
                                                Holiday
                                             </div>
+                                            <div class="m-2" v-else style="color:#F3F5F8; text-align:left;">
+                                                {{ task.site_name }}
+                                            </div>
+                                          
+                                            
                                         <div  style="text-align:left;">
                                             <div
                                                 v-if="
